@@ -240,9 +240,9 @@ print(cm)
 ## 👥 Equipo de Investigación
 
 **Proyecto**: Detección Automatizada de Células Anormales en Sangre  
-**Institución**: [Tu Universidad/Centro de Investigación]  
-**Asesor Científico**: Dra. Rangel (Experta en Hematología)  
-**Desarrollo**: Equipo de Software Biomédico  
+**Institución**: Instituto Tecnologico de Morelia
+**Asesor Científico**: Dra. Rangel   
+**Desarrollo**: Equipo de Software   
 
 ---
 
