@@ -16,6 +16,9 @@ matplotlib==3.8.0            # Gráficos de calibración, histogramas
 # Generación de reportes y manejo de imágenes - OPCIONALES
 Pillow==10.1.0               # Manipulación adicional de imágenes
 
+# Web Dashboard - INTERFAZ INTERACTIVA
+streamlit>=1.51.0            # Dashboard web interactivo con sliders en tiempo real
+
 # Análisis de datos - PARA VALIDACIÓN CIENTÍFICA (BM5)
 # Descomentar si necesitas calcular métricas de validación:
 # pandas==2.0.3              # Análisis de bitácora de experimentos

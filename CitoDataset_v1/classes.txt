@@ -1,0 +1,18 @@
+# Clases de CitoCounter Dataset v1.0
+# Formato: ID | Nombre | Descripción
+
+0 Normal Células intermedias/superficiales con morfología normal. Núcleo < 3x tamaño promedio.
+1 Anormal Células con núcleos grandes (>3x promedio). Incluye LSIL, HSIL, ASC-US. Sospecha de lesión.
+2 Artefacto Manchas de sangre, superposición celular, polvo, artefactos de tinción. NO son células.
+
+# Notas:
+# - Clase 0 (Normal): La mayoría de células en muestras negativas
+# - Clase 1 (Anormal): Objetivo principal de detección - Regla del 3x
+# - Clase 2 (Artefacto): Para entrenar al modelo a ignorar ruido
+
+# Sistema de Bethesda (Referencia):
+# NEGATIVO → Mayormente clase 0
+# LSIL (Low-grade Squamous Intraepithelial Lesion) → Clase 1
+# HSIL (High-grade Squamous Intraepithelial Lesion) → Clase 1
+# ASC-US (Atypical Squamous Cells of Undetermined Significance) → Clase 1
+# INADECUADA → Mayormente clase 2

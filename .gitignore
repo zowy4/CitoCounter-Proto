@@ -62,6 +62,12 @@ data/results/*.jpg
 # Bitácora con datos reales (mantener solo la estructura)
 bitacora_experimentos.csv
 
+# Dataset - Imágenes reales (protección ética)
+CitoDataset_v1/images/train/*.jpg
+CitoDataset_v1/images/train/*.png
+CitoDataset_v1/images/val/*.jpg
+CitoDataset_v1/images/val/*.png
+
 # Screenshots personales
 data/results/screenshots/*.png
 !data/results/screenshots/README.md
