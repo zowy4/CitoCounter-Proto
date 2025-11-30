@@ -66,6 +66,60 @@ pip install -r requirements.txt
 
 ---
 
+## 🛠️ Herramientas Nuevas (v1.1)
+
+CitoCounter Proto ahora incluye un conjunto completo de herramientas para gestión de datos, análisis interactivo y generación de reportes científicos:
+
+### **📊 Dashboard Web Interactivo**
+```powershell
+streamlit run app.py
+```
+- 🎛️ Ajuste de parámetros en tiempo real con sliders (σ1, σ2)
+- 📈 Visualización comparativa instantánea (Original, Preprocesamiento, DoG, Análisis)
+- 💾 Descarga de resultados (PNG + CSV)
+- 📊 Métricas visuales (Total células, Normales, Sospechosas, % Riesgo)
+
+### **📦 Gestor de Dataset**
+```powershell
+python crear_dataset.py
+```
+- 🔄 Estandarización automática de imágenes (renombrado secuencial)
+- 📝 Generación de índice maestro (`dataset_index.csv`)
+- ✅ Verificación de integridad de archivos
+- 🖼️ Conversión a formato estándar (JPG 95% calidad)
+
+**Flujo de trabajo:**
+1. Copiar imágenes a `mis_imagenes_nuevas/`
+2. Ejecutar `python crear_dataset.py`
+3. Las imágenes se mueven a `data/raw/` como `MUESTRA_001.jpg`, `MUESTRA_002.jpg`, ...
+
+📖 **Documentación completa:** `docs/GUIA_DATASET.md` | **Ejemplos:** `DEMO_CREAR_DATASET.md`
+
+### **📈 Generador de Gráficas para Tesis**
+```powershell
+python graficar_tesis.py
+```
+- 📊 Gráfica de barras: % Riesgo por experimento
+- 🔍 Gráfica de dispersión: Correlación densidad celular vs. riesgo
+- 🎨 Alta calidad (300 DPI) para documentos científicos
+- 📁 Salida: `data/results/graficas_tesis/figura1_*.png`, `figura2_*.png`
+
+### **⚙️ CLI Mejorado (Batch Processing)**
+```powershell
+# Analizar una carpeta completa
+python main.py --input data/raw/ --output data/results/ --sigma1 3.0 --sigma2 5.0
+
+# Analizar imagen individual
+python main.py --input data/raw/MUESTRA_001.jpg --output data/results/
+```
+
+**Características CLI v1.1:**
+- 🗂️ Procesamiento por lotes (carpetas completas)
+- 📋 Registro automático en `bitacora_experimentos.csv`
+- 🎯 Parámetros personalizables por línea de comando
+
+---
+
 ## 📖 Uso Básico
 
 ### PASO 0: Verificar Entorno (Primera vez)
@@ -267,10 +321,33 @@ Este es un prototipo de investigación para uso académico.
 
 ---
 
+## 📚 Documentación Completa
+
+El proyecto incluye guías detalladas para cada funcionalidad:
+
+| Documento | Descripción | Comando de Acceso |
+|-----------|-------------|-------------------|
+| `README.md` | Documentación principal (este archivo) | - |
+| `docs/GUIA_DATASET.md` | Gestión completa del dataset | Ver protocolo de datos |
+| `GUIA_CLI_v1.1.md` | Uso del CLI con argparse | Ver comandos disponibles |
+| `DEMO_CREAR_DATASET.md` | Ejemplos prácticos de estandarización | Ver casos de uso |
+| `RESUMEN_v1.1.md` | Resumen ejecutivo de v1.1 | Ver changelog |
+| `RESUMEN_DATASET.md` | CitoDataset_v1 para YOLO | Ver dataset sintético |
+| `GUIA_LABELIMG.md` | Anotación manual con LabelImg | Ver herramienta externa |
+
+**Documentación en código fuente:**
+- `src/preprocessing.py` - Preprocesamiento de imágenes
+- `src/dog_filter.py` - Algoritmo Diferencia de Gaussiana
+- `src/analysis.py` - Clasificación y regla del 3x
+- `src/visualization.py` - Generación de visualizaciones
+
+---
+
 ## 📞 Contacto
 
 Para preguntas técnicas o científicas sobre el proyecto:
 - Revisar la documentación en el código fuente (`src/*.py`)
+- Consultar las guías en `docs/`
 - Consultar con el equipo de investigación
 
 ---
