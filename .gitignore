@@ -68,6 +68,18 @@ CitoDataset_v1/images/train/*.png
 CitoDataset_v1/images/val/*.jpg
 CitoDataset_v1/images/val/*.png
 
+# Carpeta de importación temporal - NO subir imágenes sin procesar
+mis_imagenes_nuevas/*.jpg
+mis_imagenes_nuevas/*.jpeg
+mis_imagenes_nuevas/*.png
+mis_imagenes_nuevas/*.tif
+mis_imagenes_nuevas/*.tiff
+mis_imagenes_nuevas/*.bmp
+!mis_imagenes_nuevas/README.md
+
+# Índice del dataset (contiene metadata pero no imágenes)
+data/dataset_index.csv
+
 # Screenshots personales
 data/results/screenshots/*.png
 !data/results/screenshots/README.md
