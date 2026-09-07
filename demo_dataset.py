@@ -241,7 +241,7 @@ def main():
     print("   - Naranja: Artefactos (manchas, polvo, no células)")
     print()
     print("📝 NOTA: Las anotaciones actuales son ejemplos simulados.")
-    print("   Para datos reales, usa LabelImg siguiendo GUIA_LABELIMG.md")
+    print("   Para datos reales, usa LabelImg siguiendo docs/guide/etiquetado.md")
     print()
     
     plt.show()
