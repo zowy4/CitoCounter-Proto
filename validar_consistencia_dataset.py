@@ -90,6 +90,50 @@ def obtener_etiquetas(directorio):
     return sorted(etiquetas)
 
 
+def validar_par_imagenes_etiquetas(directorio_imagenes, directorio_etiquetas):
+    """Devuelve errores de correspondencia y formato en un split YOLO."""
+    imagenes = obtener_imagenes(directorio_imagenes)
+    etiquetas = obtener_etiquetas(directorio_etiquetas)
+    bases_imagenes = {Path(nombre).stem for nombre in imagenes}
+    bases_etiquetas = {Path(nombre).stem for nombre in etiquetas}
+    errores = []
+
+    for base in sorted(bases_imagenes - bases_etiquetas):
+        errores.append(f"Falta etiqueta para imagen: {base}")
+
+    for base in sorted(bases_etiquetas - bases_imagenes):
+        errores.append(f"Etiqueta sin imagen: {base}")
+
+    for nombre_etiqueta in etiquetas:
+        ruta_etiqueta = os.path.join(directorio_etiquetas, nombre_etiqueta)
+        with open(ruta_etiqueta, 'r', encoding='utf-8') as archivo:
+            for numero_linea, linea in enumerate(archivo, start=1):
+                valores = linea.split()
+                if len(valores) != 5:
+                    errores.append(
+                        f"Formato inválido en {nombre_etiqueta}:{numero_linea}"
+                    )
+                    continue
+                try:
+                    clase = int(valores[0])
+                    coordenadas = [float(valor) for valor in valores[1:]]
+                except ValueError:
+                    errores.append(
+                        f"Valores no numéricos en {nombre_etiqueta}:{numero_linea}"
+                    )
+                    continue
+                if clase not in {0, 1, 2}:
+                    errores.append(
+                        f"Clase inválida en {nombre_etiqueta}:{numero_linea}"
+                    )
+                if any(valor < 0 or valor > 1 for valor in coordenadas):
+                    errores.append(
+                        f"Coordenada fuera de rango en {nombre_etiqueta}:{numero_linea}"
+                    )
+
+    return errores
+
+
 def validar_matching_imagen_etiqueta():
     """Verifica que cada imagen tenga su archivo de etiqueta."""
     print("=" * 70)
@@ -106,18 +150,10 @@ def validar_matching_imagen_etiqueta():
     print(f"   Imágenes encontradas: {len(imgs_train)}")
     print(f"   Etiquetas encontradas: {len(lbls_train)}")
     
-    for img in imgs_train:
-        nombre_base = os.path.splitext(img)[0]
-        etiqueta_esperada = nombre_base + '.txt'
-        
-        if etiqueta_esperada not in lbls_train:
-            print(f"   ✗ FALTA ETIQUETA: {img} → {etiqueta_esperada}")
-            errores.append(('train', img))
-        else:
-            # Verificar que el archivo de etiqueta no esté vacío
-            ruta_etiqueta = os.path.join(LABELS_TRAIN, etiqueta_esperada)
-            if os.path.getsize(ruta_etiqueta) == 0:
-                print(f"   ⚠️  ETIQUETA VACÍA: {etiqueta_esperada}")
+    errores_train = validar_par_imagenes_etiquetas(IMAGES_TRAIN, LABELS_TRAIN)
+    for error in errores_train:
+        print(f"   ✗ {error}")
+        errores.append(('train', error))
     
     if len(imgs_train) > 0 and len(errores) == 0:
         print(f"   ✓ Todas las {len(imgs_train)} imágenes tienen etiquetas")
@@ -131,17 +167,10 @@ def validar_matching_imagen_etiqueta():
     print(f"   Etiquetas encontradas: {len(lbls_val)}")
     
     errores_val_inicial = len(errores)
-    for img in imgs_val:
-        nombre_base = os.path.splitext(img)[0]
-        etiqueta_esperada = nombre_base + '.txt'
-        
-        if etiqueta_esperada not in lbls_val:
-            print(f"   ✗ FALTA ETIQUETA: {img} → {etiqueta_esperada}")
-            errores.append(('val', img))
-        else:
-            ruta_etiqueta = os.path.join(LABELS_VAL, etiqueta_esperada)
-            if os.path.getsize(ruta_etiqueta) == 0:
-                print(f"   ⚠️  ETIQUETA VACÍA: {etiqueta_esperada}")
+    errores_val = validar_par_imagenes_etiquetas(IMAGES_VAL, LABELS_VAL)
+    for error in errores_val:
+        print(f"   ✗ {error}")
+        errores.append(('val', error))
     
     if len(imgs_val) > 0 and len(errores) == errores_val_inicial:
         print(f"   ✓ Todas las {len(imgs_val)} imágenes tienen etiquetas")

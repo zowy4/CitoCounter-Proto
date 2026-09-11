@@ -2,6 +2,8 @@
 
 ## 1. Alcance y estado actual
 
+La ejecución de este plan debe seguir la [Guía maestra de desarrollo y seguimiento](guia-maestra-desarrollo.md), que relaciona las tareas y actividades Jira con las fases de UX/UI, arquitectura, seguridad, backend, frontend e infraestructura. Este documento conserva el detalle normativo, los riesgos y el backlog; la guía maestra añade las puertas de control y las métricas de seguimiento.
+
 **Proyecto:** Implementación de Software de Conteo de Células en Citología Cervical mediante la Diferencia de Gaussiana en tiempo real.
 
 **Unidad económica:** Centro de Inteligencia en Salud (CIS), Subdirección de Tecnología.

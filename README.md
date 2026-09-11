@@ -28,6 +28,7 @@ streamlit run app.py
 | Registrar y evaluar experimentos | [Guía de experimentación](docs/guide/experimentos.md) |
 | Etiquetar imágenes en formato YOLO | [Guía de etiquetado](docs/guide/etiquetado.md) |
 | Contribuir o preparar GitHub | [Guía de desarrollo](docs/guide/desarrollo.md) |
+| Ejecutar la guía maestra y dar seguimiento en Jira | [Guía maestra de desarrollo](docs/guia-maestra-desarrollo.md) |
 | Riesgos, normativa y plan Jira | [Plan del proyecto](docs/plan-proyecto.md) |
 | Índice de carpetas y scripts | [Mapa del proyecto](docs/README.md) |
 

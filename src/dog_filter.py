@@ -14,6 +14,11 @@ import cv2
 import numpy as np
 
 
+def _calcular_diferencia_dog(g1, g2):
+    """Calcula la diferencia DoG conservando valores negativos."""
+    return g1.astype(np.float32) - g2.astype(np.float32)
+
+
 def aplicar_filtro_dog(imagen_gris, sigma1=1.0, sigma2=2.0):
     """
     Aplica la Diferencia de Gaussiana (DoG) a una imagen en escala de grises.
@@ -48,8 +53,8 @@ def aplicar_filtro_dog(imagen_gris, sigma1=1.0, sigma2=2.0):
     g2 = cv2.GaussianBlur(imagen_gris, (0, 0), sigma2)
     
     # 3. La Diferencia de Gaussiana (DoG)
-    # Usamos cv2.subtract para manejar correctamente valores negativos
-    dog = cv2.subtract(g1, g2)
+    # Convertir antes a float evita que uint8 recorte las diferencias negativas.
+    dog = _calcular_diferencia_dog(g1, g2)
     
     # 4. Normalizar para visualizar mejor (mapea al rango 0-255)
     # Esto es opcional pero útil para depuración y visualización
@@ -101,7 +106,7 @@ def visualizar_filtros_gauss(imagen_gris, sigma1, sigma2):
     """
     g1 = cv2.GaussianBlur(imagen_gris, (0, 0), sigma1)
     g2 = cv2.GaussianBlur(imagen_gris, (0, 0), sigma2)
-    dog = cv2.subtract(g1, g2)
+    dog = _calcular_diferencia_dog(g1, g2)
     dog_norm = cv2.normalize(dog, None, 0, 255, cv2.NORM_MINMAX)
     
     return {

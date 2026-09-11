@@ -11,9 +11,11 @@ La documentación está organizada por tarea para evitar repetir el mismo flujo 
 - [Etiquetado YOLO con LabelImg](guide/etiquetado.md)
 - [Desarrollo, contribución y GitHub](guide/desarrollo.md)
 
-## Planificación
+## Planificación y Seguimiento en Jira
 
+- **[Guía maestra de desarrollo y seguimiento](guia-maestra-desarrollo.md)** - integra las seis fases de desarrollo con `J-01..J-21`, `ACT-01..ACT-23`, puertas de control y métricas de avance
 - [Riesgos, requisitos normativos y plan Jira](plan-proyecto.md)
+- **Seguimiento actual:** usar la [Guía maestra de desarrollo y seguimiento](guia-maestra-desarrollo.md) para actualizar estados, evidencias, bloqueos y métricas en Jira.
 
 ## Documentación local
 
