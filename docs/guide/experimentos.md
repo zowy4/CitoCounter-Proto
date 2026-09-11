@@ -16,6 +16,26 @@ python main.py data/raw/muestra.jpg --sigma1 3.0 --sigma2 5.0 --bitacora T-001
 
 Comprueba que el pipeline termina sin errores y guarda el resultado. Evalúa visualmente el DoG, las detecciones y el panel comparativo.
 
+## Calibración DoG (CITO-22)
+
+La calibración debe ejecutarse con un conjunto autorizado y separado del
+conjunto de evaluación. El barrido siguiente genera evidencia en CSV para
+comparar parejas de `sigma`; no selecciona automáticamente un parámetro
+clínico:
+
+```bash
+python calibrar_dog.py data/calibration/images \
+  --sigma1 2.0 3.0 4.0 \
+  --sigma2 3.0 5.0 6.0 8.0 \
+  --salida data/calibration/cito22_barrido_dog.csv
+```
+
+Para cerrar CITO-22, cada configuración debe revisarse contra anotaciones
+expertas autorizadas y conservar el protocolo, la versión del código, el
+dataset, los parámetros y la decisión en Jira. Las imágenes actualmente
+disponibles en `data/raw/` no constituyen por sí solas un conjunto de
+calibración validado.
+
 ## Registrar después
 
 Completa la fila correspondiente en `bitacora_experimentos.csv` con:
