@@ -1,0 +1,10 @@
+image_id,reference_status,tp,fp,fn,precision,recall,f1,IoU,notes
+MUESTRA_001.jpg,ground_truth_dat,0,2,1,0.000000,0.000000,0.000000,0.000000,original=078.bmp; detecciones=2; referencias=1; sigma1=7.0; sigma2=8.0; distancia_max=40.0px
+MUESTRA_002.jpg,ground_truth_dat,0,6,3,0.000000,0.000000,0.000000,0.000000,original=063.bmp; detecciones=6; referencias=3; sigma1=7.0; sigma2=8.0; distancia_max=40.0px
+MUESTRA_003.jpg,ground_truth_dat,0,1,2,0.000000,0.000000,0.000000,0.000000,original=042.bmp; detecciones=1; referencias=2; sigma1=7.0; sigma2=8.0; distancia_max=40.0px
+MUESTRA_004.jpg,ground_truth_dat,0,4,2,0.000000,0.000000,0.000000,0.000000,original=035.bmp; detecciones=4; referencias=2; sigma1=7.0; sigma2=8.0; distancia_max=40.0px
+MUESTRA_005.jpg,ground_truth_dat,0,0,1,0.000000,0.000000,0.000000,0.000000,original=046.bmp; detecciones=0; referencias=1; sigma1=7.0; sigma2=8.0; distancia_max=40.0px
+MUESTRA_006.jpg,ground_truth_dat,0,10,9,0.000000,0.000000,0.000000,0.000000,original=009.bmp; detecciones=10; referencias=9; sigma1=7.0; sigma2=8.0; distancia_max=40.0px
+MUESTRA_007.jpg,ground_truth_dat,0,5,21,0.000000,0.000000,0.000000,0.000000,original=067.bmp; detecciones=5; referencias=21; sigma1=7.0; sigma2=8.0; distancia_max=40.0px
+MUESTRA_008.jpg,ground_truth_dat,0,3,1,0.000000,0.000000,0.000000,0.000000,original=050.bmp; detecciones=3; referencias=1; sigma1=7.0; sigma2=8.0; distancia_max=40.0px
+MUESTRA_009.jpg,ground_truth_dat,0,8,2,0.000000,0.000000,0.000000,0.000000,original=095.bmp; detecciones=8; referencias=2; sigma1=7.0; sigma2=8.0; distancia_max=40.0px

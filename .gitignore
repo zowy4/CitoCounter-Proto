@@ -75,6 +75,8 @@ mis_imagenes_nuevas/*.png
 mis_imagenes_nuevas/*.tif
 mis_imagenes_nuevas/*.tiff
 mis_imagenes_nuevas/*.bmp
+mis_imagenes_nuevas/**/*.bmp
+mis_imagenes_nuevas/**/*.dat
 !mis_imagenes_nuevas/README.md
 
 # Índice del dataset (contiene metadata pero no imágenes)
