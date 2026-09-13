@@ -1,13 +1,13 @@
 CITO-23 - Resumen de métricas
 =============================
 Imágenes evaluadas: 9
-TP total: 4
-FP total: 35
-FN total: 38
-Precision: 0.1026
-Recall / Sensitivity: 0.0952
-F1-Score: 0.0988
-IoU: 0.0519
+TP total: 15
+FP total: 24
+FN total: 27
+Precision: 0.3846
+Recall / Sensitivity: 0.3571
+F1-Score: 0.3704
+IoU: 0.2273
 Estado recomendado: EN REVISION
 Recomendación: Métricas calculadas con detecciones válidas. Verificar criterios de aceptación en Jira.
 
@@ -15,9 +15,9 @@ Detalle por imagen:
 MUESTRA_001.jpg: tp=1 fp=1 fn=0 P=0.5000 R=1.0000 F1=0.6667 IoU=0.5000 origen=spatial_match
 MUESTRA_002.jpg: tp=2 fp=4 fn=1 P=0.3333 R=0.6667 F1=0.4444 IoU=0.2857 origen=spatial_match
 MUESTRA_003.jpg: tp=1 fp=0 fn=1 P=1.0000 R=0.5000 F1=0.6667 IoU=0.5000 origen=spatial_match
-MUESTRA_004.jpg: tp=0 fp=4 fn=2 P=0.0000 R=0.0000 F1=0.0000 IoU=0.0000 origen=manual_counts
-MUESTRA_005.jpg: tp=0 fp=0 fn=1 P=0.0000 R=0.0000 F1=0.0000 IoU=0.0000 origen=manual_counts
-MUESTRA_006.jpg: tp=0 fp=10 fn=9 P=0.0000 R=0.0000 F1=0.0000 IoU=0.0000 origen=manual_counts
-MUESTRA_007.jpg: tp=0 fp=5 fn=21 P=0.0000 R=0.0000 F1=0.0000 IoU=0.0000 origen=manual_counts
-MUESTRA_008.jpg: tp=0 fp=3 fn=1 P=0.0000 R=0.0000 F1=0.0000 IoU=0.0000 origen=manual_counts
-MUESTRA_009.jpg: tp=0 fp=8 fn=2 P=0.0000 R=0.0000 F1=0.0000 IoU=0.0000 origen=manual_counts
+MUESTRA_004.jpg: tp=1 fp=3 fn=1 P=0.2500 R=0.5000 F1=0.3333 IoU=0.2000 origen=spatial_match
+MUESTRA_005.jpg: tp=0 fp=0 fn=1 P=0.0000 R=0.0000 F1=0.0000 IoU=0.0000 origen=spatial_match
+MUESTRA_006.jpg: tp=4 fp=6 fn=5 P=0.4000 R=0.4444 F1=0.4211 IoU=0.2667 origen=spatial_match
+MUESTRA_007.jpg: tp=3 fp=2 fn=18 P=0.6000 R=0.1429 F1=0.2308 IoU=0.1304 origen=spatial_match
+MUESTRA_008.jpg: tp=1 fp=2 fn=0 P=0.3333 R=1.0000 F1=0.5000 IoU=0.3333 origen=spatial_match
+MUESTRA_009.jpg: tp=2 fp=6 fn=0 P=0.2500 R=1.0000 F1=0.4000 IoU=0.2500 origen=spatial_match
