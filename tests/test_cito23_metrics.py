@@ -6,6 +6,17 @@ import calcular_metricas_cito23 as cito23
 
 
 class Cito23MetricasTests(unittest.TestCase):
+    def test_emparejamiento_espacial_uno_a_uno(self):
+        tp, fp, fn = cito23.calcular_tp_fp_fn_por_emparejamiento(
+            pred_centroids=[(10, 10), (100, 100), (200, 200)],
+            gt_centroids=[(12, 12), (98, 98)],
+            distancia_max=5.0,
+        )
+
+        self.assertEqual(tp, 2)
+        self.assertEqual(fp, 1)
+        self.assertEqual(fn, 0)
+
     def test_evaluar_calidad_sin_true_positives(self):
         estado, recomendacion = cito23.evaluar_calidad_resultados(
             total_tp=0,
@@ -36,8 +47,8 @@ class Cito23MetricasTests(unittest.TestCase):
 
             input_csv.write_text(
                 '\n'.join([
-                    'image_id,reference_status,tp,fp,fn,precision,recall,f1,IoU,notes',
-                    'MUESTRA_001.jpg,manual_review_done,0,2,1,,,,,',
+                    'image_id,reference_status,tp,fp,fn,precision,recall,f1,IoU,pred_centroids,gt_centroids,match_distance_px,notes',
+                    'MUESTRA_001.jpg,manual_review_done,0,0,0,,,,,10:10;100:100,12:12,5,',
                 ]) + '\n',
                 encoding='utf-8',
             )
@@ -53,8 +64,9 @@ class Cito23MetricasTests(unittest.TestCase):
                 cito23.OUTPUT_PATH = original_output
 
             contenido = output_txt.read_text(encoding='utf-8')
-            self.assertIn('Estado recomendado: EN CURSO', contenido)
-            self.assertIn('Recomendación: No hubo verdaderos positivos', contenido)
+            self.assertIn('Estado recomendado: EN REVISION', contenido)
+            self.assertIn('Recomendación: Métricas calculadas con detecciones válidas', contenido)
+            self.assertIn('origen=spatial_match', contenido)
 
 
 if __name__ == '__main__':

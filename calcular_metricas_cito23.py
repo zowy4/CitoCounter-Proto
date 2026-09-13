@@ -2,17 +2,20 @@
 """Calcula métricas de CITO-23 a partir del CSV de revisión manual.
 
 Formato esperado por CSV:
-image_id,reference_status,tp,fp,fn,precision,recall,f1,IoU,notes
-MUESTRA_001.jpg,manual_review_done,10,2,1,0.8333,0.9091,0.8696,0.7692,ok
+image_id,reference_status,tp,fp,fn,precision,recall,f1,IoU,pred_centroids,gt_centroids,match_distance_px,notes
+MUESTRA_001.jpg,manual_review_done,10,2,1,0.8333,0.9091,0.8696,0.7692,,,,ok
 
+Si pred_centroids y gt_centroids tienen datos (x:y;x:y), el script calcula TP/FP/FN por emparejamiento espacial.
 Si precision/recall/f1/IoU están vacíos, el script las calcula automáticamente.
 """
 
 import csv
+import math
 from pathlib import Path
 
 INPUT_PATH = Path('data/results/CITO-23-metricas-template.csv')
 OUTPUT_PATH = Path('data/results/CITO-23-metricas-resumen.txt')
+DEFAULT_MATCH_DISTANCE = 40.0
 
 
 def safe_float(value):
@@ -23,6 +26,57 @@ def safe_float(value):
         return float(value)
     except ValueError:
         return 0.0
+
+
+def parsear_centroides(value):
+    value = (value or '').strip()
+    if value == '':
+        return []
+
+    puntos = []
+    for item in value.split(';'):
+        item = item.strip()
+        if not item:
+            continue
+        if ':' not in item:
+            continue
+        x_str, y_str = item.split(':', 1)
+        try:
+            puntos.append((float(x_str.strip()), float(y_str.strip())))
+        except ValueError:
+            continue
+    return puntos
+
+
+def calcular_tp_fp_fn_por_emparejamiento(pred_centroids, gt_centroids, distancia_max):
+    if not pred_centroids and not gt_centroids:
+        return 0, 0, 0
+
+    if distancia_max <= 0:
+        return 0, len(pred_centroids), len(gt_centroids)
+
+    candidatos = []
+    for pred_idx, (px, py) in enumerate(pred_centroids):
+        for gt_idx, (gx, gy) in enumerate(gt_centroids):
+            distancia = math.hypot(px - gx, py - gy)
+            if distancia <= distancia_max:
+                candidatos.append((distancia, pred_idx, gt_idx))
+
+    candidatos.sort(key=lambda item: item[0])
+    pred_usados = set()
+    gt_usados = set()
+    tp = 0
+
+    for _, pred_idx, gt_idx in candidatos:
+        if pred_idx in pred_usados or gt_idx in gt_usados:
+            continue
+        pred_usados.add(pred_idx)
+        gt_usados.add(gt_idx)
+        tp += 1
+
+    fp = len(pred_centroids) - tp
+    fn = len(gt_centroids) - tp
+    return tp, fp, fn
 
 
 def calcular_precision(tp, fp):
@@ -88,9 +142,26 @@ def main():
             image_id = row.get('image_id', '').strip()
             if not image_id:
                 continue
-            tp = int(safe_float(row.get('tp', 0)))
-            fp = int(safe_float(row.get('fp', 0)))
-            fn = int(safe_float(row.get('fn', 0)))
+            pred_centroids = parsear_centroides(row.get('pred_centroids', ''))
+            gt_centroids = parsear_centroides(row.get('gt_centroids', ''))
+
+            if pred_centroids or gt_centroids:
+                distancia_max = safe_float(
+                    row.get('match_distance_px', DEFAULT_MATCH_DISTANCE)
+                )
+                if distancia_max == 0:
+                    distancia_max = DEFAULT_MATCH_DISTANCE
+                tp, fp, fn = calcular_tp_fp_fn_por_emparejamiento(
+                    pred_centroids=pred_centroids,
+                    gt_centroids=gt_centroids,
+                    distancia_max=distancia_max,
+                )
+                origen_metricas = 'spatial_match'
+            else:
+                tp = int(safe_float(row.get('tp', 0)))
+                fp = int(safe_float(row.get('fp', 0)))
+                fn = int(safe_float(row.get('fn', 0)))
+                origen_metricas = 'manual_counts'
 
             p = safe_float(row.get('precision'))
             r = safe_float(row.get('recall'))
@@ -113,6 +184,7 @@ def main():
                 'f1': f1,
                 'IoU': iou,
                 'notes': row.get('notes', '').strip(),
+                'origen_metricas': origen_metricas,
             })
 
     if not rows:
@@ -151,7 +223,8 @@ def main():
     for r in rows:
         lines.append(
             f"{r['image_id']}: tp={r['tp']} fp={r['fp']} fn={r['fn']} "
-            f"P={r['precision']:.4f} R={r['recall']:.4f} F1={r['f1']:.4f} IoU={r['IoU']:.4f}"
+            f"P={r['precision']:.4f} R={r['recall']:.4f} F1={r['f1']:.4f} IoU={r['IoU']:.4f} "
+            f"origen={r['origen_metricas']}"
         )
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
