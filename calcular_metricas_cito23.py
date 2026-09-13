@@ -79,6 +79,30 @@ def calcular_tp_fp_fn_por_emparejamiento(pred_centroids, gt_centroids, distancia
     return tp, fp, fn
 
 
+def sugerir_match_distance(pred_centroids, gt_centroids, min_distance=3, max_distance=40):
+    if not (pred_centroids or gt_centroids):
+        return None
+
+    mejor = None
+    for distancia in range(int(min_distance), int(max_distance) + 1):
+        tp, fp, fn = calcular_tp_fp_fn_por_emparejamiento(
+            pred_centroids=pred_centroids,
+            gt_centroids=gt_centroids,
+            distancia_max=float(distancia),
+        )
+        precision = calcular_precision(tp, fp)
+        recall = calcular_recall(tp, fn)
+        f1 = calcular_f1(precision, recall)
+
+        candidato = (f1, recall, -fp, -distancia)
+        if mejor is None or candidato > mejor:
+            mejor = candidato
+
+    if mejor is None:
+        return None
+    return float(-mejor[3])
+
+
 def calcular_precision(tp, fp):
     total = tp + fp
     if total == 0:
@@ -156,11 +180,17 @@ def main():
                     gt_centroids=gt_centroids,
                     distancia_max=distancia_max,
                 )
+                distancia_sugerida = sugerir_match_distance(
+                    pred_centroids=pred_centroids,
+                    gt_centroids=gt_centroids,
+                )
                 origen_metricas = 'spatial_match'
             else:
                 tp = int(safe_float(row.get('tp', 0)))
                 fp = int(safe_float(row.get('fp', 0)))
                 fn = int(safe_float(row.get('fn', 0)))
+                distancia_max = None
+                distancia_sugerida = None
                 origen_metricas = 'manual_counts'
 
             p = safe_float(row.get('precision'))
@@ -185,6 +215,8 @@ def main():
                 'IoU': iou,
                 'notes': row.get('notes', '').strip(),
                 'origen_metricas': origen_metricas,
+                'distancia_match': distancia_max,
+                'distancia_sugerida': distancia_sugerida,
             })
 
     if not rows:
@@ -221,10 +253,16 @@ def main():
     lines.append('')
     lines.append('Detalle por imagen:')
     for r in rows:
+        detalle_distancia = ''
+        if r['distancia_match'] is not None:
+            detalle_distancia = (
+                f" dist={r['distancia_match']:.1f}px"
+                f" sugerida={r['distancia_sugerida']:.1f}px"
+            )
         lines.append(
             f"{r['image_id']}: tp={r['tp']} fp={r['fp']} fn={r['fn']} "
             f"P={r['precision']:.4f} R={r['recall']:.4f} F1={r['f1']:.4f} IoU={r['IoU']:.4f} "
-            f"origen={r['origen_metricas']}"
+            f"origen={r['origen_metricas']}{detalle_distancia}"
         )
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)

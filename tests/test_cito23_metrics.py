@@ -6,6 +6,16 @@ import calcular_metricas_cito23 as cito23
 
 
 class Cito23MetricasTests(unittest.TestCase):
+    def test_sugerir_match_distance_devuelve_mejor_umbral(self):
+        sugerida = cito23.sugerir_match_distance(
+            pred_centroids=[(10, 10), (100, 100), (200, 200)],
+            gt_centroids=[(12, 12), (98, 98)],
+            min_distance=3,
+            max_distance=20,
+        )
+
+        self.assertEqual(sugerida, 3.0)
+
     def test_emparejamiento_espacial_uno_a_uno(self):
         tp, fp, fn = cito23.calcular_tp_fp_fn_por_emparejamiento(
             pred_centroids=[(10, 10), (100, 100), (200, 200)],
@@ -67,6 +77,7 @@ class Cito23MetricasTests(unittest.TestCase):
             self.assertIn('Estado recomendado: EN REVISION', contenido)
             self.assertIn('Recomendación: Métricas calculadas con detecciones válidas', contenido)
             self.assertIn('origen=spatial_match', contenido)
+            self.assertIn('dist=5.0px sugerida=3.0px', contenido)
 
 
 if __name__ == '__main__':
