@@ -25,7 +25,7 @@ Desarrollar una API REST versionada para procesar imágenes y devolver análisis
 
 - `image_path` obligatorio.
 - `sigma2` debe ser mayor que `sigma1`.
-- Se validan existencia de archivo y extensión permitida.
+- Se validan existencia de archivo, extensión permitida y ruta dentro de `data/raw` o `data/ground_truth`.
 
 ## Esquema de salida
 

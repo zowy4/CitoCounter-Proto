@@ -5,10 +5,14 @@ from unittest.mock import patch
 
 import numpy as np
 
-from api_v1 import analyze_from_payload
+from api_v1 import PROJECT_ROOT, analyze_from_payload
 
 
 class ApiV1Tests(unittest.TestCase):
+    def setUp(self):
+        self.raw_dir = PROJECT_ROOT / "data" / "raw"
+        self.raw_dir.mkdir(parents=True, exist_ok=True)
+
     def test_rechaza_payload_sin_image_path(self):
         payload = {"sigma1": 7.0, "sigma2": 8.0}
         response, status = analyze_from_payload(payload)
@@ -16,13 +20,22 @@ class ApiV1Tests(unittest.TestCase):
         self.assertFalse(response["ok"])
 
     def test_rechaza_sigmas_invalidos(self):
+        img = self.raw_dir / "api_test_sigmas.jpg"
+        img.touch()
+        payload = {"image_path": str(img), "sigma1": 8.0, "sigma2": 8.0}
+        response, status = analyze_from_payload(payload)
+        self.assertEqual(status, 400)
+        self.assertIn("sigma2", response["error"]["message"])
+        img.unlink(missing_ok=True)
+
+    def test_rechaza_ruta_fuera_de_directorio_permitido(self):
         with tempfile.TemporaryDirectory() as d:
-            img = Path(d) / "muestra.jpg"
+            img = Path(d) / "externa.jpg"
             img.touch()
-            payload = {"image_path": str(img), "sigma1": 8.0, "sigma2": 8.0}
+            payload = {"image_path": str(img), "sigma1": 7.0, "sigma2": 8.0}
             response, status = analyze_from_payload(payload)
             self.assertEqual(status, 400)
-            self.assertIn("sigma2", response["error"]["message"])
+            self.assertIn("Ruta no permitida", response["error"]["message"])
 
     @patch("api_v1.analizar_nucleos")
     @patch("api_v1.aplicar_filtro_dog")
@@ -31,7 +44,7 @@ class ApiV1Tests(unittest.TestCase):
         self, mock_preprocesar, mock_dog, mock_analizar
     ):
         with tempfile.TemporaryDirectory() as d:
-            img_path = Path(d) / "muestra.jpg"
+            img_path = self.raw_dir / "api_test_muestra.jpg"
             img_path.touch()
             mock_preprocesar.return_value = (
                 np.zeros((10, 10), dtype=np.uint8),
@@ -60,6 +73,7 @@ class ApiV1Tests(unittest.TestCase):
             self.assertEqual(response["result"]["total_cells"], 10)
             self.assertEqual(response["result"]["suspicious_cells"], 3)
             self.assertEqual(response["result"]["borderline_cells"], 2)
+            img_path.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":

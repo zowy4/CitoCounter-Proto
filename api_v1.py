@@ -14,6 +14,11 @@ from src.preprocessing import preprocesar_imagen
 
 
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".tif", ".tiff", ".bmp"}
+PROJECT_ROOT = Path(__file__).resolve().parent
+ALLOWED_IMAGE_ROOTS = [
+    PROJECT_ROOT / "data" / "raw",
+    PROJECT_ROOT / "data" / "ground_truth",
+]
 
 
 def error_response(message, status_code=400):
@@ -35,8 +40,19 @@ def validate_payload(payload):
         return error_response("`image_path` es obligatorio y debe ser string.")
 
     path = Path(image_path)
+    if not path.is_absolute():
+        path = PROJECT_ROOT / path
+    path = path.resolve(strict=False)
+
     if not path.exists() or not path.is_file():
         return error_response(f"Imagen no encontrada: {image_path}")
+
+    if not any(path.is_relative_to(root.resolve()) for root in ALLOWED_IMAGE_ROOTS):
+        roots = ", ".join(str(root) for root in ALLOWED_IMAGE_ROOTS)
+        return error_response(
+            f"Ruta no permitida: {path}. Usa una ruta dentro de: {roots}"
+        )
+
     if path.suffix.lower() not in ALLOWED_EXTENSIONS:
         return error_response(
             f"Extensión no permitida: {path.suffix}. Usa {sorted(ALLOWED_EXTENSIONS)}."
