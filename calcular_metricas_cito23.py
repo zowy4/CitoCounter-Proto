@@ -52,6 +52,31 @@ def calcular_iou(tp, fp, fn):
     return tp / total
 
 
+def evaluar_calidad_resultados(total_tp, total_fp, total_fn, total_imagenes):
+    if total_imagenes == 0:
+        return (
+            'EN CURSO',
+            'Sin imágenes válidas para evaluación. Completa el CSV de CITO-23.'
+        )
+
+    if total_tp == 0 and (total_fp > 0 or total_fn > 0):
+        return (
+            'EN CURSO',
+            'No hubo verdaderos positivos. Revisar emparejamiento espacial y referencia de verdad antes de cerrar CITO-23.'
+        )
+
+    if total_tp == 0 and total_fp == 0 and total_fn == 0:
+        return (
+            'EN CURSO',
+            'No hay detecciones ni referencias útiles. Confirmar datos de entrada y anotaciones.'
+        )
+
+    return (
+        'EN REVISION',
+        'Métricas calculadas con detecciones válidas. Verificar criterios de aceptación en Jira.'
+    )
+
+
 def main():
     if not INPUT_PATH.exists():
         raise FileNotFoundError(f'No existe el CSV de entrada: {INPUT_PATH}')
@@ -101,6 +126,12 @@ def main():
     recall = calcular_recall(total_tp, total_fn)
     f1 = calcular_f1(precision, recall)
     iou = calcular_iou(total_tp, total_fp, total_fn)
+    estado, recomendacion = evaluar_calidad_resultados(
+        total_tp=total_tp,
+        total_fp=total_fp,
+        total_fn=total_fn,
+        total_imagenes=len(rows),
+    )
 
     lines = []
     lines.append('CITO-23 - Resumen de métricas')
@@ -113,6 +144,8 @@ def main():
     lines.append(f'Recall / Sensitivity: {recall:.4f}')
     lines.append(f'F1-Score: {f1:.4f}')
     lines.append(f'IoU: {iou:.4f}')
+    lines.append(f'Estado recomendado: {estado}')
+    lines.append(f'Recomendación: {recomendacion}')
     lines.append('')
     lines.append('Detalle por imagen:')
     for r in rows:
