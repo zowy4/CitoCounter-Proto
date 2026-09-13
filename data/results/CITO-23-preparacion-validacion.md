@@ -66,4 +66,22 @@ Se debe dejar el siguiente material en [data/results](../../data/results):
 5. resumir el lote y decidir si se mantiene la calibración base o se ajusta sigma1/sigma2
 
 ## Estado actual
-Preparación inicial completada. Falta la referencia de verdad sobre el subconjunto para producir las métricas definitivas de CITO-23.
+Preparación inicial completada y evaluación espacial ejecutada sobre 9 imágenes.
+
+Último resumen disponible en [CITO-23-metricas-resumen.txt](CITO-23-metricas-resumen.txt):
+- TP=18
+- FP=21
+- FN=24
+- Precision=0.4615
+- Recall=0.4286
+- F1=0.4444
+- IoU=0.2857
+- Estado recomendado: EN REVISION
+
+Para recalcular y aplicar automáticamente la distancia sugerida por imagen:
+
+```bash
+python calcular_metricas_cito23.py --aplicar-sugeridas
+```
+
+La actividad debe mantenerse en revisión hasta validar criterios de aceptación y evidencia final en Jira.

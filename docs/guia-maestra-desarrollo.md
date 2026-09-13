@@ -83,7 +83,7 @@ Antes de iniciar las actividades, confirmar manualmente en la extensión de Jira
 | Clave Jira | Actividad | Resumen verificado | Padre verificado | Tipo verificado | Estado real | Fecha/revisor |
 |---|---|---|---|---|---|---|
 | CITO-22 | ACT-01 | Confirmado localmente | Confirmado en plan | Actividad/subtarea validada localmente | En revisión recomendado | 2026-09-11 |
-| CITO-23 | ACT-02 | Evaluación espacial ejecutada; requiere corrección | Confirmado en plan | Actividad/subtarea con evaluación cuantitativa en revisión | En curso recomendado | 2026-09-11 |
+| CITO-23 | ACT-02 | Evaluación espacial ejecutada con matching por centroides y ajuste sugerido aplicado | Confirmado en plan | Actividad/subtarea con evaluación cuantitativa actualizada | En revisión recomendado | 2026-09-13 |
 | CITO-24 | ACT-03 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | CITO-25 | ACT-04 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | CITO-26 | ACT-05 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
@@ -117,7 +117,7 @@ La tabla anterior registra el procedimiento y la asignación esperada; la extens
 | Padres y tipos de incidencia | Padres internos documentados | Pendiente de confirmar en Jira | Pendiente |
 | Estados iniciales | `Por hacer` para actividades nuevas; `CITO-22` validado localmente y `CITO-23` evaluado localmente | Pendiente de confirmar en Jira | Pendiente |
 | Pruebas del repositorio | 3 pruebas pasan; `git diff --check` correcto | No aplica | Confirmado localmente |
-| CITO-23 | TP=0, FP=39, FN=42, Precision=0, Recall=0, F1=0, IoU medio=0 sobre 9 imágenes; requiere revisar el emparejamiento espacial | Debe corregirse y validarse en Jira antes de cerrar | En curso |
+| CITO-23 | TP=18, FP=21, FN=24, Precision=0.4615, Recall=0.4286, F1=0.4444, IoU=0.2857 sobre 9 imágenes; matching espacial activo con `match_distance_px` sugerida aplicada | Mantener en revisión y validar aceptación en Jira antes de cerrar | En revisión |
 | Revisión final | No hay acceso remoto desde el repositorio | Debe ejecutarse en la extensión | Pendiente |
 
 **Fecha de revisión local:** 2026-09-10  
@@ -177,7 +177,7 @@ La clave Jira debe aparecer en el commit o PR cuando sea posible. Si una activid
 | Incidencia | Estado recomendado | Evidencia |
 |---|---|---|
 | `J-06` / `ACT-21` / `CITO-42` | `En revisión` | `src/dog_filter.py`, `tests/test_dog_filter.py`, `python -m unittest discover -s tests -v` |
-| `J-08` / `ACT-02` / `CITO-23` | `En curso` | `data/results/CITO-23-metricas-template.csv`, `data/results/CITO-23-metricas-resumen.txt`, `python calcular_metricas_cito23.py`; métricas espaciales aún no aprobadas |
+| `J-08` / `ACT-02` / `CITO-23` | `En revisión` | `data/results/CITO-23-metricas-template.csv`, `data/results/CITO-23-metricas-resumen.txt`, `python calcular_metricas_cito23.py --aplicar-sugeridas`; métricas espaciales recalculadas y pendientes de aprobación |
 
 La corrección convierte los gaussianos a `float32` antes de restarlos, evitando que `uint8` recorte las diferencias negativas. La suite actual pasa y `git diff --check` no reporta errores. La incidencia no debe pasar a `Hecha` hasta que se revisen los criterios de aceptación en Jira y se adjunte esta evidencia.
 
