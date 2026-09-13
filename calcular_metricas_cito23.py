@@ -9,6 +9,7 @@ Si pred_centroids y gt_centroids tienen datos (x:y;x:y), el script calcula TP/FP
 Si precision/recall/f1/IoU están vacíos, el script las calcula automáticamente.
 """
 
+import argparse
 import csv
 import math
 from pathlib import Path
@@ -155,17 +156,19 @@ def evaluar_calidad_resultados(total_tp, total_fp, total_fn, total_imagenes):
     )
 
 
-def main():
+def main(aplicar_sugeridas=False, csv_output_path=None):
     if not INPUT_PATH.exists():
         raise FileNotFoundError(f'No existe el CSV de entrada: {INPUT_PATH}')
 
     rows = []
     with INPUT_PATH.open('r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
+        fieldnames = reader.fieldnames or []
         for row in reader:
             image_id = row.get('image_id', '').strip()
             if not image_id:
                 continue
+            row_original = dict(row)
             pred_centroids = parsear_centroides(row.get('pred_centroids', ''))
             gt_centroids = parsear_centroides(row.get('gt_centroids', ''))
 
@@ -217,6 +220,7 @@ def main():
                 'origen_metricas': origen_metricas,
                 'distancia_match': distancia_max,
                 'distancia_sugerida': distancia_sugerida,
+                'row_original': row_original,
             })
 
     if not rows:
@@ -267,9 +271,51 @@ def main():
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text('\n'.join(lines) + '\n', encoding='utf-8')
+
+    if aplicar_sugeridas:
+        destino_csv = csv_output_path or INPUT_PATH
+        filas_actualizadas = []
+        for r in rows:
+            fila = dict(r['row_original'])
+            if r['distancia_sugerida'] is not None:
+                fila['match_distance_px'] = f"{r['distancia_sugerida']:.1f}"
+            filas_actualizadas.append(fila)
+
+        if fieldnames:
+            columnas = list(fieldnames)
+        else:
+            columnas = list(filas_actualizadas[0].keys()) if filas_actualizadas else []
+
+        if 'match_distance_px' not in columnas:
+            columnas.append('match_distance_px')
+
+        destino_csv.parent.mkdir(parents=True, exist_ok=True)
+        with destino_csv.open('w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=columnas)
+            writer.writeheader()
+            for fila in filas_actualizadas:
+                writer.writerow({k: fila.get(k, '') for k in columnas})
+        print(f'Sugerencias aplicadas en CSV: {destino_csv}')
+
     print('\n'.join(lines))
     print(f'\nResumen guardado en: {OUTPUT_PATH}')
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description='Calcula métricas de CITO-23.')
+    parser.add_argument(
+        '--aplicar-sugeridas',
+        action='store_true',
+        help='Aplica match_distance_px sugerida por imagen y reescribe el CSV de entrada.'
+    )
+    parser.add_argument(
+        '--csv-output',
+        type=Path,
+        default=None,
+        help='Ruta de salida CSV al aplicar sugerencias (por defecto reescribe el CSV de entrada).'
+    )
+    args = parser.parse_args()
+    main(
+        aplicar_sugeridas=args.aplicar_sugeridas,
+        csv_output_path=args.csv_output,
+    )

@@ -12,12 +12,12 @@ Estado recomendado: EN REVISION
 Recomendación: Métricas calculadas con detecciones válidas. Verificar criterios de aceptación en Jira.
 
 Detalle por imagen:
-MUESTRA_001.jpg: tp=1 fp=1 fn=0 P=0.5000 R=1.0000 F1=0.6667 IoU=0.5000 origen=spatial_match dist=15.0px sugerida=9.0px
-MUESTRA_002.jpg: tp=2 fp=4 fn=1 P=0.3333 R=0.6667 F1=0.4444 IoU=0.2857 origen=spatial_match dist=18.0px sugerida=8.0px
-MUESTRA_003.jpg: tp=1 fp=0 fn=1 P=1.0000 R=0.5000 F1=0.6667 IoU=0.5000 origen=spatial_match dist=10.0px sugerida=6.0px
-MUESTRA_004.jpg: tp=1 fp=3 fn=1 P=0.2500 R=0.5000 F1=0.3333 IoU=0.2000 origen=spatial_match dist=14.0px sugerida=9.0px
-MUESTRA_005.jpg: tp=0 fp=0 fn=1 P=0.0000 R=0.0000 F1=0.0000 IoU=0.0000 origen=spatial_match dist=12.0px sugerida=3.0px
-MUESTRA_006.jpg: tp=7 fp=3 fn=2 P=0.7000 R=0.7778 F1=0.7368 IoU=0.5833 origen=spatial_match dist=40.0px sugerida=22.0px
-MUESTRA_007.jpg: tp=3 fp=2 fn=18 P=0.6000 R=0.1429 F1=0.2308 IoU=0.1304 origen=spatial_match dist=10.0px sugerida=8.0px
-MUESTRA_008.jpg: tp=1 fp=2 fn=0 P=0.3333 R=1.0000 F1=0.5000 IoU=0.3333 origen=spatial_match dist=10.0px sugerida=6.0px
-MUESTRA_009.jpg: tp=2 fp=6 fn=0 P=0.2500 R=1.0000 F1=0.4000 IoU=0.2500 origen=spatial_match dist=9.0px sugerida=6.0px
+MUESTRA_001.jpg: tp=1 fp=1 fn=0 P=0.5000 R=1.0000 F1=0.6667 IoU=0.5000 origen=spatial_match dist=9.0px sugerida=9.0px
+MUESTRA_002.jpg: tp=2 fp=4 fn=1 P=0.3333 R=0.6667 F1=0.4444 IoU=0.2857 origen=spatial_match dist=8.0px sugerida=8.0px
+MUESTRA_003.jpg: tp=1 fp=0 fn=1 P=1.0000 R=0.5000 F1=0.6667 IoU=0.5000 origen=spatial_match dist=6.0px sugerida=6.0px
+MUESTRA_004.jpg: tp=1 fp=3 fn=1 P=0.2500 R=0.5000 F1=0.3333 IoU=0.2000 origen=spatial_match dist=9.0px sugerida=9.0px
+MUESTRA_005.jpg: tp=0 fp=0 fn=1 P=0.0000 R=0.0000 F1=0.0000 IoU=0.0000 origen=spatial_match dist=3.0px sugerida=3.0px
+MUESTRA_006.jpg: tp=7 fp=3 fn=2 P=0.7000 R=0.7778 F1=0.7368 IoU=0.5833 origen=spatial_match dist=22.0px sugerida=22.0px
+MUESTRA_007.jpg: tp=3 fp=2 fn=18 P=0.6000 R=0.1429 F1=0.2308 IoU=0.1304 origen=spatial_match dist=8.0px sugerida=8.0px
+MUESTRA_008.jpg: tp=1 fp=2 fn=0 P=0.3333 R=1.0000 F1=0.5000 IoU=0.3333 origen=spatial_match dist=6.0px sugerida=6.0px
+MUESTRA_009.jpg: tp=2 fp=6 fn=0 P=0.2500 R=1.0000 F1=0.4000 IoU=0.2500 origen=spatial_match dist=6.0px sugerida=6.0px

@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+import csv
 
 import calcular_metricas_cito23 as cito23
 
@@ -78,6 +79,34 @@ class Cito23MetricasTests(unittest.TestCase):
             self.assertIn('Recomendación: Métricas calculadas con detecciones válidas', contenido)
             self.assertIn('origen=spatial_match', contenido)
             self.assertIn('dist=5.0px sugerida=3.0px', contenido)
+
+    def test_main_aplica_distancia_sugerida_en_csv(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            input_csv = tmp_path / 'metricas.csv'
+            output_txt = tmp_path / 'resumen.txt'
+
+            input_csv.write_text(
+                '\n'.join([
+                    'image_id,reference_status,tp,fp,fn,precision,recall,f1,IoU,pred_centroids,gt_centroids,match_distance_px,notes',
+                    'MUESTRA_001.jpg,manual_review_done,0,0,0,,,,,10:10;100:100,12:12,5,',
+                ]) + '\n',
+                encoding='utf-8',
+            )
+
+            original_input = cito23.INPUT_PATH
+            original_output = cito23.OUTPUT_PATH
+            try:
+                cito23.INPUT_PATH = input_csv
+                cito23.OUTPUT_PATH = output_txt
+                cito23.main(aplicar_sugeridas=True)
+            finally:
+                cito23.INPUT_PATH = original_input
+                cito23.OUTPUT_PATH = original_output
+
+            with input_csv.open('r', newline='', encoding='utf-8') as f:
+                rows = list(csv.DictReader(f))
+            self.assertEqual(rows[0]['match_distance_px'], '3.0')
 
 
 if __name__ == '__main__':
