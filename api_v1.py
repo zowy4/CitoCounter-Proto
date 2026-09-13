@@ -15,10 +15,10 @@ from src.preprocessing import preprocesar_imagen
 
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".tif", ".tiff", ".bmp"}
 PROJECT_ROOT = Path(__file__).resolve().parent
-ALLOWED_IMAGE_ROOTS = [
-    PROJECT_ROOT / "data" / "raw",
-    PROJECT_ROOT / "data" / "ground_truth",
-]
+ALLOWED_IMAGE_ROOTS = {
+    "raw": PROJECT_ROOT / "data" / "raw",
+    "ground_truth": PROJECT_ROOT / "data" / "ground_truth",
+}
 
 
 def error_response(message, status_code=400):
@@ -35,28 +35,23 @@ def validate_payload(payload):
     if not isinstance(payload, dict):
         return error_response("El cuerpo JSON debe ser un objeto.")
 
-    image_path = payload.get("image_path")
-    if not image_path or not isinstance(image_path, str):
-        return error_response("`image_path` es obligatorio y debe ser string.")
+    image_name = payload.get("image_name")
+    if not image_name or not isinstance(image_name, str):
+        return error_response("`image_name` es obligatorio y debe ser string.")
+    if "/" in image_name or "\\" in image_name or ".." in image_name:
+        return error_response("`image_name` no debe contener rutas o '..'.")
 
-    path = Path(image_path)
-    if not path.is_absolute():
-        path = PROJECT_ROOT / path
-    path = path.resolve(strict=False)
+    image_dir = payload.get("image_dir", "raw")
+    if image_dir not in ALLOWED_IMAGE_ROOTS:
+        return error_response("`image_dir` debe ser `raw` o `ground_truth`.")
 
+    if Path(image_name).suffix.lower() not in ALLOWED_EXTENSIONS:
+        return error_response(
+            f"Extensión no permitida: {Path(image_name).suffix}. Usa {sorted(ALLOWED_EXTENSIONS)}."
+        )
+    path = ALLOWED_IMAGE_ROOTS[image_dir] / image_name
     if not path.exists() or not path.is_file():
-        return error_response(f"Imagen no encontrada: {image_path}")
-
-    if not any(path.is_relative_to(root.resolve()) for root in ALLOWED_IMAGE_ROOTS):
-        roots = ", ".join(str(root) for root in ALLOWED_IMAGE_ROOTS)
-        return error_response(
-            f"Ruta no permitida: {path}. Usa una ruta dentro de: {roots}"
-        )
-
-    if path.suffix.lower() not in ALLOWED_EXTENSIONS:
-        return error_response(
-            f"Extensión no permitida: {path.suffix}. Usa {sorted(ALLOWED_EXTENSIONS)}."
-        )
+        return error_response(f"Imagen no encontrada: {image_name} en {image_dir}")
 
     sigma1 = float(payload.get("sigma1", 7.0))
     sigma2 = float(payload.get("sigma2", 8.0))
@@ -104,7 +99,8 @@ def analyze_from_payload(payload):
             "Prototipo de investigación. El resultado no equivale a diagnóstico clínico."
         ),
         "input": {
-            "image_path": str(validated["path"]),
+            "image_name": validated["path"].name,
+            "image_dir": next(k for k, v in ALLOWED_IMAGE_ROOTS.items() if validated["path"].is_relative_to(v)),
             "sigma1": validated["sigma1"],
             "sigma2": validated["sigma2"],
             "noise_reduction": validated["reducir_ruido"],

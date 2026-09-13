@@ -15,7 +15,8 @@ Desarrollar una API REST versionada para procesar imágenes y devolver análisis
 
 ```json
 {
-  "image_path": "data/raw/MUESTRA_001.jpg",
+  "image_name": "MUESTRA_001.jpg",
+  "image_dir": "raw",
   "sigma1": 7.0,
   "sigma2": 8.0,
   "noise_reduction": false,
@@ -23,7 +24,8 @@ Desarrollar una API REST versionada para procesar imágenes y devolver análisis
 }
 ```
 
-- `image_path` obligatorio.
+- `image_name` obligatorio (solo nombre de archivo, sin rutas).
+- `image_dir` opcional: `raw` (default) o `ground_truth`.
 - `sigma2` debe ser mayor que `sigma1`.
 - Se validan existencia de archivo, extensión permitida y ruta dentro de `data/raw` o `data/ground_truth`.
 

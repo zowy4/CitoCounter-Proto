@@ -22,20 +22,27 @@ class ApiV1Tests(unittest.TestCase):
     def test_rechaza_sigmas_invalidos(self):
         img = self.raw_dir / "api_test_sigmas.jpg"
         img.touch()
-        payload = {"image_path": str(img), "sigma1": 8.0, "sigma2": 8.0}
+        payload = {
+            "image_name": img.name,
+            "image_dir": "raw",
+            "sigma1": 8.0,
+            "sigma2": 8.0,
+        }
         response, status = analyze_from_payload(payload)
         self.assertEqual(status, 400)
         self.assertIn("sigma2", response["error"]["message"])
         img.unlink(missing_ok=True)
 
     def test_rechaza_ruta_fuera_de_directorio_permitido(self):
-        with tempfile.TemporaryDirectory() as d:
-            img = Path(d) / "externa.jpg"
-            img.touch()
-            payload = {"image_path": str(img), "sigma1": 7.0, "sigma2": 8.0}
-            response, status = analyze_from_payload(payload)
-            self.assertEqual(status, 400)
-            self.assertIn("Ruta no permitida", response["error"]["message"])
+        payload = {
+            "image_name": "../externa.jpg",
+            "image_dir": "raw",
+            "sigma1": 7.0,
+            "sigma2": 8.0,
+        }
+        response, status = analyze_from_payload(payload)
+        self.assertEqual(status, 400)
+        self.assertIn("no debe contener rutas", response["error"]["message"])
 
     @patch("api_v1.analizar_nucleos")
     @patch("api_v1.aplicar_filtro_dog")
@@ -60,7 +67,8 @@ class ApiV1Tests(unittest.TestCase):
             }
 
             payload = {
-                "image_path": str(img_path),
+                "image_name": img_path.name,
+                "image_dir": "raw",
                 "sigma1": 7.0,
                 "sigma2": 8.0,
                 "noise_reduction": True,
