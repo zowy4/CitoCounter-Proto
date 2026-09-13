@@ -84,7 +84,7 @@ Antes de iniciar las actividades, confirmar manualmente en la extensión de Jira
 |---|---|---|---|---|---|---|
 | CITO-22 | ACT-01 | Confirmado localmente | Confirmado en plan | Actividad/subtarea validada localmente | En revisión recomendado | 2026-09-11 |
 | CITO-23 | ACT-02 | Evaluación espacial ejecutada con matching por centroides y ajuste sugerido aplicado | Confirmado en plan | Actividad/subtarea con evaluación cuantitativa actualizada | En revisión recomendado | 2026-09-13 |
-| CITO-24 | ACT-03 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-24 | ACT-03 | Reglas de clasificación formalizadas por área y frontera | Confirmado en plan | Actividad/subtarea con reglas explicables implementadas | En revisión recomendado | 2026-09-13 |
 | CITO-25 | ACT-04 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | CITO-26 | ACT-05 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | CITO-27 | ACT-06 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
@@ -178,6 +178,7 @@ La clave Jira debe aparecer en el commit o PR cuando sea posible. Si una activid
 |---|---|---|
 | `J-06` / `ACT-21` / `CITO-42` | `En revisión` | `src/dog_filter.py`, `tests/test_dog_filter.py`, `python -m unittest discover -s tests -v` |
 | `J-08` / `ACT-02` / `CITO-23` | `En revisión` | `data/results/CITO-23-metricas-template.csv`, `data/results/CITO-23-metricas-resumen.txt`, `python calcular_metricas_cito23.py --aplicar-sugeridas`; métricas espaciales recalculadas y pendientes de aprobación |
+| `J-10` / `ACT-03` / `CITO-24` | `En revisión` | `src/analysis.py`, `tests/test_analysis_rules.py`, `docs/evidencia-cito24-reglas-clasificacion.md`; reglas normal/sospechosa y límites de frontera implementados |
 
 La corrección convierte los gaussianos a `float32` antes de restarlos, evitando que `uint8` recorte las diferencias negativas. La suite actual pasa y `git diff --check` no reporta errores. La incidencia no debe pasar a `Hecha` hasta que se revisen los criterios de aceptación en Jira y se adjunte esta evidencia.
 
