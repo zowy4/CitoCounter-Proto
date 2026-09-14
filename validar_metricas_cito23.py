@@ -14,10 +14,15 @@ class_id center_x center_y width height (valores normalizados 0-1)
 """
 
 import csv
+import cv2
 import json
 from pathlib import Path
 from typing import List, Tuple, Dict, Optional
 import logging
+
+from src.analysis import analizar_nucleos
+from src.dog_filter import aplicar_filtro_dog
+from src.preprocessing import preprocesar_imagen
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 logger = logging.getLogger(__name__)
@@ -230,6 +235,40 @@ def load_yolo_annotations(label_file: Path, img_width: int, img_height: int) -> 
     return boxes
 
 
+def obtener_etiquetas_faltantes(image_ids: List[str], labels_dir: Path,
+                                dataset_index: Dict[str, str]) -> List[Tuple[str, Path]]:
+    """Devuelve las etiquetas que faltan para las imágenes solicitadas."""
+    faltantes = []
+    for image_id in image_ids:
+        original_name = dataset_index.get(image_id, image_id)
+        label_file = labels_dir / f"{Path(original_name).stem}.txt"
+        if not label_file.is_file():
+            faltantes.append((image_id, label_file))
+    return faltantes
+
+
+def ejecutar_detector(image_path: Path) -> Tuple[List[Dict], int, int]:
+    """Ejecuta el pipeline y devuelve detecciones con centro y área."""
+    imagen_gris, imagen_original = preprocesar_imagen(str(image_path))
+    imagen_dog = aplicar_filtro_dog(imagen_gris, sigma1=7.0, sigma2=8.0)
+    resultados = analizar_nucleos(imagen_dog, imagen_original)
+
+    detecciones = []
+    contornos = (
+        resultados['contornos_normales'] + resultados['contornos_sospechosos']
+    )
+    for contorno in contornos:
+        x, y, ancho, alto = cv2.boundingRect(contorno)
+        detecciones.append({
+            'x_center': x + ancho / 2,
+            'y_center': y + alto / 2,
+            'area': cv2.contourArea(contorno),
+        })
+
+    alto, ancho = imagen_original.shape[:2]
+    return detecciones, ancho, alto
+
+
 def validate_single_image(image_id: str, detections: List[Dict],
                          labels_dir: Path, dataset_index: Dict,
                          img_width: int = 2048, img_height: int = 1536) -> Dict:
@@ -308,6 +347,18 @@ def main():
     # Para esta validación, usamos un conjunto simple de test
     test_images = ['MUESTRA_001.jpg', 'MUESTRA_002.jpg', 'MUESTRA_003.jpg']
 
+    etiquetas_faltantes = obtener_etiquetas_faltantes(
+        test_images, labels_dir, dataset_index
+    )
+    if etiquetas_faltantes:
+        logger.error(
+            "No se calcularon métricas: faltan anotaciones para %d imágenes.",
+            len(etiquetas_faltantes),
+        )
+        for image_id, label_file in etiquetas_faltantes:
+            logger.error("  %s: %s", image_id, label_file)
+        return 1
+
     logger.info(f"\nValidando {len(test_images)} imágenes de prueba...")
 
     results = []
@@ -317,11 +368,20 @@ def main():
     for image_id in test_images:
         logger.info(f"\nProcesando: {image_id}")
 
-        # Por ahora, usamos detecciones vacías para verificar ground truth
-        detections = []
+        image_path = Path('data/raw') / image_id
+        if not image_path.is_file():
+            logger.error("No existe la imagen de entrada: %s", image_path)
+            return 1
+
+        detections, img_width, img_height = ejecutar_detector(image_path)
 
         result = validate_single_image(
-            image_id, detections, labels_dir, dataset_index
+            image_id,
+            detections,
+            labels_dir,
+            dataset_index,
+            img_width=img_width,
+            img_height=img_height,
         )
 
         results.append(result)
@@ -414,4 +474,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    raise SystemExit(main())

@@ -2,11 +2,11 @@
 """Calcula métricas de CITO-23 a partir del CSV de revisión manual.
 
 Formato esperado por CSV:
-image_id,reference_status,tp,fp,fn,precision,recall,f1,IoU,pred_centroids,gt_centroids,match_distance_px,notes
+image_id,reference_status,tp,fp,fn,precision,recall,f1,jaccard_deteccion,pred_centroids,gt_centroids,match_distance_px,notes
 MUESTRA_001.jpg,manual_review_done,10,2,1,0.8333,0.9091,0.8696,0.7692,,,,ok
 
 Si pred_centroids y gt_centroids tienen datos (x:y;x:y), el script calcula TP/FP/FN por emparejamiento espacial.
-Si precision/recall/f1/IoU están vacíos, el script las calcula automáticamente.
+La distancia de emparejamiento debe fijarse durante calibración y conservarse para evaluación.
 """
 
 import argparse
@@ -16,7 +16,7 @@ from pathlib import Path
 
 INPUT_PATH = Path('data/results/CITO-23-metricas-template.csv')
 OUTPUT_PATH = Path('data/results/CITO-23-metricas-resumen.txt')
-DEFAULT_MATCH_DISTANCE = 40.0
+DEFAULT_MATCH_DISTANCE = 10.0
 
 
 def safe_float(value):
@@ -80,30 +80,6 @@ def calcular_tp_fp_fn_por_emparejamiento(pred_centroids, gt_centroids, distancia
     return tp, fp, fn
 
 
-def sugerir_match_distance(pred_centroids, gt_centroids, min_distance=3, max_distance=40):
-    if not (pred_centroids or gt_centroids):
-        return None
-
-    mejor = None
-    for distancia in range(int(min_distance), int(max_distance) + 1):
-        tp, fp, fn = calcular_tp_fp_fn_por_emparejamiento(
-            pred_centroids=pred_centroids,
-            gt_centroids=gt_centroids,
-            distancia_max=float(distancia),
-        )
-        precision = calcular_precision(tp, fp)
-        recall = calcular_recall(tp, fn)
-        f1 = calcular_f1(precision, recall)
-
-        candidato = (f1, recall, -fp, -distancia)
-        if mejor is None or candidato > mejor:
-            mejor = candidato
-
-    if mejor is None:
-        return None
-    return float(-mejor[3])
-
-
 def calcular_precision(tp, fp):
     total = tp + fp
     if total == 0:
@@ -124,7 +100,7 @@ def calcular_f1(p, r):
     return 2 * (p * r) / (p + r)
 
 
-def calcular_iou(tp, fp, fn):
+def calcular_jaccard_deteccion(tp, fp, fn):
     total = tp + fp + fn
     if total == 0:
         return 0.0
@@ -156,7 +132,10 @@ def evaluar_calidad_resultados(total_tp, total_fp, total_fn, total_imagenes):
     )
 
 
-def main(aplicar_sugeridas=False, csv_output_path=None):
+def main(match_distance=DEFAULT_MATCH_DISTANCE):
+    if match_distance <= 0:
+        raise ValueError('La distancia de emparejamiento debe ser mayor que cero.')
+
     if not INPUT_PATH.exists():
         raise FileNotFoundError(f'No existe el CSV de entrada: {INPUT_PATH}')
 
@@ -173,19 +152,11 @@ def main(aplicar_sugeridas=False, csv_output_path=None):
             gt_centroids = parsear_centroides(row.get('gt_centroids', ''))
 
             if pred_centroids or gt_centroids:
-                distancia_max = safe_float(
-                    row.get('match_distance_px', DEFAULT_MATCH_DISTANCE)
-                )
-                if distancia_max == 0:
-                    distancia_max = DEFAULT_MATCH_DISTANCE
+                distancia_max = match_distance
                 tp, fp, fn = calcular_tp_fp_fn_por_emparejamiento(
                     pred_centroids=pred_centroids,
                     gt_centroids=gt_centroids,
                     distancia_max=distancia_max,
-                )
-                distancia_sugerida = sugerir_match_distance(
-                    pred_centroids=pred_centroids,
-                    gt_centroids=gt_centroids,
                 )
                 origen_metricas = 'spatial_match'
             else:
@@ -193,19 +164,20 @@ def main(aplicar_sugeridas=False, csv_output_path=None):
                 fp = int(safe_float(row.get('fp', 0)))
                 fn = int(safe_float(row.get('fn', 0)))
                 distancia_max = None
-                distancia_sugerida = None
                 origen_metricas = 'manual_counts'
 
             p = safe_float(row.get('precision'))
             r = safe_float(row.get('recall'))
             f1 = safe_float(row.get('f1'))
-            iou = safe_float(row.get('IoU'))
+            jaccard = safe_float(
+                row.get('jaccard_deteccion', row.get('IoU', ''))
+            )
 
-            if p == 0 and r == 0 and f1 == 0 and iou == 0:
+            if p == 0 and r == 0 and f1 == 0 and jaccard == 0:
                 p = calcular_precision(tp, fp)
                 r = calcular_recall(tp, fn)
                 f1 = calcular_f1(p, r)
-                iou = calcular_iou(tp, fp, fn)
+                jaccard = calcular_jaccard_deteccion(tp, fp, fn)
 
             rows.append({
                 'image_id': image_id,
@@ -215,11 +187,10 @@ def main(aplicar_sugeridas=False, csv_output_path=None):
                 'precision': p,
                 'recall': r,
                 'f1': f1,
-                'IoU': iou,
+                'jaccard_deteccion': jaccard,
                 'notes': row.get('notes', '').strip(),
                 'origen_metricas': origen_metricas,
                 'distancia_match': distancia_max,
-                'distancia_sugerida': distancia_sugerida,
                 'row_original': row_original,
             })
 
@@ -233,7 +204,7 @@ def main(aplicar_sugeridas=False, csv_output_path=None):
     precision = calcular_precision(total_tp, total_fp)
     recall = calcular_recall(total_tp, total_fn)
     f1 = calcular_f1(precision, recall)
-    iou = calcular_iou(total_tp, total_fp, total_fn)
+    jaccard = calcular_jaccard_deteccion(total_tp, total_fp, total_fn)
     estado, recomendacion = evaluar_calidad_resultados(
         total_tp=total_tp,
         total_fp=total_fp,
@@ -251,7 +222,7 @@ def main(aplicar_sugeridas=False, csv_output_path=None):
     lines.append(f'Precision: {precision:.4f}')
     lines.append(f'Recall / Sensitivity: {recall:.4f}')
     lines.append(f'F1-Score: {f1:.4f}')
-    lines.append(f'IoU: {iou:.4f}')
+    lines.append(f'Jaccard de deteccion: {jaccard:.4f}')
     lines.append(f'Estado recomendado: {estado}')
     lines.append(f'Recomendación: {recomendacion}')
     lines.append('')
@@ -259,43 +230,15 @@ def main(aplicar_sugeridas=False, csv_output_path=None):
     for r in rows:
         detalle_distancia = ''
         if r['distancia_match'] is not None:
-            detalle_distancia = (
-                f" dist={r['distancia_match']:.1f}px"
-                f" sugerida={r['distancia_sugerida']:.1f}px"
-            )
+            detalle_distancia = f" dist={r['distancia_match']:.1f}px"
         lines.append(
             f"{r['image_id']}: tp={r['tp']} fp={r['fp']} fn={r['fn']} "
-            f"P={r['precision']:.4f} R={r['recall']:.4f} F1={r['f1']:.4f} IoU={r['IoU']:.4f} "
+            f"P={r['precision']:.4f} R={r['recall']:.4f} F1={r['f1']:.4f} Jaccard={r['jaccard_deteccion']:.4f} "
             f"origen={r['origen_metricas']}{detalle_distancia}"
         )
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text('\n'.join(lines) + '\n', encoding='utf-8')
-
-    if aplicar_sugeridas:
-        destino_csv = csv_output_path or INPUT_PATH
-        filas_actualizadas = []
-        for r in rows:
-            fila = dict(r['row_original'])
-            if r['distancia_sugerida'] is not None:
-                fila['match_distance_px'] = f"{r['distancia_sugerida']:.1f}"
-            filas_actualizadas.append(fila)
-
-        if fieldnames:
-            columnas = list(fieldnames)
-        else:
-            columnas = list(filas_actualizadas[0].keys()) if filas_actualizadas else []
-
-        if 'match_distance_px' not in columnas:
-            columnas.append('match_distance_px')
-
-        destino_csv.parent.mkdir(parents=True, exist_ok=True)
-        with destino_csv.open('w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=columnas)
-            writer.writeheader()
-            for fila in filas_actualizadas:
-                writer.writerow({k: fila.get(k, '') for k in columnas})
-        print(f'Sugerencias aplicadas en CSV: {destino_csv}')
 
     print('\n'.join(lines))
     print(f'\nResumen guardado en: {OUTPUT_PATH}')
@@ -304,18 +247,10 @@ def main(aplicar_sugeridas=False, csv_output_path=None):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Calcula métricas de CITO-23.')
     parser.add_argument(
-        '--aplicar-sugeridas',
-        action='store_true',
-        help='Aplica match_distance_px sugerida por imagen y reescribe el CSV de entrada.'
-    )
-    parser.add_argument(
-        '--csv-output',
-        type=Path,
-        default=None,
-        help='Ruta de salida CSV al aplicar sugerencias (por defecto reescribe el CSV de entrada).'
+        '--match-distance',
+        type=float,
+        default=DEFAULT_MATCH_DISTANCE,
+        help='Distancia única, en píxeles, fijada para todo el conjunto evaluado.',
     )
     args = parser.parse_args()
-    main(
-        aplicar_sugeridas=args.aplicar_sugeridas,
-        csv_output_path=args.csv_output,
-    )
+    main(match_distance=args.match_distance)

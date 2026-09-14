@@ -37,7 +37,7 @@ Para cada imagen, se comparan las detecciones del algoritmo con la referencia:
 - Precision: P = TP / (TP + FP)
 - Recall / Sensitivity: R = TP / (TP + FN)
 - F1-Score: F1 = 2 * (P * R) / (P + R)
-- IoU: IoU = TP / (TP + FP + FN)
+- Jaccard de detección: J = TP / (TP + FP + FN)
 
 Donde:
 - TP = detecciones correctas
@@ -69,19 +69,19 @@ Se debe dejar el siguiente material en [data/results](../../data/results):
 Preparación inicial completada y evaluación espacial ejecutada sobre 9 imágenes.
 
 Último resumen disponible en [CITO-23-metricas-resumen.txt](CITO-23-metricas-resumen.txt):
-- TP=18
-- FP=21
-- FN=24
-- Precision=0.4615
-- Recall=0.4286
-- F1=0.4444
-- IoU=0.2857
-- Estado recomendado: EN REVISION
+- TP=15
+- FP=24
+- FN=27
+- Precision=0.3846
+- Recall=0.3571
+- F1=0.3704
+- Jaccard de detección=0.2273
+- Estado recomendado: EN CURSO
 
-Para recalcular y aplicar automáticamente la distancia sugerida por imagen:
+Para recalcular usando la distancia global congelada para el conjunto:
 
 ```bash
-python calcular_metricas_cito23.py --aplicar-sugeridas
+python calcular_metricas_cito23.py --match-distance 10.0
 ```
 
-La actividad debe mantenerse en revisión hasta validar criterios de aceptación y evidencia final en Jira.
+El Jaccard de detección no sustituye el IoU geométrico de cajas o máscaras. La actividad debe mantenerse en curso hasta contar con ground truth trazable, un conjunto de evaluación independiente y criterios de aceptación validados en Jira.

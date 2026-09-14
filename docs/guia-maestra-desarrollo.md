@@ -83,7 +83,7 @@ Antes de iniciar las actividades, confirmar manualmente en la extensión de Jira
 | Clave Jira | Actividad | Resumen verificado | Padre verificado | Tipo verificado | Estado real | Fecha/revisor |
 |---|---|---|---|---|---|---|
 | CITO-22 | ACT-01 | Confirmado localmente | Confirmado en plan | Actividad/subtarea validada localmente | En revisión recomendado | 2026-09-11 |
-| CITO-23 | ACT-02 | Evaluación espacial ejecutada con matching por centroides y ajuste sugerido aplicado | Confirmado en plan | Actividad/subtarea con evaluación cuantitativa actualizada | En revisión recomendado | 2026-09-13 |
+| CITO-23 | ACT-02 | Evaluación espacial exploratoria ejecutada; falta ground truth trazable para validación final | Confirmado en plan | Actividad/subtarea con evaluación cuantitativa en curso | En curso recomendado | 2026-09-14 |
 | CITO-24 | ACT-03 | Reglas de clasificación formalizadas por área y frontera | Confirmado en plan | Actividad/subtarea con reglas explicables implementadas | En revisión recomendado | 2026-09-13 |
 | CITO-25 | ACT-04 | API REST v1 implementada con validación de entrada y endpoint de análisis | Confirmado en plan | Actividad/subtarea con endpoint versionado y pruebas unitarias | En revisión recomendado | 2026-09-13 |
 | CITO-26 | ACT-05 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
@@ -115,9 +115,9 @@ La tabla anterior registra el procedimiento y la asignación esperada; la extens
 | Protocolo de confirmación | Documentado en esta guía | Pendiente de ejecución en la extensión | Preparado |
 | Tabla canónica con resúmenes | 23 actividades y 23 claves documentadas | Pendiente de comparar con Jira | Preparado |
 | Padres y tipos de incidencia | Padres internos documentados | Pendiente de confirmar en Jira | Pendiente |
-| Estados iniciales | `Por hacer` para actividades nuevas; `CITO-22` validado localmente y `CITO-23` evaluado localmente | Pendiente de confirmar en Jira | Pendiente |
+| Estados iniciales | `Por hacer` para actividades nuevas; `CITO-22` validado localmente y `CITO-23` en evaluación | Pendiente de confirmar en Jira | Pendiente |
 | Pruebas del repositorio | 3 pruebas pasan; `git diff --check` correcto | No aplica | Confirmado localmente |
-| CITO-23 | TP=18, FP=21, FN=24, Precision=0.4615, Recall=0.4286, F1=0.4444, IoU=0.2857 sobre 9 imágenes; matching espacial activo con `match_distance_px` sugerida aplicada | Mantener en revisión y validar aceptación en Jira antes de cerrar | En revisión |
+| CITO-23 | TP=15, FP=24, FN=27, Precision=0.3846, Recall=0.3571, F1=0.3704, Jaccard de detección=0.2273 sobre 9 imágenes con distancia global de 10 px; faltan etiquetas YOLO trazables para el validador formal | Mantener en curso hasta disponer de ground truth y conjunto de evaluación independiente | En curso |
 | Revisión final | No hay acceso remoto desde el repositorio | Debe ejecutarse en la extensión | Pendiente |
 
 **Fecha de revisión local:** 2026-09-10  
@@ -177,7 +177,7 @@ La clave Jira debe aparecer en el commit o PR cuando sea posible. Si una activid
 | Incidencia | Estado recomendado | Evidencia |
 |---|---|---|
 | `J-06` / `ACT-21` / `CITO-42` | `En revisión` | `src/dog_filter.py`, `tests/test_dog_filter.py`, `python -m unittest discover -s tests -v` |
-| `J-08` / `ACT-02` / `CITO-23` | `En revisión` | `data/results/CITO-23-metricas-template.csv`, `data/results/CITO-23-metricas-resumen.txt`, `python calcular_metricas_cito23.py --aplicar-sugeridas`; métricas espaciales recalculadas y pendientes de aprobación |
+| `J-08` / `ACT-02` / `CITO-23` | `En curso` | `data/results/CITO-23-metricas-template.csv`, `data/results/CITO-23-metricas-resumen.txt`, `python calcular_metricas_cito23.py --match-distance 10.0`; falta ground truth trazable para la validación formal |
 | `J-10` / `ACT-03` / `CITO-24` | `En revisión` | `src/analysis.py`, `tests/test_analysis_rules.py`, `docs/evidencia-cito24-reglas-clasificacion.md`; reglas normal/sospechosa y límites de frontera implementados |
 | `J-11` / `ACT-04` / `CITO-25` | `En revisión` | `api_v1.py`, `tests/test_api_v1.py`, `docs/evidencia-cito25-api-rest.md`; API v1 con `/health` y `/analyze` implementada |
 
