@@ -14,6 +14,7 @@ from src.preprocessing import preprocesar_imagen
 
 
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".tif", ".tiff", ".bmp"}
+MAX_REQUEST_BODY_BYTES = 64 * 1024
 PROJECT_ROOT = Path(__file__).resolve().parent
 ALLOWED_IMAGE_ROOTS = {
     "raw": PROJECT_ROOT / "data" / "raw",
@@ -29,6 +30,14 @@ def error_response(message, status_code=400):
             "message": message,
         },
     }, status_code
+
+
+def validar_booleano(payload, field_name, default):
+    """Obtiene un booleano JSON o devuelve un error de validación."""
+    value = payload.get(field_name, default)
+    if not isinstance(value, bool):
+        return None, error_response(f"`{field_name}` debe ser booleano.")
+    return value, None
 
 
 def validate_payload(payload):
@@ -53,15 +62,22 @@ def validate_payload(payload):
     if not path.exists() or not path.is_file():
         return error_response(f"Imagen no encontrada: {image_name} en {image_dir}")
 
-    sigma1 = float(payload.get("sigma1", 7.0))
-    sigma2 = float(payload.get("sigma2", 8.0))
+    try:
+        sigma1 = float(payload.get("sigma1", 7.0))
+        sigma2 = float(payload.get("sigma2", 8.0))
+    except (TypeError, ValueError):
+        return error_response("`sigma1` y `sigma2` deben ser valores numéricos.")
     if sigma1 <= 0 or sigma2 <= 0:
         return error_response("`sigma1` y `sigma2` deben ser mayores que 0.")
     if sigma2 <= sigma1:
         return error_response("`sigma2` debe ser mayor que `sigma1`.")
 
-    reducir_ruido = bool(payload.get("noise_reduction", False))
-    mejorar_contraste = bool(payload.get("enhance_contrast", True))
+    reducir_ruido, error = validar_booleano(payload, "noise_reduction", False)
+    if error:
+        return error
+    mejorar_contraste, error = validar_booleano(payload, "enhance_contrast", True)
+    if error:
+        return error
 
     return {
         "path": path,
@@ -143,11 +159,24 @@ class CitoCounterApiHandler(BaseHTTPRequestHandler):
             )
             return
 
-        content_length = int(self.headers.get("Content-Length", "0"))
+        try:
+            content_length = int(self.headers.get("Content-Length", "0"))
+        except ValueError:
+            self._send_json(
+                {"ok": False, "error": {"code": 400, "message": "Content-Length inválido"}},
+                400,
+            )
+            return
         if content_length <= 0:
             self._send_json(
                 {"ok": False, "error": {"code": 400, "message": "Cuerpo JSON vacío"}},
                 400,
+            )
+            return
+        if content_length > MAX_REQUEST_BODY_BYTES:
+            self._send_json(
+                {"ok": False, "error": {"code": 413, "message": "Cuerpo JSON demasiado grande"}},
+                413,
             )
             return
 

@@ -1,11 +1,21 @@
+import http.client
+import json
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
 import numpy as np
 
-from api_v1 import PROJECT_ROOT, analyze_from_payload
+from api_v1 import (
+    CitoCounterApiHandler,
+    HTTPServer,
+    MAX_REQUEST_BODY_BYTES,
+    PROJECT_ROOT,
+    analyze_from_payload,
+    validate_payload,
+)
 
 
 class ApiV1Tests(unittest.TestCase):
@@ -31,6 +41,42 @@ class ApiV1Tests(unittest.TestCase):
         response, status = analyze_from_payload(payload)
         self.assertEqual(status, 400)
         self.assertIn("sigma2", response["error"]["message"])
+        img.unlink(missing_ok=True)
+
+    def test_rechaza_sigmas_no_numericos(self):
+        img = self.raw_dir / "api_test_sigma_texto.jpg"
+        img.touch()
+        response, status = validate_payload({
+            "image_name": img.name,
+            "sigma1": "no-numero",
+            "sigma2": 8.0,
+        })
+        self.assertEqual(status, 400)
+        self.assertIn("numéricos", response["error"]["message"])
+        img.unlink(missing_ok=True)
+
+    def test_rechaza_booleano_como_cadena(self):
+        img = self.raw_dir / "api_test_booleano.jpg"
+        img.touch()
+        response, status = validate_payload({
+            "image_name": img.name,
+            "noise_reduction": "false",
+        })
+        self.assertEqual(status, 400)
+        self.assertIn("noise_reduction", response["error"]["message"])
+        img.unlink(missing_ok=True)
+
+    def test_conserva_booleanos_json(self):
+        img = self.raw_dir / "api_test_booleanos_validos.jpg"
+        img.touch()
+        response, status = validate_payload({
+            "image_name": img.name,
+            "noise_reduction": True,
+            "enhance_contrast": False,
+        })
+        self.assertEqual(status, 200)
+        self.assertTrue(response["reducir_ruido"])
+        self.assertFalse(response["mejorar_contraste"])
         img.unlink(missing_ok=True)
 
     def test_rechaza_ruta_fuera_de_directorio_permitido(self):
@@ -82,6 +128,51 @@ class ApiV1Tests(unittest.TestCase):
             self.assertEqual(response["result"]["suspicious_cells"], 3)
             self.assertEqual(response["result"]["borderline_cells"], 2)
             img_path.unlink(missing_ok=True)
+
+
+class ApiV1HttpTests(unittest.TestCase):
+    def setUp(self):
+        self.server = HTTPServer(("127.0.0.1", 0), CitoCounterApiHandler)
+        self.thread = threading.Thread(target=self.server.serve_forever)
+        self.thread.start()
+
+    def tearDown(self):
+        self.server.shutdown()
+        self.thread.join()
+        self.server.server_close()
+
+    def request(self, method, path, body=None, headers=None):
+        connection = http.client.HTTPConnection("127.0.0.1", self.server.server_port)
+        connection.request(method, path, body=body, headers=headers or {})
+        response = connection.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+        connection.close()
+        return response.status, payload
+
+    def test_health_endpoint(self):
+        status, payload = self.request("GET", "/api/v1/health")
+        self.assertEqual(status, 200)
+        self.assertTrue(payload["ok"])
+
+    def test_rechaza_json_invalido(self):
+        status, payload = self.request(
+            "POST",
+            "/api/v1/analyze",
+            body="{",
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 400)
+        self.assertIn("JSON inválido", payload["error"]["message"])
+
+    def test_rechaza_cuerpo_excesivo(self):
+        status, payload = self.request(
+            "POST",
+            "/api/v1/analyze",
+            body="x" * (MAX_REQUEST_BODY_BYTES + 1),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 413)
+        self.assertEqual(payload["error"]["code"], 413)
 
 
 if __name__ == "__main__":
