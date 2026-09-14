@@ -56,8 +56,9 @@ from src.visualization import (
 # ============================================================================
 
 DEFAULT_IMAGEN = "data/raw/image.png"
-DEFAULT_SIGMA1 = 3.0
-DEFAULT_SIGMA2 = 5.0
+# Configuración experimental propuesta a partir del barrido inicial de CITO-23.
+DEFAULT_SIGMA1 = 7.0
+DEFAULT_SIGMA2 = 8.0
 ARCHIVO_BITACORA = "bitacora_experimentos.csv"
 
 

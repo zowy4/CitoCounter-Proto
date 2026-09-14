@@ -22,6 +22,7 @@ import numpy as np
 
 AREA_PROMEDIO_NUCLEO_NORMAL = 300  # Píxeles² (¡CALIBRAR CON DATOS REALES!)
 FACTOR_RIESGO = 3.0                 # Regla de la Dra. Rangel: >3x = sospechoso
+MARGEN_FRONTERA = 0.10              # ±10% alrededor del umbral de riesgo
 
 # Filtros de ruido
 AREA_MINIMA_NUCLEO = 50             # Píxeles² - Descartar polvo/ruido
@@ -29,6 +30,78 @@ AREA_MAXIMA_NUCLEO = 5000           # Píxeles² - Descartar manchas grandes
 
 # Parámetros de umbralización
 UMBRAL_DOG = 15                     # Valor mínimo para considerar un píxel como borde
+
+
+def obtener_reglas_clasificacion():
+    """
+    Devuelve las reglas activas de clasificación para CITO-24.
+    """
+    umbral_sospechoso = AREA_PROMEDIO_NUCLEO_NORMAL * FACTOR_RIESGO
+    return {
+        "area_minima_nucleo": AREA_MINIMA_NUCLEO,
+        "area_maxima_nucleo": AREA_MAXIMA_NUCLEO,
+        "area_promedio_nucleo_normal": AREA_PROMEDIO_NUCLEO_NORMAL,
+        "factor_riesgo": FACTOR_RIESGO,
+        "umbral_sospechoso": umbral_sospechoso,
+        "limite_frontera_inferior": umbral_sospechoso * (1.0 - MARGEN_FRONTERA),
+        "limite_frontera_superior": umbral_sospechoso * (1.0 + MARGEN_FRONTERA),
+    }
+
+
+def clasificar_nucleo_por_area(area):
+    """
+    Clasifica un núcleo por área con reglas explicables.
+
+    Retorna:
+        dict con claves:
+        - es_valida (bool): Si el área entra en rango analizable.
+        - clasificacion (str): descartada|normal|sospechosa
+        - es_frontera (bool): Si cae en la zona ±10% alrededor del umbral.
+        - umbral_sospechoso (float): Umbral actual usado para la decisión.
+        - motivo (str): Explicación legible de la decisión.
+    """
+    reglas = obtener_reglas_clasificacion()
+    area_min = reglas["area_minima_nucleo"]
+    area_max = reglas["area_maxima_nucleo"]
+    umbral = reglas["umbral_sospechoso"]
+    lim_inf = reglas["limite_frontera_inferior"]
+    lim_sup = reglas["limite_frontera_superior"]
+
+    if area < area_min:
+        return {
+            "es_valida": False,
+            "clasificacion": "descartada",
+            "es_frontera": False,
+            "umbral_sospechoso": umbral,
+            "motivo": "Área menor al mínimo permitido (ruido)",
+        }
+
+    if area > area_max:
+        return {
+            "es_valida": False,
+            "clasificacion": "descartada",
+            "es_frontera": False,
+            "umbral_sospechoso": umbral,
+            "motivo": "Área mayor al máximo permitido (artefacto)",
+        }
+
+    es_frontera = lim_inf <= area <= lim_sup
+    if area >= umbral:
+        return {
+            "es_valida": True,
+            "clasificacion": "sospechosa",
+            "es_frontera": es_frontera,
+            "umbral_sospechoso": umbral,
+            "motivo": f"Área >= umbral de riesgo ({umbral:.1f}px²)",
+        }
+
+    return {
+        "es_valida": True,
+        "clasificacion": "normal",
+        "es_frontera": es_frontera,
+        "umbral_sospechoso": umbral,
+        "motivo": f"Área < umbral de riesgo ({umbral:.1f}px²)",
+    }
 
 
 def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False):
@@ -83,9 +156,11 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False):
         "total_celulas": 0,
         "normales": 0,
         "sospechosas": 0,
+        "frontera": 0,
         "porcentaje_riesgo": 0.0,
         "imagen_procesada": imagen_original.copy(),
         "areas": [],
+        "criterios_clasificacion": [],
         "contornos_normales": [],
         "contornos_sospechosos": []
     }
@@ -94,8 +169,8 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False):
     for contorno in contornos:
         area = cv2.contourArea(contorno)
         
-        # FILTRO DE RUIDO: Descartar objetos demasiado pequeños o grandes
-        if area < AREA_MINIMA_NUCLEO or area > AREA_MAXIMA_NUCLEO:
+        decision = clasificar_nucleo_por_area(area)
+        if not decision["es_valida"]:
             continue
         
         # Es un núcleo válido
@@ -105,13 +180,10 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False):
         # Obtener caja delimitadora (bounding box)
         x, y, w, h = cv2.boundingRect(contorno)
         
-        # ====================================================================
-        # APLICACIÓN DE LA REGLA DE LA DRA. RANGEL
-        # "Núcleos con área > 3 veces el promedio normal son sospechosos"
-        # ====================================================================
-        umbral_sospechoso = AREA_PROMEDIO_NUCLEO_NORMAL * FACTOR_RIESGO
-        
-        if area >= umbral_sospechoso:
+        if decision["es_frontera"]:
+            resultados["frontera"] += 1
+
+        if decision["clasificacion"] == "sospechosa":
             # --- CÉLULA SOSPECHOSA ---
             color = (0, 0, 255)  # ROJO en BGR
             etiqueta = "RIESGO"
@@ -124,6 +196,14 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False):
             etiqueta = "NORMAL"
             resultados["normales"] += 1
             resultados["contornos_normales"].append(contorno)
+
+        resultados["criterios_clasificacion"].append({
+            "area": float(area),
+            "clasificacion": decision["clasificacion"],
+            "es_frontera": decision["es_frontera"],
+            "umbral_sospechoso": decision["umbral_sospechoso"],
+            "motivo": decision["motivo"],
+        })
         
         # 4. ANOTACIÓN VISUAL
         # Dibujar rectángulo alrededor del núcleo
@@ -231,6 +311,7 @@ def generar_reporte_estadistico(resultados):
     reporte.append(f"Total de células detectadas: {resultados['total_celulas']}")
     reporte.append(f"  • Células normales:         {resultados['normales']}")
     reporte.append(f"  • Células sospechosas:      {resultados['sospechosas']}")
+    reporte.append(f"  • Casos frontera (±10%):    {resultados.get('frontera', 0)}")
     reporte.append(f"  • Porcentaje de riesgo:     {resultados['porcentaje_riesgo']:.1f}%")
     reporte.append("-" * 60)
     

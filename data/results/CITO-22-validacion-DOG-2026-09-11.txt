@@ -1,0 +1,2681 @@
+======================================================================
+  🔬 CitoCounter Proto v1.1 - CLI Optimizado
+  📋 Modo: PROCESAMIENTO LOTE
+  ⚙️  Parámetros DoG: σ1=3.0, σ2=5.0
+  🔧 Preprocesamiento: CLAHE=ON, Ruido=OFF
+  📊 Bitácora: T-001
+======================================================================
+
+📁 Encontradas 101 imágenes en data/raw
+
+======================================================================
+Imagen 1/101
+======================================================================
+
+📂 Procesando: MUESTRA_056.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 6
+  • Células normales:         6
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   72.5 px²
+  • Área máxima:   244.5 px²
+  • Área promedio: 156.8 px²
+  • Desv. estándar: 68.1 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_056.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-01
+
+======================================================================
+Imagen 2/101
+======================================================================
+
+📂 Procesando: MUESTRA_041.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 0
+  • Células normales:         0
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_041.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-02
+
+======================================================================
+Imagen 3/101
+======================================================================
+
+📂 Procesando: MUESTRA_050.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 0
+  • Células normales:         0
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_050.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-03
+
+======================================================================
+Imagen 4/101
+======================================================================
+
+📂 Procesando: MUESTRA_095.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 2
+  • Células normales:         2
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   64.0 px²
+  • Área máxima:   89.5 px²
+  • Área promedio: 76.8 px²
+  • Desv. estándar: 12.8 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_095.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-04
+
+======================================================================
+Imagen 5/101
+======================================================================
+
+📂 Procesando: MUESTRA_048.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 21
+  • Células normales:         19
+  • Células sospechosas:      2
+  • Porcentaje de riesgo:     9.5%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   52.5 px²
+  • Área máxima:   4231.5 px²
+  • Área promedio: 460.7 px²
+  • Desv. estándar: 874.1 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_048.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-05
+
+======================================================================
+Imagen 6/101
+======================================================================
+
+📂 Procesando: MUESTRA_075.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 20
+  • Células normales:         18
+  • Células sospechosas:      2
+  • Porcentaje de riesgo:     10.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   54.5 px²
+  • Área máxima:   988.0 px²
+  • Área promedio: 384.4 px²
+  • Desv. estándar: 314.2 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_075.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-06
+
+======================================================================
+Imagen 7/101
+======================================================================
+
+📂 Procesando: MUESTRA_037.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 834
+  • Células normales:         720
+  • Células sospechosas:      114
+  • Porcentaje de riesgo:     13.7%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   50.0 px²
+  • Área máxima:   4681.0 px²
+  • Área promedio: 484.5 px²
+  • Desv. estándar: 751.0 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_037.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-07
+
+======================================================================
+Imagen 8/101
+======================================================================
+
+📂 Procesando: MUESTRA_018.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 24
+  • Células normales:         22
+  • Células sospechosas:      2
+  • Porcentaje de riesgo:     8.3%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   53.5 px²
+  • Área máxima:   1421.5 px²
+  • Área promedio: 317.2 px²
+  • Desv. estándar: 360.1 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_018.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-08
+
+======================================================================
+Imagen 9/101
+======================================================================
+
+📂 Procesando: MUESTRA_066.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 15
+  • Células normales:         13
+  • Células sospechosas:      2
+  • Porcentaje de riesgo:     13.3%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   50.0 px²
+  • Área máxima:   2718.5 px²
+  • Área promedio: 354.2 px²
+  • Desv. estándar: 697.7 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_066.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-09
+
+======================================================================
+Imagen 10/101
+======================================================================
+
+📂 Procesando: MUESTRA_026.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 564
+  • Células normales:         512
+  • Células sospechosas:      52
+  • Porcentaje de riesgo:     9.2%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   50.0 px²
+  • Área máxima:   4689.0 px²
+  • Área promedio: 353.6 px²
+  • Desv. estándar: 601.1 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_026.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-10
+
+======================================================================
+Imagen 11/101
+======================================================================
+
+📂 Procesando: MUESTRA_014.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 4
+  • Células normales:         3
+  • Células sospechosas:      1
+  • Porcentaje de riesgo:     25.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   132.0 px²
+  • Área máxima:   1466.5 px²
+  • Área promedio: 524.9 px²
+  • Desv. estándar: 546.6 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_014.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-11
+
+======================================================================
+Imagen 12/101
+======================================================================
+
+📂 Procesando: MUESTRA_072.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 38
+  • Células normales:         36
+  • Células sospechosas:      2
+  • Porcentaje de riesgo:     5.3%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   50.5 px²
+  • Área máxima:   1266.0 px²
+  • Área promedio: 244.7 px²
+  • Desv. estándar: 299.4 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_072.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-12
+
+======================================================================
+Imagen 13/101
+======================================================================
+
+📂 Procesando: MUESTRA_078.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 8
+  • Células normales:         8
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   61.5 px²
+  • Área máxima:   355.0 px²
+  • Área promedio: 159.8 px²
+  • Desv. estándar: 105.1 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_078.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-13
+
+======================================================================
+Imagen 14/101
+======================================================================
+
+📂 Procesando: MUESTRA_013.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 358
+  • Células normales:         325
+  • Células sospechosas:      33
+  • Porcentaje de riesgo:     9.2%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   50.0 px²
+  • Área máxima:   3863.5 px²
+  • Área promedio: 379.2 px²
+  • Desv. estándar: 575.5 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_013.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-14
+
+======================================================================
+Imagen 15/101
+======================================================================
+
+📂 Procesando: MUESTRA_061.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 5
+  • Células normales:         4
+  • Células sospechosas:      1
+  • Porcentaje de riesgo:     20.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   128.5 px²
+  • Área máxima:   1405.0 px²
+  • Área promedio: 450.8 px²
+  • Desv. estándar: 482.1 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_061.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-15
+
+======================================================================
+Imagen 16/101
+======================================================================
+
+📂 Procesando: MUESTRA_083.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 13
+  • Células normales:         12
+  • Células sospechosas:      1
+  • Porcentaje de riesgo:     7.7%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   60.5 px²
+  • Área máxima:   1820.0 px²
+  • Área promedio: 321.3 px²
+  • Desv. estándar: 453.4 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_083.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-16
+
+======================================================================
+Imagen 17/101
+======================================================================
+
+📂 Procesando: MUESTRA_011.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 24
+  • Células normales:         22
+  • Células sospechosas:      2
+  • Porcentaje de riesgo:     8.3%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   61.0 px²
+  • Área máxima:   1461.5 px²
+  • Área promedio: 334.4 px²
+  • Desv. estándar: 391.5 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_011.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-17
+
+======================================================================
+Imagen 18/101
+======================================================================
+
+📂 Procesando: MUESTRA_064.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 2
+  • Células normales:         2
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   95.0 px²
+  • Área máxima:   497.0 px²
+  • Área promedio: 296.0 px²
+  • Desv. estándar: 201.0 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_064.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-18
+
+======================================================================
+Imagen 19/101
+======================================================================
+
+📂 Procesando: MUESTRA_049.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 16
+  • Células normales:         16
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   70.5 px²
+  • Área máxima:   702.0 px²
+  • Área promedio: 223.8 px²
+  • Desv. estándar: 178.6 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_049.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-19
+
+======================================================================
+Imagen 20/101
+======================================================================
+
+📂 Procesando: MUESTRA_008.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 5
+  • Células normales:         5
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   101.0 px²
+  • Área máxima:   513.0 px²
+  • Área promedio: 255.3 px²
+  • Desv. estándar: 165.8 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_008.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-20
+
+======================================================================
+Imagen 21/101
+======================================================================
+
+📂 Procesando: MUESTRA_096.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 1
+  • Células normales:         1
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   94.0 px²
+  • Área máxima:   94.0 px²
+  • Área promedio: 94.0 px²
+  • Desv. estándar: 0.0 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_096.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-21
+
+======================================================================
+Imagen 22/101
+======================================================================
+
+📂 Procesando: MUESTRA_065.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 1
+  • Células normales:         1
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   178.0 px²
+  • Área máxima:   178.0 px²
+  • Área promedio: 178.0 px²
+  • Desv. estándar: 0.0 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_065.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-22
+
+======================================================================
+Imagen 23/101
+======================================================================
+
+📂 Procesando: MUESTRA_001.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 1223
+  • Células normales:         1191
+  • Células sospechosas:      32
+  • Porcentaje de riesgo:     2.6%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   50.0 px²
+  • Área máxima:   4639.5 px²
+  • Área promedio: 172.1 px²
+  • Desv. estándar: 391.4 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_001.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-23
+
+======================================================================
+Imagen 24/101
+======================================================================
+
+📂 Procesando: MUESTRA_077.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 11
+  • Células normales:         10
+  • Células sospechosas:      1
+  • Porcentaje de riesgo:     9.1%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   59.5 px²
+  • Área máxima:   1200.0 px²
+  • Área promedio: 364.7 px²
+  • Desv. estándar: 360.0 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_077.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-24
+
+======================================================================
+Imagen 25/101
+======================================================================
+
+📂 Procesando: MUESTRA_070.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 11
+  • Células normales:         11
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   55.5 px²
+  • Área máxima:   538.5 px²
+  • Área promedio: 201.1 px²
+  • Desv. estándar: 144.7 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_070.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-25
+
+======================================================================
+Imagen 26/101
+======================================================================
+
+📂 Procesando: MUESTRA_063.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 0
+  • Células normales:         0
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_063.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-26
+
+======================================================================
+Imagen 27/101
+======================================================================
+
+📂 Procesando: MUESTRA_101.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 5
+  • Células normales:         4
+  • Células sospechosas:      1
+  • Porcentaje de riesgo:     20.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   132.0 px²
+  • Área máxima:   2292.5 px²
+  • Área promedio: 716.3 px²
+  • Desv. estándar: 804.1 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_101.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-27
+
+======================================================================
+Imagen 28/101
+======================================================================
+
+📂 Procesando: MUESTRA_038.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 8
+  • Células normales:         7
+  • Células sospechosas:      1
+  • Porcentaje de riesgo:     12.5%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   78.0 px²
+  • Área máxima:   1487.0 px²
+  • Área promedio: 364.4 px²
+  • Desv. estándar: 434.4 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_038.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-28
+
+======================================================================
+Imagen 29/101
+======================================================================
+
+📂 Procesando: MUESTRA_073.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 4
+  • Células normales:         4
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   80.0 px²
+  • Área máxima:   515.0 px²
+  • Área promedio: 267.6 px²
+  • Desv. estándar: 188.7 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_073.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-29
+
+======================================================================
+Imagen 30/101
+======================================================================
+
+📂 Procesando: MUESTRA_074.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 5
+  • Células normales:         5
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   52.0 px²
+  • Área máxima:   226.5 px²
+  • Área promedio: 129.5 px²
+  • Desv. estándar: 66.7 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_074.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-30
+
+======================================================================
+Imagen 31/101
+======================================================================
+
+📂 Procesando: MUESTRA_007.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 16
+  • Células normales:         14
+  • Células sospechosas:      2
+  • Porcentaje de riesgo:     12.5%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   53.0 px²
+  • Área máxima:   1349.5 px²
+  • Área promedio: 416.0 px²
+  • Desv. estándar: 350.0 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_007.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-31
+
+======================================================================
+Imagen 32/101
+======================================================================
+
+📂 Procesando: MUESTRA_058.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 12
+  • Células normales:         11
+  • Células sospechosas:      1
+  • Porcentaje de riesgo:     8.3%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   50.0 px²
+  • Área máxima:   1749.0 px²
+  • Área promedio: 249.6 px²
+  • Desv. estándar: 456.8 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_058.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-32
+
+======================================================================
+Imagen 33/101
+======================================================================
+
+📂 Procesando: MUESTRA_053.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 22
+  • Células normales:         22
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   50.0 px²
+  • Área máxima:   446.0 px²
+  • Área promedio: 184.9 px²
+  • Desv. estándar: 128.2 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_053.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-33
+
+======================================================================
+Imagen 34/101
+======================================================================
+
+📂 Procesando: MUESTRA_046.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 0
+  • Células normales:         0
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_046.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-34
+
+======================================================================
+Imagen 35/101
+======================================================================
+
+📂 Procesando: MUESTRA_032.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 8
+  • Células normales:         7
+  • Células sospechosas:      1
+  • Porcentaje de riesgo:     12.5%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   82.5 px²
+  • Área máxima:   1071.5 px²
+  • Área promedio: 362.9 px²
+  • Desv. estándar: 301.6 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_032.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-35
+
+======================================================================
+Imagen 36/101
+======================================================================
+
+📂 Procesando: MUESTRA_071.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 42
+  • Células normales:         37
+  • Células sospechosas:      5
+  • Porcentaje de riesgo:     11.9%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   50.0 px²
+  • Área máxima:   3203.0 px²
+  • Área promedio: 353.0 px²
+  • Desv. estándar: 568.9 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_071.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-36
+
+======================================================================
+Imagen 37/101
+======================================================================
+
+📂 Procesando: MUESTRA_030.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 6
+  • Células normales:         5
+  • Células sospechosas:      1
+  • Porcentaje de riesgo:     16.7%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   166.5 px²
+  • Área máxima:   1497.0 px²
+  • Área promedio: 484.2 px²
+  • Desv. estándar: 469.3 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_030.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-37
+
+======================================================================
+Imagen 38/101
+======================================================================
+
+📂 Procesando: MUESTRA_081.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 25
+  • Células normales:         22
+  • Células sospechosas:      3
+  • Porcentaje de riesgo:     12.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   52.5 px²
+  • Área máxima:   1964.0 px²
+  • Área promedio: 371.6 px²
+  • Desv. estándar: 493.0 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_081.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-38
+
+======================================================================
+Imagen 39/101
+======================================================================
+
+📂 Procesando: MUESTRA_092.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 1
+  • Células normales:         1
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   183.5 px²
+  • Área máxima:   183.5 px²
+  • Área promedio: 183.5 px²
+  • Desv. estándar: 0.0 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_092.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-39
+
+======================================================================
+Imagen 40/101
+======================================================================
+
+📂 Procesando: MUESTRA_062.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 3
+  • Células normales:         3
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   85.5 px²
+  • Área máxima:   275.0 px²
+  • Área promedio: 158.7 px²
+  • Desv. estándar: 83.2 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_062.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-40
+
+======================================================================
+Imagen 41/101
+======================================================================
+
+📂 Procesando: MUESTRA_059.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 2
+  • Células normales:         2
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   64.0 px²
+  • Área máxima:   67.0 px²
+  • Área promedio: 65.5 px²
+  • Desv. estándar: 1.5 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_059.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-41
+
+======================================================================
+Imagen 42/101
+======================================================================
+
+📂 Procesando: MUESTRA_035.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 3
+  • Células normales:         3
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   64.5 px²
+  • Área máxima:   130.5 px²
+  • Área promedio: 102.0 px²
+  • Desv. estándar: 27.7 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_035.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-42
+
+======================================================================
+Imagen 43/101
+======================================================================
+
+📂 Procesando: MUESTRA_003.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 5
+  • Células normales:         5
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   58.5 px²
+  • Área máxima:   546.5 px²
+  • Área promedio: 255.8 px²
+  • Desv. estándar: 208.1 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_003.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-43
+
+======================================================================
+Imagen 44/101
+======================================================================
+
+📂 Procesando: MUESTRA_091.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 40
+  • Células normales:         36
+  • Células sospechosas:      4
+  • Porcentaje de riesgo:     10.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   52.0 px²
+  • Área máxima:   1408.0 px²
+  • Área promedio: 352.0 px²
+  • Desv. estándar: 351.7 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_091.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-44
+
+======================================================================
+Imagen 45/101
+======================================================================
+
+📂 Procesando: MUESTRA_094.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 22
+  • Células normales:         21
+  • Células sospechosas:      1
+  • Porcentaje de riesgo:     4.5%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   53.0 px²
+  • Área máxima:   1700.5 px²
+  • Área promedio: 274.6 px²
+  • Desv. estándar: 365.3 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_094.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-45
+
+======================================================================
+Imagen 46/101
+======================================================================
+
+📂 Procesando: MUESTRA_024.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 1
+  • Células normales:         1
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   269.0 px²
+  • Área máxima:   269.0 px²
+  • Área promedio: 269.0 px²
+  • Desv. estándar: 0.0 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_024.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-46
+
+======================================================================
+Imagen 47/101
+======================================================================
+
+📂 Procesando: MUESTRA_099.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 8
+  • Células normales:         7
+  • Células sospechosas:      1
+  • Porcentaje de riesgo:     12.5%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   69.0 px²
+  • Área máxima:   2212.5 px²
+  • Área promedio: 468.6 px²
+  • Desv. estándar: 690.2 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_099.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-47
+
+======================================================================
+Imagen 48/101
+======================================================================
+
+📂 Procesando: MUESTRA_034.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 3
+  • Células normales:         3
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   59.5 px²
+  • Área máxima:   419.0 px²
+  • Área promedio: 258.5 px²
+  • Desv. estándar: 149.3 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_034.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-48
+
+======================================================================
+Imagen 49/101
+======================================================================
+
+📂 Procesando: MUESTRA_017.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 1285
+  • Células normales:         1257
+  • Células sospechosas:      28
+  • Porcentaje de riesgo:     2.2%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   50.0 px²
+  • Área máxima:   4776.5 px²
+  • Área promedio: 147.4 px²
+  • Desv. estándar: 356.1 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_017.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-49
+
+======================================================================
+Imagen 50/101
+======================================================================
+
+📂 Procesando: MUESTRA_002.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 4
+  • Células normales:         3
+  • Células sospechosas:      1
+  • Porcentaje de riesgo:     25.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   86.5 px²
+  • Área máxima:   4986.0 px²
+  • Área promedio: 1498.5 px²
+  • Desv. estándar: 2019.4 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_002.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-50
+
+======================================================================
+Imagen 51/101
+======================================================================
+
+📂 Procesando: MUESTRA_009.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 4
+  • Células normales:         4
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   57.5 px²
+  • Área máxima:   588.0 px²
+  • Área promedio: 219.1 px²
+  • Desv. estándar: 214.6 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_009.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-51
+
+======================================================================
+Imagen 52/101
+======================================================================
+
+📂 Procesando: MUESTRA_040.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 2
+  • Células normales:         2
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   56.5 px²
+  • Área máxima:   671.5 px²
+  • Área promedio: 364.0 px²
+  • Desv. estándar: 307.5 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_040.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-52
+
+======================================================================
+Imagen 53/101
+======================================================================
+
+📂 Procesando: MUESTRA_043.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 2
+  • Células normales:         1
+  • Células sospechosas:      1
+  • Porcentaje de riesgo:     50.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   104.5 px²
+  • Área máxima:   3794.5 px²
+  • Área promedio: 1949.5 px²
+  • Desv. estándar: 1845.0 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_043.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-53
+
+======================================================================
+Imagen 54/101
+======================================================================
+
+📂 Procesando: MUESTRA_079.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 2
+  • Células normales:         2
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   77.0 px²
+  • Área máxima:   581.0 px²
+  • Área promedio: 329.0 px²
+  • Desv. estándar: 252.0 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_079.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-54
+
+======================================================================
+Imagen 55/101
+======================================================================
+
+📂 Procesando: MUESTRA_022.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 0
+  • Células normales:         0
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_022.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-55
+
+======================================================================
+Imagen 56/101
+======================================================================
+
+📂 Procesando: MUESTRA_012.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 0
+  • Células normales:         0
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_012.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-56
+
+======================================================================
+Imagen 57/101
+======================================================================
+
+📂 Procesando: MUESTRA_087.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 4
+  • Células normales:         4
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   93.5 px²
+  • Área máxima:   130.0 px²
+  • Área promedio: 111.4 px²
+  • Desv. estándar: 12.9 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_087.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-57
+
+======================================================================
+Imagen 58/101
+======================================================================
+
+📂 Procesando: MUESTRA_029.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 4
+  • Células normales:         2
+  • Células sospechosas:      2
+  • Porcentaje de riesgo:     50.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   147.5 px²
+  • Área máxima:   1015.0 px²
+  • Área promedio: 638.2 px²
+  • Desv. estándar: 360.8 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_029.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-58
+
+======================================================================
+Imagen 59/101
+======================================================================
+
+📂 Procesando: MUESTRA_020.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 21
+  • Células normales:         20
+  • Células sospechosas:      1
+  • Porcentaje de riesgo:     4.8%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   52.0 px²
+  • Área máxima:   2098.5 px²
+  • Área promedio: 339.7 px²
+  • Desv. estándar: 442.4 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_020.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-59
+
+======================================================================
+Imagen 60/101
+======================================================================
+
+📂 Procesando: MUESTRA_027.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 4
+  • Células normales:         4
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   92.5 px²
+  • Área máxima:   735.5 px²
+  • Área promedio: 305.8 px²
+  • Desv. estándar: 252.1 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_027.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-60
+
+======================================================================
+Imagen 61/101
+======================================================================
+
+📂 Procesando: MUESTRA_060.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 42
+  • Células normales:         37
+  • Células sospechosas:      5
+  • Porcentaje de riesgo:     11.9%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   56.5 px²
+  • Área máxima:   2449.0 px²
+  • Área promedio: 364.0 px²
+  • Desv. estándar: 483.0 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_060.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-61
+
+======================================================================
+Imagen 62/101
+======================================================================
+
+📂 Procesando: MUESTRA_089.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 5
+  • Células normales:         5
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   58.0 px²
+  • Área máxima:   149.5 px²
+  • Área promedio: 100.2 px²
+  • Desv. estándar: 34.8 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_089.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-62
+
+======================================================================
+Imagen 63/101
+======================================================================
+
+📂 Procesando: MUESTRA_019.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 18
+  • Células normales:         16
+  • Células sospechosas:      2
+  • Porcentaje de riesgo:     11.1%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   50.5 px²
+  • Área máxima:   1496.5 px²
+  • Área promedio: 371.4 px²
+  • Desv. estándar: 376.3 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_019.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-63
+
+======================================================================
+Imagen 64/101
+======================================================================
+
+📂 Procesando: MUESTRA_042.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 2
+  • Células normales:         2
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   146.5 px²
+  • Área máxima:   327.0 px²
+  • Área promedio: 236.8 px²
+  • Desv. estándar: 90.2 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_042.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-64
+
+======================================================================
+Imagen 65/101
+======================================================================
+
+📂 Procesando: MUESTRA_093.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 5
+  • Células normales:         5
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   52.5 px²
+  • Área máxima:   417.0 px²
+  • Área promedio: 170.7 px²
+  • Desv. estándar: 127.0 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_093.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-65
+
+======================================================================
+Imagen 66/101
+======================================================================
+
+📂 Procesando: MUESTRA_044.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 30
+  • Células normales:         27
+  • Células sospechosas:      3
+  • Porcentaje de riesgo:     10.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   78.5 px²
+  • Área máxima:   1525.0 px²
+  • Área promedio: 324.3 px²
+  • Desv. estándar: 379.3 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_044.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-66
+
+======================================================================
+Imagen 67/101
+======================================================================
+
+📂 Procesando: MUESTRA_090.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 1
+  • Células normales:         1
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   87.5 px²
+  • Área máxima:   87.5 px²
+  • Área promedio: 87.5 px²
+  • Desv. estándar: 0.0 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_090.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-67
+
+======================================================================
+Imagen 68/101
+======================================================================
+
+📂 Procesando: MUESTRA_025.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 674
+  • Células normales:         612
+  • Células sospechosas:      62
+  • Porcentaje de riesgo:     9.2%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   50.0 px²
+  • Área máxima:   4963.5 px²
+  • Área promedio: 377.9 px²
+  • Desv. estándar: 630.8 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_025.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-68
+
+======================================================================
+Imagen 69/101
+======================================================================
+
+📂 Procesando: MUESTRA_015.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 529
+  • Células normales:         466
+  • Células sospechosas:      63
+  • Porcentaje de riesgo:     11.9%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   50.0 px²
+  • Área máxima:   4676.0 px²
+  • Área promedio: 422.2 px²
+  • Desv. estándar: 657.8 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_015.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-69
+
+======================================================================
+Imagen 70/101
+======================================================================
+
+📂 Procesando: MUESTRA_054.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 547
+  • Células normales:         473
+  • Células sospechosas:      74
+  • Porcentaje de riesgo:     13.5%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   50.0 px²
+  • Área máxima:   4867.0 px²
+  • Área promedio: 466.0 px²
+  • Desv. estándar: 730.6 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_054.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-70
+
+======================================================================
+Imagen 71/101
+======================================================================
+
+📂 Procesando: MUESTRA_097.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 9
+  • Células normales:         7
+  • Células sospechosas:      2
+  • Porcentaje de riesgo:     22.2%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   62.5 px²
+  • Área máxima:   2075.5 px²
+  • Área promedio: 532.4 px²
+  • Desv. estándar: 719.7 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_097.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-71
+
+======================================================================
+Imagen 72/101
+======================================================================
+
+📂 Procesando: MUESTRA_006.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 37
+  • Células normales:         35
+  • Células sospechosas:      2
+  • Porcentaje de riesgo:     5.4%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   54.5 px²
+  • Área máxima:   1908.5 px²
+  • Área promedio: 289.1 px²
+  • Desv. estándar: 368.2 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_006.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-72
+
+======================================================================
+Imagen 73/101
+======================================================================
+
+📂 Procesando: MUESTRA_076.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 1300
+  • Células normales:         1282
+  • Células sospechosas:      18
+  • Porcentaje de riesgo:     1.4%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   50.0 px²
+  • Área máxima:   4498.5 px²
+  • Área promedio: 131.8 px²
+  • Desv. estándar: 293.7 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_076.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-73
+
+======================================================================
+Imagen 74/101
+======================================================================
+
+📂 Procesando: MUESTRA_010.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 5
+  • Células normales:         4
+  • Células sospechosas:      1
+  • Porcentaje de riesgo:     20.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   144.5 px²
+  • Área máxima:   2969.5 px²
+  • Área promedio: 929.1 px²
+  • Desv. estándar: 1048.3 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_010.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-74
+
+======================================================================
+Imagen 75/101
+======================================================================
+
+📂 Procesando: MUESTRA_016.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 0
+  • Células normales:         0
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_016.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-75
+
+======================================================================
+Imagen 76/101
+======================================================================
+
+📂 Procesando: MUESTRA_036.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 4
+  • Células normales:         4
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   54.5 px²
+  • Área máxima:   386.0 px²
+  • Área promedio: 150.5 px²
+  • Desv. estándar: 136.7 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_036.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-76
+
+======================================================================
+Imagen 77/101
+======================================================================
+
+📂 Procesando: MUESTRA_047.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 11
+  • Células normales:         10
+  • Células sospechosas:      1
+  • Porcentaje de riesgo:     9.1%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   52.5 px²
+  • Área máxima:   1027.0 px²
+  • Área promedio: 365.3 px²
+  • Desv. estándar: 284.0 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_047.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-77
+
+======================================================================
+Imagen 78/101
+======================================================================
+
+📂 Procesando: MUESTRA_100.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 4
+  • Células normales:         4
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   82.0 px²
+  • Área máxima:   422.5 px²
+  • Área promedio: 241.9 px²
+  • Desv. estándar: 126.0 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_100.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-78
+
+======================================================================
+Imagen 79/101
+======================================================================
+
+📂 Procesando: MUESTRA_031.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 1
+  • Células normales:         1
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   109.0 px²
+  • Área máxima:   109.0 px²
+  • Área promedio: 109.0 px²
+  • Desv. estándar: 0.0 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_031.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-79
+
+======================================================================
+Imagen 80/101
+======================================================================
+
+📂 Procesando: MUESTRA_057.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 22
+  • Células normales:         20
+  • Células sospechosas:      2
+  • Porcentaje de riesgo:     9.1%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   56.5 px²
+  • Área máxima:   2291.5 px²
+  • Área promedio: 419.6 px²
+  • Desv. estándar: 611.9 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_057.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-80
+
+======================================================================
+Imagen 81/101
+======================================================================
+
+📂 Procesando: MUESTRA_068.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 46
+  • Células normales:         38
+  • Células sospechosas:      8
+  • Porcentaje de riesgo:     17.4%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   50.0 px²
+  • Área máxima:   3540.0 px²
+  • Área promedio: 453.9 px²
+  • Desv. estándar: 635.4 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_068.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-81
+
+======================================================================
+Imagen 82/101
+======================================================================
+
+📂 Procesando: MUESTRA_033.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 1
+  • Células normales:         0
+  • Células sospechosas:      1
+  • Porcentaje de riesgo:     100.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   1104.0 px²
+  • Área máxima:   1104.0 px²
+  • Área promedio: 1104.0 px²
+  • Desv. estándar: 0.0 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_033.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-82
+
+======================================================================
+Imagen 83/101
+======================================================================
+
+📂 Procesando: MUESTRA_080.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 0
+  • Células normales:         0
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_080.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-83
+
+======================================================================
+Imagen 84/101
+======================================================================
+
+📂 Procesando: MUESTRA_023.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 25
+  • Células normales:         25
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   56.0 px²
+  • Área máxima:   779.0 px²
+  • Área promedio: 248.7 px²
+  • Desv. estándar: 182.3 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_023.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-84
+
+======================================================================
+Imagen 85/101
+======================================================================
+
+📂 Procesando: MUESTRA_028.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 3
+  • Células normales:         3
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   83.0 px²
+  • Área máxima:   187.5 px²
+  • Área promedio: 139.2 px²
+  • Desv. estándar: 43.0 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_028.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-85
+
+======================================================================
+Imagen 86/101
+======================================================================
+
+📂 Procesando: MUESTRA_005.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 5
+  • Células normales:         5
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   50.5 px²
+  • Área máxima:   325.5 px²
+  • Área promedio: 128.1 px²
+  • Desv. estándar: 105.0 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_005.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-86
+
+======================================================================
+Imagen 87/101
+======================================================================
+
+📂 Procesando: MUESTRA_052.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 0
+  • Células normales:         0
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_052.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-87
+
+======================================================================
+Imagen 88/101
+======================================================================
+
+📂 Procesando: MUESTRA_086.jpg
+   [1/5] Preprocesando...
+   ⚠️  Calidad sospechosa: ⚠️  Contraste muy bajo (imagen plana), ⚠️  Imagen muy clara (sobreexpuesta)
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 0
+  • Células normales:         0
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_086.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-88
+
+======================================================================
+Imagen 89/101
+======================================================================
+
+📂 Procesando: MUESTRA_084.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 21
+  • Células normales:         19
+  • Células sospechosas:      2
+  • Porcentaje de riesgo:     9.5%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   50.5 px²
+  • Área máxima:   921.5 px²
+  • Área promedio: 263.6 px²
+  • Desv. estándar: 277.2 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_084.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-89
+
+======================================================================
+Imagen 90/101
+======================================================================
+
+📂 Procesando: MUESTRA_082.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 21
+  • Células normales:         20
+  • Células sospechosas:      1
+  • Porcentaje de riesgo:     4.8%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   53.5 px²
+  • Área máxima:   2468.0 px²
+  • Área promedio: 284.7 px²
+  • Desv. estándar: 514.4 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_082.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-90
+
+======================================================================
+Imagen 91/101
+======================================================================
+
+📂 Procesando: MUESTRA_045.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 1
+  • Células normales:         1
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   76.0 px²
+  • Área máxima:   76.0 px²
+  • Área promedio: 76.0 px²
+  • Desv. estándar: 0.0 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_045.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-91
+
+======================================================================
+Imagen 92/101
+======================================================================
+
+📂 Procesando: MUESTRA_055.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 23
+  • Células normales:         19
+  • Células sospechosas:      4
+  • Porcentaje de riesgo:     17.4%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   53.0 px²
+  • Área máxima:   3304.5 px²
+  • Área promedio: 626.0 px²
+  • Desv. estándar: 972.2 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_055.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-92
+
+======================================================================
+Imagen 93/101
+======================================================================
+
+📂 Procesando: MUESTRA_021.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 3
+  • Células normales:         2
+  • Células sospechosas:      1
+  • Porcentaje de riesgo:     33.3%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   84.5 px²
+  • Área máxima:   3769.5 px²
+  • Área promedio: 1315.0 px²
+  • Desv. estándar: 1735.6 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_021.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-93
+
+======================================================================
+Imagen 94/101
+======================================================================
+
+📂 Procesando: MUESTRA_051.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 2
+  • Células normales:         1
+  • Células sospechosas:      1
+  • Porcentaje de riesgo:     50.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   96.5 px²
+  • Área máxima:   1207.5 px²
+  • Área promedio: 652.0 px²
+  • Desv. estándar: 555.5 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_051.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-94
+
+======================================================================
+Imagen 95/101
+======================================================================
+
+📂 Procesando: MUESTRA_088.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 0
+  • Células normales:         0
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_088.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-95
+
+======================================================================
+Imagen 96/101
+======================================================================
+
+📂 Procesando: MUESTRA_098.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 0
+  • Células normales:         0
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_098.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-96
+
+======================================================================
+Imagen 97/101
+======================================================================
+
+📂 Procesando: MUESTRA_004.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 589
+  • Células normales:         511
+  • Células sospechosas:      78
+  • Porcentaje de riesgo:     13.2%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   50.0 px²
+  • Área máxima:   4887.5 px²
+  • Área promedio: 452.1 px²
+  • Desv. estándar: 699.6 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_004.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-97
+
+======================================================================
+Imagen 98/101
+======================================================================
+
+📂 Procesando: MUESTRA_069.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 8
+  • Células normales:         8
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   72.0 px²
+  • Área máxima:   580.0 px²
+  • Área promedio: 182.9 px²
+  • Desv. estándar: 155.4 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_069.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-98
+
+======================================================================
+Imagen 99/101
+======================================================================
+
+📂 Procesando: MUESTRA_039.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 10
+  • Células normales:         7
+  • Células sospechosas:      3
+  • Porcentaje de riesgo:     30.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   80.0 px²
+  • Área máxima:   1445.5 px²
+  • Área promedio: 529.9 px²
+  • Desv. estándar: 484.8 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_039.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-99
+
+======================================================================
+Imagen 100/101
+======================================================================
+
+📂 Procesando: MUESTRA_085.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 1
+  • Células normales:         1
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+Estadísticas de áreas:
+  • Área mínima:   65.5 px²
+  • Área máxima:   65.5 px²
+  • Área promedio: 65.5 px²
+  • Desv. estándar: 0.0 px²
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_085.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-100
+
+======================================================================
+Imagen 101/101
+======================================================================
+
+📂 Procesando: MUESTRA_067.jpg
+   [1/5] Preprocesando...
+   [2/5] Aplicando filtro DoG (σ1=3.0, σ2=5.0)...
+   [3/5] Analizando núcleos...
+============================================================
+REPORTE DE ANÁLISIS - CitoCounter Proto
+============================================================
+Total de células detectadas: 0
+  • Células normales:         0
+  • Células sospechosas:      0
+  • Porcentaje de riesgo:     0.0%
+------------------------------------------------------------
+============================================================
+   [4/5] Generando visualizaciones...
+   💾 Resultados guardados en: data/results/PANEL_MUESTRA_067.png
+   [5/5] Registrando en bitácora...
+   ✅ Resultados registrados en bitácora: T-001-101
+
+======================================================================
+📊 RESUMEN DEL PROCESAMIENTO LOTE
+======================================================================
+Total de imágenes procesadas: 101/101
+Total de células detectadas: 8784
+Total de células sospechosas: 635
+Promedio de riesgo: 7.2%
+======================================================================
