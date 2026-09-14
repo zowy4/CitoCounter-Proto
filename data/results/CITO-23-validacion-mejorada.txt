@@ -1,0 +1,42 @@
+CITO-23 - Validación de métricas del detector DoG (mejorada)
+======================================================================
+
+Imágenes evaluadas: 3
+Umbral IoU: 0.50
+
+MÉTRICAS TOTALES:
+----------------------------------------------------------------------
+TP total:   0
+FP total:   0
+FN total:   0
+Precision:  0.0000
+Recall:     0.0000
+F1-Score:   0.0000
+Mean IoU:   0.0000
+
+DETALLE POR IMAGEN:
+----------------------------------------------------------------------
+
+MUESTRA_001.jpg:
+  Label file: CitoDataset_v1/labels/train/078.txt
+  Exists: False
+  Detections: 0
+  References: 0
+  TP=0 FP=0 FN=0
+  P=0.0000 R=0.0000 F1=0.0000 IoU=0.0000
+
+MUESTRA_002.jpg:
+  Label file: CitoDataset_v1/labels/train/063.txt
+  Exists: False
+  Detections: 0
+  References: 0
+  TP=0 FP=0 FN=0
+  P=0.0000 R=0.0000 F1=0.0000 IoU=0.0000
+
+MUESTRA_003.jpg:
+  Label file: CitoDataset_v1/labels/train/042.txt
+  Exists: False
+  Detections: 0
+  References: 0
+  TP=0 FP=0 FN=0
+  P=0.0000 R=0.0000 F1=0.0000 IoU=0.0000

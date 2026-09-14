@@ -1,0 +1,70 @@
+{
+  "metadata": {
+    "script": "validar_metricas_cito23.py",
+    "version": "1.0",
+    "iou_threshold": 0.5,
+    "images_evaluated": 3
+  },
+  "summary": {
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "mean_iou": 0.0
+  },
+  "results": [
+    {
+      "image_id": "MUESTRA_001.jpg",
+      "label_file": "CitoDataset_v1/labels/train/078.txt",
+      "label_exists": false,
+      "num_detections": 0,
+      "num_references": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "mean_iou": 0.0,
+      "matches": [],
+      "unmatched_dets": [],
+      "unmatched_refs": []
+    },
+    {
+      "image_id": "MUESTRA_002.jpg",
+      "label_file": "CitoDataset_v1/labels/train/063.txt",
+      "label_exists": false,
+      "num_detections": 0,
+      "num_references": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "mean_iou": 0.0,
+      "matches": [],
+      "unmatched_dets": [],
+      "unmatched_refs": []
+    },
+    {
+      "image_id": "MUESTRA_003.jpg",
+      "label_file": "CitoDataset_v1/labels/train/042.txt",
+      "label_exists": false,
+      "num_detections": 0,
+      "num_references": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "mean_iou": 0.0,
+      "matches": [],
+      "unmatched_dets": [],
+      "unmatched_refs": []
+    }
+  ]
+}
