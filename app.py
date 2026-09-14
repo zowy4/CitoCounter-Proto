@@ -30,6 +30,11 @@ from src.interfaz_resultados import (
     generar_csv_resultados,
     resumen_resultado_experimental,
 )
+from src.historial_resultados import (
+    agregar_historial,
+    cargar_historial,
+    filas_para_tabla,
+)
 
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 
@@ -64,6 +69,31 @@ st.title("🔬 CitoCounter Proto - Panel de Control Interactivo")
 st.caption("Análisis experimental de núcleos con filtro DoG y regla de área de referencia.")
 st.warning(AVISO_USO_EXPERIMENTAL, icon="⚠️")
 st.markdown("---")
+
+# ============================================================================
+# HISTORIAL Y MÉTRICAS CONSOLIDADAS (CITO-27)
+# ============================================================================
+historial = cargar_historial()
+with st.expander("📈 Historial de ejecuciones y métricas consolidadas", expanded=False):
+    if not historial:
+        st.info("Aún no hay ejecuciones registradas en la bitácora.")
+    else:
+        resumen_historial = agregar_historial(historial)
+        col_hist_1, col_hist_2, col_hist_3, col_hist_4 = st.columns(4)
+        with col_hist_1:
+            st.metric("Ejecuciones", resumen_historial["total_ejecuciones"])
+        with col_hist_2:
+            st.metric("Imágenes", resumen_historial["imagenes_unicas"])
+        with col_hist_3:
+            st.metric("Células detectadas", resumen_historial["total_celulas"])
+        with col_hist_4:
+            st.metric("Promedio experimental", f"{resumen_historial['promedio_riesgo']:.1f}%")
+
+        st.caption(
+            "Resumen de bitacora_experimentos.csv. Los porcentajes son experimentales "
+            "y no equivalen a una evaluación clínica."
+        )
+        st.dataframe(filas_para_tabla(historial), use_container_width=True, hide_index=True)
 
 # ============================================================================
 # BARRA LATERAL (CONTROLES)
