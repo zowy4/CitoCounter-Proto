@@ -25,6 +25,13 @@ from src.preprocessing import preprocesar_imagen
 from src.dog_filter import aplicar_filtro_dog
 from src.analysis import analizar_nucleos
 from src.visualization import dibujar_estadisticas_en_imagen, crear_vista_deteccion
+from src.interfaz_resultados import (
+    AVISO_USO_EXPERIMENTAL,
+    generar_csv_resultados,
+    resumen_resultado_experimental,
+)
+
+MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 
 # ============================================================================
 # CONFIGURACIÓN DE LA PÁGINA
@@ -54,7 +61,8 @@ st.markdown("""
 # HEADER
 # ============================================================================
 st.title("🔬 CitoCounter Proto - Panel de Control Interactivo")
-st.markdown("**Análisis celular automatizado con algoritmo DoG + Regla del 3x**")
+st.caption("Análisis experimental de núcleos con filtro DoG y regla de área de referencia.")
+st.warning(AVISO_USO_EXPERIMENTAL, icon="⚠️")
 st.markdown("---")
 
 # ============================================================================
@@ -70,7 +78,7 @@ with st.sidebar:
         "Sigma 1 (Detalle fino)", 
         min_value=0.5, 
         max_value=10.0, 
-        value=3.0, 
+        value=7.0,
         step=0.1,
         help="Controla la detección de estructuras pequeñas"
     )
@@ -79,7 +87,7 @@ with st.sidebar:
         "Sigma 2 (Estructura general)", 
         min_value=0.5, 
         max_value=15.0, 
-        value=5.0, 
+        value=8.0,
         step=0.1,
         help="Controla la detección de estructuras grandes"
     )
@@ -90,10 +98,7 @@ with st.sidebar:
         st.info("💡 Regla recomendada: σ2 ≈ 1.6-2.0 × σ1")
     else:
         ratio = sigma2 / sigma1
-        if 1.6 <= ratio <= 2.0:
-            st.success(f"✅ Ratio óptimo: {ratio:.2f}x")
-        else:
-            st.warning(f"⚠️ Ratio: {ratio:.2f}x (recomendado: 1.6-2.0x)")
+        st.info(f"Relación actual: {ratio:.2f}x")
     
     st.markdown("---")
     
@@ -169,12 +174,20 @@ uploaded_file = st.file_uploader(
 )
 
 if uploaded_file is not None:
-    # Guardar archivo temporalmente (los módulos esperan una ruta de archivo)
-    tfile = tempfile.NamedTemporaryFile(delete=False, suffix='.jpg')
-    tfile.write(uploaded_file.read())
-    ruta_temp = tfile.name
+    contenido_subido = uploaded_file.getvalue()
+    extension = Path(uploaded_file.name).suffix.lower()
+    ruta_temp = None
+
+    if len(contenido_subido) > MAX_UPLOAD_BYTES:
+        st.error("La imagen supera el límite local de 10 MiB.")
+        st.stop()
     
     try:
+        # Los módulos del pipeline requieren una ruta; la extensión se conserva para OpenCV.
+        with tempfile.NamedTemporaryFile(delete=False, suffix=extension) as archivo_temporal:
+            archivo_temporal.write(contenido_subido)
+            ruta_temp = archivo_temporal.name
+
         # --- PROCESAMIENTO ---
         with st.spinner('🔬 Analizando células... Esto puede tardar unos segundos.'):
             
@@ -246,13 +259,8 @@ if uploaded_file is not None:
                 help="Porcentaje de células sospechosas respecto al total"
             )
         
-        # Interpretación clínica
-        if porcentaje < 5:
-            st.success("✅ **Interpretación:** Bajo riesgo - Perfil mayormente normal")
-        elif porcentaje < 10:
-            st.warning("⚠️ **Interpretación:** Riesgo moderado - Revisar células marcadas")
-        else:
-            st.error("🔴 **Interpretación:** Riesgo elevado - Requiere revisión detallada")
+        st.info("Resultado experimental: el porcentaje mostrado no constituye una evaluación clínica.")
+        st.warning(resumen_resultado_experimental(resultados), icon="🔎")
         
         st.markdown("---")
         
@@ -381,38 +389,26 @@ if uploaded_file is not None:
                 mime="image/png"
             )
             
-            # Datos CSV
-            import csv
-            from io import StringIO
-            
-            csv_buffer = StringIO()
-            writer = csv.writer(csv_buffer)
-            writer.writerow(['Métrica', 'Valor'])
-            writer.writerow(['Total Células', resultados['total_celulas']])
-            writer.writerow(['Células Normales', resultados['normales']])
-            writer.writerow(['Células Sospechosas', resultados['sospechosas']])
-            writer.writerow(['Porcentaje de Riesgo', f"{resultados['porcentaje_riesgo']:.1f}%"])
-            writer.writerow(['Sigma 1', sigma1])
-            writer.writerow(['Sigma 2', sigma2])
-            writer.writerow(['CLAHE', 'Sí' if usar_clahe else 'No'])
-            writer.writerow(['Reducción Ruido', 'Sí' if reducir_ruido else 'No'])
-            
             st.download_button(
                 label="📥 Descargar Datos (CSV)",
-                data=csv_buffer.getvalue(),
+                data=generar_csv_resultados(
+                    resultados,
+                    sigma1,
+                    sigma2,
+                    usar_clahe,
+                    reducir_ruido,
+                ),
                 file_name=f"citocounter_datos_{uploaded_file.name.split('.')[0]}.csv",
                 mime="text/csv"
             )
     
-    except Exception as e:
-        st.error(f"❌ **Error al procesar la imagen:**")
-        st.exception(e)
-        st.info("💡 Verifica que la imagen sea válida y que los módulos estén correctamente instalados.")
+    except Exception:
+        st.error("No fue posible procesar la imagen. Verifica que el archivo sea válido.")
     
     finally:
         # Limpieza: eliminar archivo temporal
         try:
-            if os.path.exists(ruta_temp):
+            if ruta_temp and os.path.exists(ruta_temp):
                 os.unlink(ruta_temp)
         except:
             pass
