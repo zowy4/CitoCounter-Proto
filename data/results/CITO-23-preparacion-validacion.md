@@ -85,3 +85,37 @@ python calcular_metricas_cito23.py --match-distance 10.0
 ```
 
 El Jaccard de detección no sustituye el IoU geométrico de cajas o máscaras. La actividad debe mantenerse en curso hasta contar con ground truth trazable, un conjunto de evaluación independiente y criterios de aceptación validados en Jira.
+
+## Validación con ground truth sintético (Fase 2.1, 2026-09-13)
+
+Para desbloquear la verificación del pipeline de métricas mientras no exista
+anotación experta, se generó un dataset sintético con verdad conocida al 100%
+([generar_groundtruth_sintetico.py](../../generar_groundtruth_sintetico.py),
+semilla 42, conjuntos separados de calibración y evaluación en
+[data/sintetico](../sintetico)).
+
+Resultado sobre el conjunto de EVALUACIÓN (SINTETICA_101..105, sigma 3/5,
+umbral IoU 0.5) — [CITO-23-validacion-sintetica.txt](CITO-23-validacion-sintetica.txt):
+
+| Métrica | Valor |
+|---------|-------|
+| TP / FP / FN | 78 / 0 / 0 |
+| Precision / Recall / F1 | 1.0000 / 1.0000 / 1.0000 |
+| Mean IoU | 0.7159 |
+
+**Qué valida y qué NO valida este resultado**:
+- ✅ Valida: carga de índice y etiquetas YOLO, ejecución del detector,
+  emparejamiento greedy por IoU, cálculo de TP/FP/FN/P/R/F1/IoU y reporte
+  .txt/.json. El pipeline de métricas queda verificado de punta a punta.
+- ❌ NO valida: desempeño del detector sobre imágenes REALES. El dataset
+  sintético usa polaridad de núcleos claros sobre fondo oscuro (dominio que el
+  pipeline detecta); las imágenes reales EDF/MUESTRA tienen núcleos oscuros
+  sobre fondo claro, donde el pipeline actual produce 0-1 detecciones
+  (ver hallazgo estructural en
+  [FASE2-diagnostico-groundtruth.md](FASE2-diagnostico-groundtruth.md)).
+- ❌ NO sustituye la anotación experta citológica (Fase 2.2): ninguna
+  conclusión clínica puede derivarse de datos sintéticos.
+
+**Estado de CITO-23 tras esta fase**: el pipeline de métricas está listo y
+verificado; el cierre de la actividad sigue bloqueado por (1) anotación experta
+del subconjunto real y (2) decisión de polaridad/recalibración (Fase 2.3).

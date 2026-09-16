@@ -13,6 +13,7 @@ Formato YOLO esperado en ground truth:
 class_id center_x center_y width height (valores normalizados 0-1)
 """
 
+import argparse
 import csv
 import cv2
 import json
@@ -247,10 +248,11 @@ def obtener_etiquetas_faltantes(image_ids: List[str], labels_dir: Path,
     return faltantes
 
 
-def ejecutar_detector(image_path: Path) -> Tuple[List[Dict], int, int]:
+def ejecutar_detector(image_path: Path, sigma1: float = 7.0,
+                      sigma2: float = 8.0) -> Tuple[List[Dict], int, int]:
     """Ejecuta el pipeline y devuelve detecciones con centro y área."""
     imagen_gris, imagen_original = preprocesar_imagen(str(image_path))
-    imagen_dog = aplicar_filtro_dog(imagen_gris, sigma1=7.0, sigma2=8.0)
+    imagen_dog = aplicar_filtro_dog(imagen_gris, sigma1=sigma1, sigma2=sigma2)
     resultados = analizar_nucleos(imagen_dog, imagen_original)
 
     detecciones = []
@@ -310,31 +312,72 @@ def validate_single_image(image_id: str, detections: List[Dict],
     calc = MetricsCalculator(iou_threshold=0.5)
     metrics = calc.match_detections(detection_boxes, reference_boxes)
 
+    # Matches serializables a JSON (BoundingBox -> coordenadas)
+    matches_json = [
+        {
+            'det_idx': m['det_idx'],
+            'ref_idx': m['ref_idx'],
+            'iou': m['iou'],
+            'det_box': [m['det'].x_min, m['det'].y_min, m['det'].x_max, m['det'].y_max],
+            'ref_box': [m['ref'].x_min, m['ref'].y_min, m['ref'].x_max, m['ref'].y_max],
+        }
+        for m in metrics['matches']
+    ]
+
     return {
         'image_id': image_id,
         'label_file': str(label_file),
         'label_exists': label_file.exists(),
         'num_detections': len(detection_boxes),
         'num_references': len(reference_boxes),
-        **metrics
+        **{k: v for k, v in metrics.items() if k != 'matches'},
+        'matches': matches_json,
     }
 
 
 def main():
     """Script principal de validación."""
-    dataset_index_path = Path('data/dataset_index.csv')
-    labels_dir = Path('CitoDataset_v1/labels/train')
-    output_path = Path('data/results/CITO-23-validacion-mejorada.txt')
-    output_json = Path('data/results/CITO-23-validacion-mejorada.json')
+    parser = argparse.ArgumentParser(
+        description='Valida métricas del detector DoG contra anotaciones YOLO.'
+    )
+    parser.add_argument('--images-dir', default='data/raw',
+                        help='Carpeta con las imágenes a evaluar (default: data/raw)')
+    parser.add_argument('--labels-dir', default='CitoDataset_v1/labels/train',
+                        help='Carpeta con las etiquetas YOLO '
+                             '(default: CitoDataset_v1/labels/train)')
+    parser.add_argument('--index', default='data/dataset_index.csv',
+                        help='CSV con columnas ID_Imagen y Nombre_Original '
+                             '(default: data/dataset_index.csv)')
+    parser.add_argument('--output-prefix',
+                        default='data/results/CITO-23-validacion-mejorada',
+                        help='Prefijo de los reportes .txt/.json de salida')
+    parser.add_argument('--sigma1', type=float, default=7.0,
+                        help='Sigma menor del filtro DoG (default: 7.0)')
+    parser.add_argument('--sigma2', type=float, default=8.0,
+                        help='Sigma mayor del filtro DoG (default: 8.0)')
+    parser.add_argument('--images', nargs='*', default=None,
+                        help='Subconjunto explícito de nombres de imagen. Por defecto: '
+                             'todas las imágenes del índice con etiqueta disponible.')
+    args = parser.parse_args()
+
+    images_dir = Path(args.images_dir)
+    labels_dir = Path(args.labels_dir)
+    dataset_index_path = Path(args.index)
+    output_path = Path(args.output_prefix + '.txt')
+    output_json = Path(args.output_prefix + '.json')
 
     # Verificar que existen las rutas
     if not dataset_index_path.exists():
         logger.error(f"No existe: {dataset_index_path}")
-        return
+        return 1
 
     if not labels_dir.exists():
         logger.error(f"No existe: {labels_dir}")
-        return
+        return 1
+
+    if not images_dir.exists():
+        logger.error(f"No existe: {images_dir}")
+        return 1
 
     logger.info("Cargando dataset index...")
     dataset_index = load_dataset_index(dataset_index_path)
@@ -344,22 +387,42 @@ def main():
     label_files = list(labels_dir.glob("*.txt"))
     logger.info(f"Se encontraron {len(label_files)} archivos de etiquetas")
 
-    # Para esta validación, usamos un conjunto simple de test
-    test_images = ['MUESTRA_001.jpg', 'MUESTRA_002.jpg', 'MUESTRA_003.jpg']
-
-    etiquetas_faltantes = obtener_etiquetas_faltantes(
-        test_images, labels_dir, dataset_index
-    )
-    if etiquetas_faltantes:
-        logger.error(
-            "No se calcularon métricas: faltan anotaciones para %d imágenes.",
-            len(etiquetas_faltantes),
+    if args.images:
+        # Subconjunto explícito: exige etiquetas para todas las imágenes
+        test_images = list(args.images)
+        etiquetas_faltantes = obtener_etiquetas_faltantes(
+            test_images, labels_dir, dataset_index
         )
-        for image_id, label_file in etiquetas_faltantes:
-            logger.error("  %s: %s", image_id, label_file)
-        return 1
+        if etiquetas_faltantes:
+            logger.error(
+                "No se calcularon métricas: faltan anotaciones para %d imágenes.",
+                len(etiquetas_faltantes),
+            )
+            for image_id, label_file in etiquetas_faltantes:
+                logger.error("  %s: %s", image_id, label_file)
+            return 1
+    else:
+        # Modo automático: todas las imágenes del índice con etiqueta disponible
+        test_images = []
+        omitidas = []
+        for image_id in dataset_index:
+            if not (images_dir / image_id).is_file():
+                omitidas.append((image_id, 'imagen no encontrada'))
+                continue
+            original_name = dataset_index.get(image_id, image_id)
+            label_file = labels_dir / f"{Path(original_name).stem}.txt"
+            if not label_file.is_file():
+                omitidas.append((image_id, 'etiqueta no encontrada'))
+                continue
+            test_images.append(image_id)
+        for image_id, motivo in omitidas:
+            logger.warning("Omitida %s: %s", image_id, motivo)
+        if not test_images:
+            logger.error("No hay imágenes con etiqueta disponible para validar.")
+            return 1
 
-    logger.info(f"\nValidando {len(test_images)} imágenes de prueba...")
+    logger.info(f"\nValidando {len(test_images)} imágenes "
+                f"(sigma1={args.sigma1:.2f}, sigma2={args.sigma2:.2f})...")
 
     results = []
     total_tp = total_fp = total_fn = 0
@@ -368,12 +431,14 @@ def main():
     for image_id in test_images:
         logger.info(f"\nProcesando: {image_id}")
 
-        image_path = Path('data/raw') / image_id
+        image_path = images_dir / image_id
         if not image_path.is_file():
             logger.error("No existe la imagen de entrada: %s", image_path)
             return 1
 
-        detections, img_width, img_height = ejecutar_detector(image_path)
+        detections, img_width, img_height = ejecutar_detector(
+            image_path, sigma1=args.sigma1, sigma2=args.sigma2
+        )
 
         result = validate_single_image(
             image_id,
@@ -425,7 +490,10 @@ def main():
         f.write("CITO-23 - Validación de métricas del detector DoG (mejorada)\n")
         f.write("="*70 + "\n\n")
         f.write(f"Imágenes evaluadas: {len(results)}\n")
-        f.write(f"Umbral IoU: 0.50\n\n")
+        f.write(f"Umbral IoU: 0.50\n")
+        f.write(f"Sigma DoG: sigma1={args.sigma1:.2f}, sigma2={args.sigma2:.2f}\n")
+        f.write(f"Imágenes: {images_dir}\n")
+        f.write(f"Etiquetas: {labels_dir}\n\n")
         f.write("MÉTRICAS TOTALES:\n")
         f.write("-"*70 + "\n")
         f.write(f"TP total:   {total_tp}\n")
@@ -452,8 +520,12 @@ def main():
         json.dump({
             'metadata': {
                 'script': 'validar_metricas_cito23.py',
-                'version': '1.0',
+                'version': '1.1',
                 'iou_threshold': 0.5,
+                'sigma1': args.sigma1,
+                'sigma2': args.sigma2,
+                'images_dir': str(images_dir),
+                'labels_dir': str(labels_dir),
                 'images_evaluated': len(results),
             },
             'summary': {
@@ -471,6 +543,7 @@ def main():
     logger.info(f"\n✅ Resultados guardados:")
     logger.info(f"   - {output_path}")
     logger.info(f"   - {output_json}")
+    return 0
 
 
 if __name__ == '__main__':

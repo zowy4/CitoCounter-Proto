@@ -82,6 +82,12 @@ mis_imagenes_nuevas/**/*.dat
 # Índice del dataset (contiene metadata pero no imágenes)
 data/dataset_index.csv
 
+# Dataset sintetico (reproducible: python generar_groundtruth_sintetico.py --semilla 42)
+data/sintetico/
+
+# Herramientas locales de agente
+.continue/
+
 # Screenshots personales
 data/results/screenshots/*.png
 !data/results/screenshots/README.md

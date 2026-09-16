@@ -77,8 +77,73 @@ Combinar **Opción A + C**:
 
 - ✅ `FASE2-diagnostico-groundtruth.md` (este archivo)
 - ✅ `validar_metricas_cito23.py` (script mejorado de validación)
-- 📝 `generar_groundtruth_sintetico.py` (próximo)
-- 📝 `anotaciones_rapidas.txt` (próximo)
+- ✅ `generar_groundtruth_sintetico.py` (Fase 2.1, completado)
+- ✅ `tests/test_generar_groundtruth_sintetico.py` (4 pruebas)
+- ✅ `tests/test_validar_metricas_cito23.py` (métricas contra verdad conocida, 8 pruebas)
+- 📝 `anotaciones_rapidas.txt` (Fase 2.2, pendiente — requiere experta)
+
+## ✅ FASE 2.1 COMPLETADA (2026-09-13)
+
+### Entregables
+
+1. **`generar_groundtruth_sintetico.py`**: genera imágenes sintéticas tipo citología
+   con núcleos de geometría conocida (elipses, áreas coherentes con las reglas
+   CITO-24: normales 220-420 px², sospechosas 950-1500 px²) y anotaciones YOLO
+   automáticas. Conjuntos SEPARADOS de calibración (SINTETICA_001..005) y
+   evaluación (SINTETICA_101..105), semilla reproducible (default 42), CLI.
+2. **`validar_metricas_cito23.py` parametrizado**: `--images-dir`, `--labels-dir`,
+   `--index`, `--output-prefix`, `--sigma1`, `--sigma2`, `--images`; modo automático
+   (todas las imágenes del índice con etiqueta); JSON v1.1 con metadatos.
+3. **Validación ejecutada** contra el conjunto de evaluación sintético
+   (`data/results/CITO-23-validacion-sintetica.txt/.json`).
+
+### Resultado de la validación sintética (sigma 3/5, umbral IoU 0.5)
+
+| Métrica | Valor |
+|---------|-------|
+| Imágenes evaluadas | 5 (SINTETICA_101..105) |
+| TP | 78 |
+| FP | 0 |
+| FN | 0 |
+| Precision | 1.0000 |
+| Recall | 1.0000 |
+| F1 | 1.0000 |
+| Mean IoU | 0.7159 |
+
+**Interpretación**: el PIPELINE DE MÉTRICAS (índice → etiquetas YOLO → detección →
+emparejamiento greedy por IoU → reporte) queda validado de punta a punta contra
+verdad conocida al 100%. El IoU medio 0.7159 (no 1.0) es correcto y esperado:
+las detecciones se serializan como cajas cuadradas de lado √área mientras el GT
+es elíptico (IoU círculo-cuadrado concéntricos ≈ 0.785).
+
+### 🔬 HALLAZGO ESTRUCTURAL: polaridad de detección
+
+Durante la Fase 2.1 se identificó la causa del 0% TP sobre imágenes reales:
+
+1. **El pipeline DoG+Otsu actual detecta núcleos CLAROS sobre fondo OSCURO**
+   (tipo fluorescencia). Verificado: la imagen sintética SINTETICA_101 invertida
+   produce 16/16 detecciones con áreas coincidentes con el GT.
+2. **Las imágenes reales (EDF/MUESTRA) tienen núcleos OSCUROS sobre fondo claro**
+   (tipo campo claro, tinción Papanicolaou). Tras `NORM_MINMAX` + `THRESH_BINARY+OTSU`,
+   el FONDO queda como región blanca → un único contorno gigante descartado por
+   área (>5000 px²) → 0-1 detecciones por imagen.
+3. **Discrepancia con la bitácora resuelta**: los conteos históricos (p. ej.
+   T-005-01: EDF000.png sigma 3/5 → 219 células) se registraron ANTES de los
+   filtros de área de CITO-24 (AREA_MINIMA=50 px²). Esos conteos incluían
+   fragmentos de ruido de 1-30 px². Con las reglas actuales, EDF000 con 3/5
+   produce 1 detección válida (354 px²).
+
+### Implicación para Fase 2.3 (recalibración DoG)
+
+Antes de cualquier grid search sobre sigma, el equipo debe decidir cómo alinear
+la polaridad del pipeline con las imágenes reales. Opciones documentadas:
+- **A**: invertir la imagen en el preprocesamiento (255 - gris) antes del DoG.
+- **B**: umbralizar la respuesta DoG negativa (`THRESH_BINARY_INV` o g2-g1).
+- **C**: mantener el pipeline para dominio fluorescencia y adquirir imágenes
+  en ese dominio.
+
+Esta decisión es de CITO-22/CITO-23 (calibración) y requiere re-ejecutar el
+barrido de calibración tras el cambio; NO se modificó el pipeline en esta fase.
 
 ## Decisión Registrada
 
@@ -92,5 +157,5 @@ Para no bloquear el proyecto, se procede con:
 ---
 
 Elaborado: 2026-09-13
-Estado: En Revisión
-Siguiente: Fase 2.1 - Generar Ground Truth Sintético
+Estado: Fase 2.1 completada; Fase 2.2 (anotación experta) pendiente — bloqueador humano
+Siguiente: Fase 2.2 - Anotación experta de 10 imágenes reales; Fase 2.3 - decisión de polaridad + recalibración

@@ -9,7 +9,7 @@ EJECUCIÓN:
 CARACTERÍSTICAS:
 - Calibración de parámetros en tiempo real con sliders
 - Visualización comparativa instantánea
-- Métricas clave en dashboardɓ
+- Métricas clave en dashboard
 - Interfaz profesional para presentaciones
 """
 
