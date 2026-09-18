@@ -10,7 +10,7 @@ from pathlib import Path
 
 from src.analysis import analizar_nucleos
 from src.dog_filter import aplicar_filtro_dog
-from src.preprocessing import preprocesar_imagen
+from src.preprocessing import preprocesar_imagen, POLARIDADES_VALIDAS
 
 
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".tif", ".tiff", ".bmp"}
@@ -79,12 +79,19 @@ def validate_payload(payload):
     if error:
         return error
 
+    polaridad = payload.get("polarity", "nucleos-claros")
+    if polaridad not in POLARIDADES_VALIDAS:
+        return error_response(
+            f"`polarity` debe ser uno de: {sorted(POLARIDADES_VALIDAS)}."
+        )
+
     return {
         "path": path,
         "sigma1": sigma1,
         "sigma2": sigma2,
         "reducir_ruido": reducir_ruido,
         "mejorar_contraste": mejorar_contraste,
+        "polaridad": polaridad,
     }, 200
 
 
@@ -98,13 +105,14 @@ def analyze_from_payload(payload):
             str(validated["path"]),
             mejorar_contraste_flag=validated["mejorar_contraste"],
             reducir_ruido_flag=validated["reducir_ruido"],
+            polaridad=validated["polaridad"],
         )
         imagen_dog = aplicar_filtro_dog(
             imagen_gris,
             sigma1=validated["sigma1"],
             sigma2=validated["sigma2"],
         )
-        resultados = analizar_nucleos(imagen_dog, imagen_original)
+        resultados = analizar_nucleos(imagen_dog, imagen_original, polaridad=validated["polaridad"])
     except Exception as exc:
         return error_response(f"Error procesando imagen: {exc}", status_code=500)
 
@@ -121,6 +129,7 @@ def analyze_from_payload(payload):
             "sigma2": validated["sigma2"],
             "noise_reduction": validated["reducir_ruido"],
             "enhance_contrast": validated["mejorar_contraste"],
+            "polarity": validated["polaridad"],
         },
         "result": {
             "total_cells": resultados["total_celulas"],

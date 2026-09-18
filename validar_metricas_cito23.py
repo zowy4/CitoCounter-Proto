@@ -249,11 +249,14 @@ def obtener_etiquetas_faltantes(image_ids: List[str], labels_dir: Path,
 
 
 def ejecutar_detector(image_path: Path, sigma1: float = 7.0,
-                      sigma2: float = 8.0) -> Tuple[List[Dict], int, int]:
+                      sigma2: float = 8.0,
+                      polaridad: str = 'nucleos-claros') -> Tuple[List[Dict], int, int]:
     """Ejecuta el pipeline y devuelve detecciones con centro y área."""
-    imagen_gris, imagen_original = preprocesar_imagen(str(image_path))
+    imagen_gris, imagen_original = preprocesar_imagen(
+        str(image_path), polaridad=polaridad
+    )
     imagen_dog = aplicar_filtro_dog(imagen_gris, sigma1=sigma1, sigma2=sigma2)
-    resultados = analizar_nucleos(imagen_dog, imagen_original)
+    resultados = analizar_nucleos(imagen_dog, imagen_original, polaridad=polaridad)
 
     detecciones = []
     contornos = (
@@ -358,6 +361,11 @@ def main():
     parser.add_argument('--images', nargs='*', default=None,
                         help='Subconjunto explícito de nombres de imagen. Por defecto: '
                              'todas las imágenes del índice con etiqueta disponible.')
+    parser.add_argument('--polaridad', default='nucleos-claros',
+                        choices=['nucleos-claros', 'nucleos-oscuros'],
+                        help='Polaridad de los núcleos (Fase 2.3, CITO-22/23). '
+                             'Usa nucleos-oscuros para citología de campo claro '
+                             '(Papanicolaou/EDF). Default: nucleos-claros')
     args = parser.parse_args()
 
     images_dir = Path(args.images_dir)

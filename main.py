@@ -23,6 +23,10 @@ ARGUMENTOS DISPONIBLES:
     --no-gui          No mostrar ventanas (útil para lotes)
     --bitacora ID     Registrar en bitácora con ID específico
 
+    --polaridad       Polaridad de las imágenes (default: nucleos-claros).
+                      Use 'nucleos-oscuros' para imágenes de campo claro
+                      tipo Papanicolaou/EDF.
+
 PIPELINE:
     1. Cargar imagen del microscopio
     2. Preprocesamiento (gris + mejora de contraste)
@@ -159,7 +163,8 @@ def procesar_una_imagen(ruta_imagen, args):
         imagen_gris, imagen_original = preprocesar_imagen(
             str(ruta_imagen),  # OpenCV necesita string
             mejorar_contraste_flag=not args.no_contraste,  # Doble negación: por defecto es True
-            reducir_ruido_flag=args.ruido
+            reducir_ruido_flag=args.ruido,
+            polaridad=args.polaridad
         )
         
         # Verificar calidad (opcional, solo warning)
@@ -182,7 +187,7 @@ def procesar_una_imagen(ruta_imagen, args):
     # 4. ANÁLISIS
     print("   [3/5] Analizando núcleos...")
     try:
-        resultados = analizar_nucleos(imagen_dog, imagen_original)
+        resultados = analizar_nucleos(imagen_dog, imagen_original, polaridad='nucleos-claros')
         print(generar_reporte_estadistico(resultados))
     except Exception as e:
         print(f"❌ Error en análisis: {e}")
@@ -324,6 +329,19 @@ Para más información, consulta README.md
         "--no-gui",
         action="store_true",
         help="No mostrar ventanas emergentes (útil para modo lote)"
+    )
+    
+    parser.add_argument(
+        "--polaridad",
+        type=str,
+        default="nucleos-claros",
+        choices=["nucleos-claros", "nucleos-oscuros"],
+        help=(
+            "Polaridad de los núcleos en la imagen (Fase 2.3, CITO-22/23). "
+            "Usa 'nucleos-oscuros' para citología de campo claro "
+            "(Papanicolaou/EDF): núcleos oscuros sobre citoplasma claro. "
+            "Default: nucleos-claros"
+        )
     )
     
     parser.add_argument(

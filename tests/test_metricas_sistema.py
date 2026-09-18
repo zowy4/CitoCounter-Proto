@@ -47,8 +47,8 @@ class MetricasSistemaTests(unittest.TestCase):
 
     def test_metricas_con_con_historial(self):
         hist = [
-            {"total_celulas": 10, "normales": 6, "sospechosas": 2, "porcentaje_riesgo": 20.0, "frontera": 2},
-            {"total_celulas": 8, "normales": 5, "sospechosas": 1, "porcentaje_riesgo": 12.5, "frontera": 1},
+            {"total_celulas": 10, "normales": 6, "sospechosas": 2, "porcentaje_riesgo": 20.0, "frontera": 2, "imagen": "img1.jpg"},
+            {"total_celulas": 8, "normales": 5, "sospechosas": 1, "porcentaje_riesgo": 12.5, "frontera": 1, "imagen": "img2.jpg"},
         ]
         m = metricas_conjunto(historial=hist)
 

@@ -204,7 +204,7 @@ def main():
     print("   Aplicando regla de la Dra. Rangel: Área > 3x = Sospechoso")
     
     try:
-        resultados = analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False)
+        resultados = analizar_nucleos(imagen_dog, imagen_original, polaridad='nucleos-claros', mostrar_debug=False)
         print("   ✅ Análisis completado")
         
     except Exception as e:
@@ -388,7 +388,7 @@ def analizar_carpeta_completa(carpeta_entrada="data/raw",
                 mejorar_contraste_flag=MEJORAR_CONTRASTE
             )
             imagen_dog = aplicar_filtro_dog(imagen_gris, SIGMA1, SIGMA2)
-            resultados = analizar_nucleos(imagen_dog, imagen_original)
+            resultados = analizar_nucleos(imagen_dog, imagen_original, polaridad='nucleos-claros')
             
             # Guardar
             imagen_anotada = dibujar_estadisticas_en_imagen(

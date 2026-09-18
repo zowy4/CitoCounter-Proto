@@ -14,6 +14,48 @@ import cv2
 import numpy as np
 
 
+# Polaridades soportadas por el pipeline (hallazgo Fase 2.1, CITO-22/23).
+# - 'nucleos-claros': núcleos claros sobre fondo oscuro (fluorescencia).
+#   Es el dominio que el DoG + Otsu detecta sin cambios.
+# - 'nucleos-oscuros': núcleos oscuros sobre fondo claro (campo claro,
+#   Papanicolaou, imágenes reales EDF). Requiere invertir la imagen
+#   antes del DoG para que los núcleos se comporten como blobs claros.
+POLARIDADES_VALIDAS = ('nucleos-claros', 'nucleos-oscuros')
+
+
+def validar_polaridad(polaridad):
+    """Valida el valor de polaridad o lanza ValueError con opciones válidas."""
+    if polaridad not in POLARIDADES_VALIDAS:
+        raise ValueError(
+            f"Polaridad desconocida: {polaridad}. "
+            f"Usa una de: {', '.join(POLARIDADES_VALIDAS)}"
+        )
+    return polaridad
+
+
+def invertir_polaridad(imagen_gris):
+    """
+    Invierte la polaridad de una imagen en escala de grises (255 - valor).
+
+    El filtro DoG + umbralizado de Otsu detecta blobs CLAROS sobre fondo
+    oscuro. Las imágenes reales de citología (EDF, Papanicolaou) tienen
+    núcleos OSCUROS sobre citoplasma claro, por lo que su respuesta DoG
+    es negativa en el centro del núcleo y no se segmenta (hallazgo Fase
+    2.1: 0-1 detecciones en imágenes reales).
+
+    Invertir la imagen convierte los núcleos oscuros en blobs claros y
+    permite reutilizar el pipeline sin cambiar el DoG ni las reglas de
+    clasificación.
+
+    Args:
+        imagen_gris (numpy.ndarray): Imagen en escala de grises (8-bit)
+
+    Returns:
+        numpy.ndarray: Imagen invertida (mismo dtype y dimensiones)
+    """
+    return cv2.bitwise_not(imagen_gris)
+
+
 def cargar_imagen(ruta_imagen):
     """
     Carga una imagen desde disco con validación.
@@ -146,7 +188,7 @@ def reducir_ruido(imagen_gris, nivel='medio'):
 
 def preprocesar_imagen(ruta_imagen, mejorar_contraste_flag=True, 
                        reducir_ruido_flag=False, metodo_contraste='clahe',
-                       nivel_ruido='medio'):
+                       nivel_ruido='medio', polaridad='nucleos-claros'):
     """
     Pipeline completo de preprocesamiento (función de conveniencia).
     
@@ -155,6 +197,7 @@ def preprocesar_imagen(ruta_imagen, mejorar_contraste_flag=True,
     2. Convertir a gris
     3. Reducir ruido (opcional)
     4. Mejorar contraste (opcional)
+    5. Ajustar polaridad (opcional, CITO-22/23 Fase 2.3)
     
     Args:
         ruta_imagen (str): Ruta al archivo de imagen
@@ -162,6 +205,9 @@ def preprocesar_imagen(ruta_imagen, mejorar_contraste_flag=True,
         reducir_ruido_flag (bool): Si True, aplica reducción de ruido
         metodo_contraste (str): Método para mejora de contraste
         nivel_ruido (str): Nivel de reducción de ruido
+        polaridad (str): 'nucleos-claros' (default, sin cambios) o
+            'nucleos-oscuros' (invierte la imagen para citología de campo
+            claro tipo Papanicolaou/EDF)
     
     Returns:
         tuple: (imagen_procesada, imagen_original)
@@ -188,6 +234,14 @@ def preprocesar_imagen(ruta_imagen, mejorar_contraste_flag=True,
     # 4. Mejorar contraste (si se solicita)
     if mejorar_contraste_flag:
         imagen_gris = mejorar_contraste(imagen_gris, metodo=metodo_contraste)
+    
+    # 5. Ajustar polaridad (si se solicita)
+    # Se aplica al final para que CLAHE y la reducción de ruido trabajen
+    # sobre la intensidad original de la imagen; la inversión solo cambia
+    # el signo de la respuesta DoG, no la geometría de los núcleos.
+    validar_polaridad(polaridad)
+    if polaridad == 'nucleos-oscuros':
+        imagen_gris = invertir_polaridad(imagen_gris)
     
     return imagen_gris, imagen_original
 

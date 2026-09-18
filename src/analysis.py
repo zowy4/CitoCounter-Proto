@@ -32,14 +32,39 @@ AREA_MAXIMA_NUCLEO = 5000           # Píxeles² - Descartar manchas grandes
 UMBRAL_DOG = 15                     # Valor mínimo para considerar un píxel como borde
 
 
-def obtener_reglas_clasificacion():
+# Umbrales de área por polaridad (Fase 2.3, CITO-22/23)
+# Estos valores fueron ajustados para cada polaridad basándose en el análisis
+# de imágenes de prueba. 'nucleos-claros' usa los valores por defecto,
+# mientras que 'nucleos-oscuros' requiere umbrales mayores debido a que los
+# núcleos aparecen como estructuras más grandes después de la inversión.
+AREA_MINIMA_NUCLEO = {
+    'nucleos-claros': 50,
+    'nucleos-oscuros': 200,
+}
+AREA_MAXIMA_NUCLEO = {
+    'nucleos-claros': 5000,
+    'nucleos-oscuros': 300000,
+}
+
+
+def obtener_reglas_clasificacion(polaridad: str = 'nucleos-claros'):
     """
     Devuelve las reglas activas de clasificación para CITO-24.
+    
+    Args:
+        polaridad: 'nucleos-claros' o 'nucleos-oscuros'
+    
+    Returns:
+        dict con las reglas de clasificación ajustadas para la polaridad especificada
     """
+    # Usar umbrales de área específicos para la polaridad
+    area_min = AREA_MINIMA_NUCLEO[polaridad]
+    area_max = AREA_MAXIMA_NUCLEO[polaridad]
+    
     umbral_sospechoso = AREA_PROMEDIO_NUCLEO_NORMAL * FACTOR_RIESGO
     return {
-        "area_minima_nucleo": AREA_MINIMA_NUCLEO,
-        "area_maxima_nucleo": AREA_MAXIMA_NUCLEO,
+        "area_minima_nucleo": area_min,
+        "area_maxima_nucleo": area_max,
         "area_promedio_nucleo_normal": AREA_PROMEDIO_NUCLEO_NORMAL,
         "factor_riesgo": FACTOR_RIESGO,
         "umbral_sospechoso": umbral_sospechoso,
@@ -48,7 +73,7 @@ def obtener_reglas_clasificacion():
     }
 
 
-def clasificar_nucleo_por_area(area):
+def clasificar_nucleo_por_area(area, polaridad: str = 'nucleos-claros'):
     """
     Clasifica un núcleo por área con reglas explicables.
 
@@ -60,7 +85,7 @@ def clasificar_nucleo_por_area(area):
         - umbral_sospechoso (float): Umbral actual usado para la decisión.
         - motivo (str): Explicación legible de la decisión.
     """
-    reglas = obtener_reglas_clasificacion()
+    reglas = obtener_reglas_clasificacion(polaridad)
     area_min = reglas["area_minima_nucleo"]
     area_max = reglas["area_maxima_nucleo"]
     umbral = reglas["umbral_sospechoso"]
@@ -104,7 +129,7 @@ def clasificar_nucleo_por_area(area):
     }
 
 
-def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False):
+def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad='nucleos-claros'):
     """
     Analiza una imagen DoG para detectar y clasificar núcleos celulares.
     
@@ -119,6 +144,7 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False):
         imagen_dog (numpy.ndarray): Imagen procesada con filtro DoG (8-bit)
         imagen_original (numpy.ndarray): Imagen RGB original para anotar
         mostrar_debug (bool): Si True, incluye información de depuración
+        polaridad (str): 'nucleos-claros' o 'nucleos-oscuros' (default: 'nucleos-claros')
     
     Returns:
         dict: Resultados del análisis con las siguientes claves:
@@ -169,7 +195,25 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False):
     for contorno in contornos:
         area = cv2.contourArea(contorno)
         
-        decision = clasificar_nucleo_por_area(area)
+        # Filtrar por circularidad y aspecto para eliminar ruido
+        # (solo para polaridad nucleos-oscuros donde hay más ruido)
+        if polaridad == 'nucleos-oscuros':
+            perimetro = cv2.arcLength(contorno, True)
+            if perimetro > 0:
+                circularidad = 4 * np.pi * area / (perimetro ** 2)
+                if circularidad < 0.3:  # Filtrar formas muy irregulares (ruido)
+                    continue
+            
+            # Filtrar por aspecto (relación ancho/alto)
+            x, y, w, h = cv2.boundingRect(contorno)
+            if w > 0 and h > 0:
+                aspecto = max(w, h) / min(w, h)
+                if aspecto > 3.0:  # Filtrar formas muy alargadas (artefactos)
+                    continue
+        
+        area = cv2.contourArea(contorno)
+        
+        decision = clasificar_nucleo_por_area(area, polaridad)
         if not decision["es_valida"]:
             continue
         

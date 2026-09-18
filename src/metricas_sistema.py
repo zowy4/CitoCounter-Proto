@@ -79,15 +79,13 @@ def calcular_metricas_imagen(
 def metricas_conjunto(historial: Optional[List[Dict]] = None) -> Dict[str, Any]:
     """Calcula indicadores agregados sobre el historial de ejecuciones.
 
-    Si no se pasa `historial`, se carga el de `bitacora_experimentos.csv`.
-
-    Los indicadores incluyen:
-    - Total y promedio de ejecuciones, imágenes, células.
-    - Promedio y desvío estándar de parámetros (sigma1, sigma2, porcentaje riesgo).
-    - Tasa de riesgo elevado.
-    - Evolución de precisión/recall/F1 si hay suficientes registros.
+    Si no se pasa `historial` (None), se carga el de `bitacora_experimentos.csv`.
+    Pase `historial=[]` explícitamente para obtener un conjunto vacío.
     """
-    hist = historial or cargar_historial()
+    if historial is None:
+        hist = cargar_historial()
+    else:
+        hist = historial or []
     if not hist:
         return {
             "total_ejecuciones": 0,

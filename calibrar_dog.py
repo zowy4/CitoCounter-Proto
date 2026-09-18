@@ -44,7 +44,7 @@ def evaluar_configuracion(
     for ruta in rutas:
         imagen_gris, imagen_original = preprocesar_imagen(str(ruta))
         imagen_dog = aplicar_filtro_dog(imagen_gris, sigma1, sigma2)
-        resultado = analizar_nucleos(imagen_dog, imagen_original)
+        resultado = analizar_nucleos(imagen_dog, imagen_original, polaridad='nucleos-claros')
         totales.append(int(resultado["total_celulas"]))
         areas.extend(float(area) for area in resultado["areas"])
 

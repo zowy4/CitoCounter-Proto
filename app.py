@@ -30,10 +30,19 @@ from src.interfaz_resultados import (
     generar_csv_resultados,
     resumen_resultado_experimental,
 )
-from src.historial_resultados import (
-    agregar_historial,
-    cargar_historial,
-    filas_para_tabla,
+from src.metricas_sistema import (
+    calcular_metricas_imagen,
+    metricas_conjunto,
+    reporte_resumen,
+)
+
+from src.etl_resultados import (
+    extraer_bitacora,
+    transformar_a_esquema_unificado,
+    agregado_por_imagen,
+    agregado_por_sigma,
+    exportar_csv,
+    exportar_json,
 )
 
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
@@ -96,6 +105,26 @@ with st.expander("📈 Historial de ejecuciones y métricas consolidadas", expan
         st.dataframe(filas_para_tabla(historial), use_container_width=True, hide_index=True)
 
 # ============================================================================
+# MÉTRICAS CLAVE DEL SISTEMA (CITO-28 / ACT-07)
+# ============================================================================
+with st.expander("📊 Indicadores clave del rendimiento (CITO-28)", expanded=False):
+    m = metricas_conjunto(historial)
+    col_k1, col_k2, col_k3, col_k4 = st.columns(4)
+    with col_k1:
+        st.metric("Ejecuciones totales", m["total_ejecuciones"])
+    with col_k2:
+        st.metric("Imágenes únicas", m["imagenes_unicas"])
+    with col_k3:
+        st.metric("Células/detected avg", m["total_celulas_promedio"])
+    with col_k4:
+        st.metric("Riesgo avg (%)", m["riesgo_promedio"])
+
+    st.caption(
+        "Indicadores consolidados del pipeline CitoCounter. "
+        "Los porcentajes son experimentales y no equivalen a diagnóstico clínico."
+    )
+
+# ============================================================================
 # BARRA LATERAL (CONTROLES)
 # ============================================================================
 with st.sidebar:
@@ -134,6 +163,17 @@ with st.sidebar:
     
     # --- PREPROCESAMIENTO ---
     st.subheader("2️⃣ Preprocesamiento")
+    
+    polaridad = st.selectbox(
+        "Polaridad de los núcleos",
+        options=["nucleos-claros", "nucleos-oscuros"],
+        index=0,
+        help=(
+            "Núcleos claros sobre fondo oscuro (fluorescencia) o núcleos "
+            "oscuros sobre fondo claro (Papanicolaou/EDF). La opción "
+            "'nucleos-oscuros' invierte la imagen antes del DoG."
+        )
+    )
     
     usar_clahe = st.checkbox(
         "Mejorar Contraste (CLAHE)", 
@@ -225,14 +265,15 @@ if uploaded_file is not None:
             imagen_gris, imagen_original = preprocesar_imagen(
                 ruta_temp,
                 mejorar_contraste_flag=usar_clahe,
-                reducir_ruido_flag=reducir_ruido
+                reducir_ruido_flag=reducir_ruido,
+                polaridad=polaridad
             )
             
             # B. Filtro DoG
             imagen_dog = aplicar_filtro_dog(imagen_gris, sigma1, sigma2)
             
             # C. Análisis y clasificación
-            resultados = analizar_nucleos(imagen_dog, imagen_original)
+            resultados = analizar_nucleos(imagen_dog, imagen_original, polaridad=polaridad)
             
             # D. Preparar visualizaciones
             img_resultado = dibujar_estadisticas_en_imagen(
