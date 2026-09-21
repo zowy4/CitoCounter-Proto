@@ -12,6 +12,7 @@ Este módulo contiene la inteligencia del sistema:
 
 import cv2
 import numpy as np
+from typing import List, Tuple, Optional
 
 
 # ============================================================================
@@ -45,6 +46,146 @@ AREA_MAXIMA_NUCLEO = {
     'nucleos-claros': 5000,
     'nucleos-oscuros': 300000,
 }
+
+
+# ============================================================================
+# FILTRO DE SEPARACIÓN POR WATERSHED (CITO-32 / ACT-10)
+# Implementa separación de núcleos superpuestos usando transformada de distancia
+# y watershed. Útil para imágenes con núcleos en contacto o superposición.
+# ============================================================================
+
+def _maximos_locales(imagen: np.ndarray, umbral: int = UMBRAL_DOG,
+                     distancia_minima: int = 10) -> List[Tuple[int, int]]:
+    """
+    Detecta máximos locales en una imagen usando thresholding y detección de picos.
+    
+    Args:
+        imagen: Imagen DoG (8-bit) donde detectar máximos
+        umbral: Umbral de binarización (se usa Otsu si es 0)
+        distancia_minima: Distancia mínima entre picos para evitar detecciones redundantes
+    
+    Returns:
+        Lista de (x, y) coordenadas de los máximos locales detectados
+    """
+    # Binarización con Otsu
+    _, binaria = cv2.threshold(imagen, umbral, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    
+    # Transformada de distancia sobre los píxeles blancos
+    dist_transform = cv2.distanceTransform(binaria, cv2.DIST_L2, 5)
+    
+    # Non-maximum suppression para encontrar picos
+    # Umbralizar la distancia para obtener solo los picos más prominentes
+    _, picos = cv2.threshold(dist_transform, 0.1 * dist_transform.max(), 255, cv2.THRESH_BINARY)
+    
+    # Encontrar contornos de los picos
+    contornos_picos, _ = cv2.findContours(picos.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    # Obtener centros de los contornos
+    maximos = []
+    for c in contornos_picos:
+        M = cv2.moments(c)
+        if M["m00"] != 0:
+            cx = int(M["m10"] / M["m00"])
+            cy = int(M["m01"] / M["m01"])
+            maximos.append((cx, cy))
+    
+    # Aplicar filtrado de distancia mínima entre picos
+    maximos_filtrados = []
+    for (x, y) in maximos:
+        # Verificar si este pico está muy cerca de uno ya seleccionado
+        muy_cercano = False
+        for (x0, y0) in maximos_filtrados:
+            if np.sqrt((x - x0)**2 + (y - y0)**2) < distancia_minima:
+                muy_cercano = True
+                break
+        if not muy_cercano:
+            maximos_filtrados.append((x, y))
+    
+    return maximos_filtrados
+
+
+def watershed_separar_nucleos(imagen_dog: np.ndarray, metodo: str = 'distancia',
+                              umbral: int = UMBRAL_DOG,
+                              distancia_minima: int = 10) -> Tuple[List[np.ndarray], List[int]]:
+    """
+    Separa núcleos superpuestos usando watershed (transformada de distancia + watershed).
+    
+    Args:
+        imagen_dog: Imagen procesada con filtro DoG (8-bit)
+        metodo: Método de separación ('distancia' o 'gradiente')
+        umbral: Umbral de binarización para el watershed
+        distancia_minima: Distancia mínima entre núcleos separados
+    
+    Returns:
+        Tupla con:
+        - Lista de contornos de núcleos separados
+        - Lista de áreas de cada núcleo
+    """
+    # Binarización
+    _, binaria = cv2.threshold(imagen_dog, umbral, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    
+    if metodo == 'distancia':
+        # Usar transformada de distancia + watershed
+        dist_transform = cv2.distanceTransform(binaria, cv2.DIST_L2, 5)
+        
+        # Aplicar watershed
+        # Marcadores: píxeles oscuros (fondo) = 0, píxeles blancos = 1, ... 
+        # Los picos de la transformada de distancia serán los centros de los núcleos
+        _, marcadores = cv2.connectedComponents(binaria.astype(np.uint8))
+        marcadores = marcadores.astype(np.int32) + 1  # Fondo = 1
+        
+        # Aplicar watershed
+        # Convertir imagen_dog a 8-bit 3-channel para watershed
+        # Normalizar y convertir a uint8
+        imagen_8bit = cv2.normalize(imagen_dog, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
+        # Convertir a 3 canales si es necesario
+        if len(imagen_8bit.shape) == 2:
+            imagen_8bit = cv2.cvtColor(imagen_8bit, cv2.COLOR_GRAY2BGR)
+        
+        marcadores = cv2.watershed(imagen_8bit, marcadores)
+        marcadores[marcadores == -1] = 0  # Fronteras = 0
+        
+        # Obtener contornos de cada región segmentada
+        nuclei_contours = []
+        areas = []
+        for label in range(2, marcadores.max() + 1):
+            mask = np.zeros_like(marcadores, dtype=np.uint8)
+            mask[marcadores == label] = 255
+            contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            if contours:
+                # Tomar el contorno más grande (el núcleo)
+                largest_contour = max(contours, key=cv2.contourArea)
+                nuclei_contours.append(largest_contour)
+                areas.append(cv2.contourArea(largest_contour))
+    
+    elif metodo == 'gradiente':
+        # Método alternativo usando gradientes
+        gradientes = cv2.Canny(imagen_dog, 50, 150)
+        _, marcadores = cv2.connectedComponents(gradientes.astype(np.uint8))
+        marcadores = marcadores.astype(np.int32) + 1
+        # Convertir imagen_dog a 8-bit 3-channel para watershed
+        imagen_8bit = cv2.normalize(imagen_dog, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
+        # Convertir a 3 canales si es necesario
+        if len(imagen_8bit.shape) == 2:
+            imagen_8bit = cv2.cvtColor(imagen_8bit, cv2.COLOR_GRAY2BGR)
+        marcadores = cv2.watershed(imagen_8bit, marcadores)
+        marcadores[marcadores == -1] = 0
+        
+        nuclei_contours = []
+        areas = []
+        for label in range(2, marcadores.max() + 1):
+            mask = np.zeros_like(marcadores, dtype=np.uint8)
+            mask[marcadores == label] = 255
+            contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            if contours:
+                largest_contour = max(contours, key=cv2.contourArea)
+                nuclei_contours.append(largest_contour)
+                areas.append(cv2.contourArea(largest_contour))
+    
+    else:
+        raise ValueError(f"Método '{metodo}' no reconocido. Use 'distancia' o 'gradiente'.")
+    
+    return nuclei_contours, areas
 
 
 def obtener_reglas_clasificacion(polaridad: str = 'nucleos-claros'):
@@ -129,7 +270,7 @@ def clasificar_nucleo_por_area(area, polaridad: str = 'nucleos-claros'):
     }
 
 
-def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad='nucleos-claros'):
+def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad='nucleos-claros', metodo_separacion: str = None):
     """
     Analiza una imagen DoG para detectar y clasificar núcleos celulares.
     
@@ -138,13 +279,18 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
     2. Detección de contornos (encontrar núcleos individuales)
     3. Filtrado de ruido (eliminar artefactos)
     4. Clasificación según regla del 3x
-    5. Anotación visual (semáforo verde/rojo)
+    5. Opcional: Separación de núcleos superpuestos usando watershed
+    6. Anotación visual (semáforo verde/rojo)
     
     Args:
         imagen_dog (numpy.ndarray): Imagen procesada con filtro DoG (8-bit)
         imagen_original (numpy.ndarray): Imagen RGB original para anotar
         mostrar_debug (bool): Si True, incluye información de depuración
         polaridad (str): 'nucleos-claros' o 'nucleos-oscuros' (default: 'nucleos-claros')
+        metodo_separacion: Método de separación de núcleos superpuestos.
+            - None: Sin separación (comportamiento original)
+            - 'watershed': Separación usando watershed (transformada de distancia)
+            - 'maximos_locales': Detección de máximos locales
     
     Returns:
         dict: Resultados del análisis con las siguientes claves:
@@ -191,31 +337,146 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
         "contornos_sospechosos": []
     }
     
-    # 3. ANÁLISIS DE CADA CONTORNO DETECTADO
-    for contorno in contornos:
-        area = cv2.contourArea(contorno)
+    # 3. SEPARACIÓN DE NÚCLEOS SUPERPUestos (opcional)
+    if metodo_separacion == 'watershed':
+        contornos, areas = watershed_separar_nucleos(imagen_dog, metodo='distancia')
+        # Reconstruir resultados a partir de la separación watershed
+        for i, (contorno, area) in enumerate(zip(contornos, areas)):
+            decision = clasificar_nucleo_por_area(area, polaridad)
+            if not decision["es_valida"]:
+                continue
+            
+            # Es un núcleo válido
+            resultados["total_celulas"] += 1
+            resultados["areas"].append(area)
+            
+            if decision["clasificacion"] == "sospechosa":
+                color = (0, 0, 255)  # ROJO en BGR
+                etiqueta = "RIESGO"
+                resultados["sospechosas"] += 1
+                resultados["contornos_sospechosos"].append(contorno)
+            else:
+                # --- CÉLULA NORMAL ---
+                color = (0, 255, 0)  # VERDE en BGR
+                etiqueta = "NORMAL"
+                resultados["normales"] += 1
+                resultados["contornos_normales"].append(contorno)
+            
+            resultados["criterios_clasificacion"].append({
+                "area": area,
+                "es_frontera": decision["es_frontera"],
+                "motivo": decision["motivo"],
+            })
+    
+    elif metodo_separacion == 'maximos_locales':
+        # Usar detección de máximos locales
+        maximos = _maximos_locales(imagen_dog, umbral=UMBRAL_DOG)
         
-        # Filtrar por circularidad y aspecto para eliminar ruido
-        # (solo para polaridad nucleos-oscuros donde hay más ruido)
-        if polaridad == 'nucleos-oscuros':
-            perimetro = cv2.arcLength(contorno, True)
-            if perimetro > 0:
-                circularidad = 4 * np.pi * area / (perimetro ** 2)
-                if circularidad < 0.3:  # Filtrar formas muy irregulares (ruido)
+        # Para cada máximo, obtener el área usando contour area del área alrededor
+        for (cx, cy) in maximos:
+            # Crear una máscara pequeña alrededor del máximo
+            mask = np.zeros(imagen_dog.shape, dtype=np.uint8)
+            cv2.circle(mask, (cx, cy), 15, 255, -1)
+            masked_dog = cv2.bitwise_and(imagen_dog, imagen_dog, mask=mask)
+            _, thresh = cv2.threshold(masked_dog, UMBRAL_DOG, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+            contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            if contours:
+                largest_contour = max(contours, key=cv2.contourArea)
+                area = cv2.contourArea(largest_contour)
+                
+                decision = clasificar_nucleo_por_area(area, polaridad)
+                if not decision["es_valida"]:
+                    continue
+                
+                # Es un núcleo válido
+                resultados["total_celulas"] += 1
+                resultados["areas"].append(area)
+                
+                if decision["clasificacion"] == "sospechosa":
+                    color = (0, 0, 255)  # ROJO en BGR
+                    etiqueta = "RIESGO"
+                    resultados["sospechosas"] += 1
+                    resultados["contornos_sospechosos"].append(largest_contour)
+                else:
+                    # --- CÉLULA NORMAL ---
+                    color = (0, 255, 0)  # VERDE en BGR
+                    etiqueta = "NORMAL"
+                    resultados["normales"] += 1
+                    resultados["contornos_normales"].append(largest_contour)
+                
+                resultados["criterios_clasificacion"].append({
+                    "area": area,
+                    "es_frontera": decision["es_frontera"],
+                    "motivo": decision["motivo"],
+                })
+    
+    else:
+        # Sin separación: comportamiento original (contornos detectados directamente)
+        for contorno in contornos:
+            area = cv2.contourArea(contorno)
+            
+            # Filtrar por circularidad y aspecto para eliminar ruido
+            # (solo para polaridad nucleos-oscuros donde hay más ruido)
+            if polaridad == 'nucleos-oscuros':
+                perimetro = cv2.arcLength(contorno, True)
+                if perimetro > 0:
+                    circularidad = 4 * np.pi * area / (perimetro ** 2)
+                    if circularidad < 0.3:  # Filtrar formas muy irregulares (ruido)
+                        continue
+                
+                # Filtrar por aspecto (relación ancho/alto)
+                x, y, w, h = cv2.boundingRect(contorno)
+                if w > 0 and h > 0:
+                    aspecto = max(w, h) / min(w, h)
+                    if aspecto > 3.0:  # Filtrar formas muy alargadas (artefactos)
+                        continue
+                
+                # Filtrar por tamaño (artefactos muy pequeños o grandes)
+                # Área mínima: evita detectar ruido de fondo
+                # Área máxima: evita detectar manchas de tinción grandes o polvo
+                area = cv2.contourArea(contorno)
+                if area < AREA_MINIMA_NUCLEO[polaridad] * 0.1:
+                    continue
+                if area > AREA_MAXIMA_NUCLEO[polaridad] * 5:
                     continue
             
-            # Filtrar por aspecto (relación ancho/alto)
-            x, y, w, h = cv2.boundingRect(contorno)
-            if w > 0 and h > 0:
-                aspecto = max(w, h) / min(w, h)
-                if aspecto > 3.0:  # Filtrar formas muy alargadas (artefactos)
-                    continue
-        
+            area = cv2.contourArea(contorno)
+            
+            decision = clasificar_nucleo_por_area(area, polaridad)
+            if not decision["es_valida"]:
+                continue
+    
+    # 4. CLASSIFICATION (continuación del comportamiento original)
+    for contorno in contornos:
         area = cv2.contourArea(contorno)
         
         decision = clasificar_nucleo_por_area(area, polaridad)
         if not decision["es_valida"]:
             continue
+        
+        # Es un núcleo válido
+        resultados["total_celulas"] += 1
+        resultados["areas"].append(area)
+        
+        if decision["clasificacion"] == "sospechosa":
+            # --- CÉLULA SOSPECHOSA ---
+            color = (0, 0, 255)  # ROJO en BGR
+            etiqueta = "RIESGO"
+            resultados["sospechosas"] += 1
+            resultados["contornos_sospechosos"].append(contorno)
+            
+        else:
+            # --- CÉLULA NORMAL ---
+            color = (0, 255, 0)  # VERDE en BGR
+            etiqueta = "NORMAL"
+            resultados["normales"] += 1
+            resultados["contornos_normales"].append(contorno)
+        
+        resultados["criterios_clasificacion"].append({
+            "area": area,
+            "es_frontera": decision["es_frontera"],
+            "motivo": decision["motivo"],
+        })
         
         # Es un núcleo válido
         resultados["total_celulas"] += 1

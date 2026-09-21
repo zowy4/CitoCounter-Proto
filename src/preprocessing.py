@@ -102,7 +102,7 @@ def convertir_a_gris(imagen_bgr):
     return cv2.cvtColor(imagen_bgr, cv2.COLOR_BGR2GRAY)
 
 
-def mejorar_contraste(imagen_gris, metodo='clahe'):
+def mejorar_contraste(imagen_gris, metodo='clahe', automatico=False):
     """
     Mejora el contraste de la imagen para resaltar estructuras celulares.
     
@@ -114,10 +114,11 @@ def mejorar_contraste(imagen_gris, metodo='clahe'):
         metodo (str): Método de mejora de contraste:
             - 'clahe': Contrast Limited Adaptive Histogram Equalization (RECOMENDADO)
             - 'histogram': Ecualización de histograma global
-            - 'normalize': Normalización simple (remap a 0-255)
+            - 'normalize': Normalización simple (remap a 0-255
+        - 'auto': Selecciona automáticamente basado en el contraste actual (CITO-33)
     
     Returns:
-        numpy.ndarray: Imagen con contraste mejorado
+        tuple: (imagen_mejorada, metodo_usado, contraste_original, contraste_mejorado)
     
     Notas:
         CLAHE es superior a ecualización global porque:
@@ -126,24 +127,48 @@ def mejorar_contraste(imagen_gris, metodo='clahe'):
         - Funciona bien con iluminación irregular del microscopio
     """
     
-    if metodo == 'clahe':
+    # Calcular contraste original
+    contraste_original = np.std(imagen_gris)
+    
+    if metodo == 'auto':
+        # CITO-33: Selección automática basada en el contraste actual
+        if contraste_original < 20:
+            # Contraste muy bajo: usar CLAHE con configuración suave
+            clahe = cv2.createCLAHE(clipLimit=1.0, tileGridSize=(8, 8))
+            imagen_mejorada = clahe.apply(imagen_gris)
+            metodo_usado = 'clahe-suave'
+        elif contraste_original < 40:
+            # Contraste medio: CLAHE estándar
+            clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+            imagen_mejorada = clahe.apply(imagen_gris)
+            metodo_usado = 'clahe'
+        else:
+            # Contraste alto: ecualización global suave
+            imagen_mejorada = cv2.equalizeHist(imagen_gris)
+            metodo_usado = 'histogram-suave'
+    elif metodo == 'clahe':
         # CLAHE: Mejor para microscopía
         # clipLimit: Limita la amplificación de ruido (2.0 es conservador)
         # tileGridSize: Tamaño de las regiones locales (8x8 es estándar)
         clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-        return clahe.apply(imagen_gris)
-    
+        imagen_mejorada = clahe.apply(imagen_gris)
+        metodo_usado = 'clahe'
     elif metodo == 'histogram':
         # Ecualización global (puede amplificar ruido)
-        return cv2.equalizeHist(imagen_gris)
-    
+        imagen_mejorada = cv2.equalizeHist(imagen_gris)
+        metodo_usado = 'histogram'
     elif metodo == 'normalize':
         # Normalización simple: mapea [min, max] -> [0, 255]
-        return cv2.normalize(imagen_gris, None, 0, 255, cv2.NORM_MINMAX)
-    
+        imagen_mejorada = cv2.normalize(imagen_gris, None, 0, 255, cv2.NORM_MINMAX)
+        metodo_usado = 'normalize'
     else:
         raise ValueError(f"Método desconocido: {metodo}. "
-                        "Usa 'clahe', 'histogram' o 'normalize'")
+                        "Usa 'clahe', 'histogram', 'normalize' o 'auto'")
+    
+    # Calcular contraste mejorado
+    contraste_mejorado = np.std(imagen_mejorada)
+    
+    return imagen_mejorada, metodo_usado, contraste_original, contraste_mejorado
 
 
 def reducir_ruido(imagen_gris, nivel='medio'):
@@ -233,7 +258,13 @@ def preprocesar_imagen(ruta_imagen, mejorar_contraste_flag=True,
     
     # 4. Mejorar contraste (si se solicita)
     if mejorar_contraste_flag:
-        imagen_gris = mejorar_contraste(imagen_gris, metodo=metodo_contraste)
+        resultado = mejorar_contraste(imagen_gris, metodo=metodo_contraste)
+        # El nuevo formato retorna tupla (imagen, metodo, contraste_orig, contraste_mej)
+        # Para compatibilidad, usamos solo la imagen mejorada
+        if isinstance(resultado, tuple):
+            imagen_gris = resultado[0]
+        else:
+            imagen_gris = resultado
     
     # 5. Ajustar polaridad (si se solicita)
     # Se aplica al final para que CLAHE y la reducción de ruido trabajen
