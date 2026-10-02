@@ -213,7 +213,8 @@ def reducir_ruido(imagen_gris, nivel='medio'):
 
 def preprocesar_imagen(ruta_imagen, mejorar_contraste_flag=True, 
                        reducir_ruido_flag=False, metodo_contraste='clahe',
-                       nivel_ruido='medio', polaridad='nucleos-claros'):
+                       nivel_ruido='medio', polaridad='nucleos-claros',
+                       usar_hsv=False, metodo_hsv='saturation', umbral_hsv=100):
     """
     Pipeline completo de preprocesamiento (función de conveniencia).
     
@@ -223,6 +224,7 @@ def preprocesar_imagen(ruta_imagen, mejorar_contraste_flag=True,
     3. Reducir ruido (opcional)
     4. Mejorar contraste (opcional)
     5. Ajustar polaridad (opcional, CITO-22/23 Fase 2.3)
+    6. Segmentación HSV (opcional, CITO-33)
     
     Args:
         ruta_imagen (str): Ruta al archivo de imagen
@@ -233,6 +235,10 @@ def preprocesar_imagen(ruta_imagen, mejorar_contraste_flag=True,
         polaridad (str): 'nucleos-claros' (default, sin cambios) o
             'nucleos-oscuros' (invierte la imagen para citología de campo
             claro tipo Papanicolaou/EDF)
+        usar_hsv (bool): Si True, aplica segmentación HSV sobre la imagen
+            original para resaltar núcleos por color (CITO-33)
+        metodo_hsv (str): 'saturation' o 'value'
+        umbral_hsv (int): Umbral HSV en 0-255 (default: 100)
     
     Returns:
         tuple: (imagen_procesada, imagen_original)
@@ -273,6 +279,16 @@ def preprocesar_imagen(ruta_imagen, mejorar_contraste_flag=True,
     validar_polaridad(polaridad)
     if polaridad == 'nucleos-oscuros':
         imagen_gris = invertir_polaridad(imagen_gris)
+    
+    # 6. Segmentación HSV (si se solicita, CITO-33)
+    # La máscara se calcula sobre la imagen BGR original y se aplica al final:
+    # si se aplicara antes de la inversión, el fondo a 0 se volvería 255
+    # (bitwise_not(0) = 255) y la máscara perdería su efecto.
+    if usar_hsv:
+        mask_hsv = segmentar_por_hsv(imagen_original, umbral_sat=umbral_hsv,
+                                     umbral_val=umbral_hsv,
+                                     metodo=metodo_hsv)
+        imagen_gris = cv2.bitwise_and(imagen_gris, imagen_gris, mask=mask_hsv)
     
     return imagen_gris, imagen_original
 
@@ -401,98 +417,3 @@ def segmentar_por_hsv(imagen_bgr, umbral_sat=100, umbral_val=100, metodo='satura
     return mask
 
 
-def preprocesar_imagen(ruta_imagen, mejorar_contraste=True,
-                       reducir_ruido=False, metodo_contraste='clahe',
-                       nivel_ruido='medio', polaridad='nucleos-claros', 
-                       usar_hsv=False, metodo_hsv='saturation', umbral_hsv=100):
-    """
-    Preprocesa una imagen para el análisis DoG, con opciones extendidas.
-    
-    Flujo completo:
-    1. Cargar imagen BGR
-    2. Convertir a escala de grises
-    3. (Opcional) Aplicar segmentación HSV para resaltar núcleos por color
-    4. (Opcional) Mejorar contraste con CLAHE
-    5. (Opcional) Reducir ruido con filtro bilateral
-    6. Normalizar intensidad
-    
-    Args:
-        ruta_imagen (str): Ruta al archivo de imagen
-        mejorar_contraste (bool): Si mejorar contraste con CLAHE (default: True)
-        reducir_ruido (bool): Si aplicar filtro bilateral de ruido (default: False)
-        metodo_contraste (str): Método CLAHE ('clahe', 'histogram', 'normalize')
-        nivel_ruido (str): Nivel de reducción de ruido ('bajo', 'medio', 'alto')
-        polaridad (str): 'nucleos-claros' o 'nucleos-oscuros'
-        usar_hsv (bool): Si aplicar segmentación HSV antes del pipeline (default: False)
-        metodo_hsv (str): Método HSV ('saturation' o 'value')
-        umbral_hsv (int): Umbral para segmentación HSV (0-255, default: 100)
-    
-    Returns:
-        tuple: (imagen_procesada, metadata)
-        - imagen_procesada (numpy.ndarray): Imagen lista para DoG (gris, ruido reducido, CLAHE)
-        - metadata (dict): Registro de operaciones aplicadas para reproducibilidad
-    
-    Notas:
-        - Cuando usar_hsv=True, la segmentación HSV se aplica SOBRE la imagen original
-          y sus resultados se combinan con el pipeline DoG estándar
-        - metadata incluye: 'polaridad', 'usar_hsv', 'metodo_hsv', 'umbral_hsv',
-          'contraste_mejorado', 'ruido_reducido'
-    """
-    
-    # 1. Cargar imagen
-    imagen_bgr = cargar_imagen(ruta_imagen)
-    
-    # Inicializar metadata
-    metadata = {
-        'ruta': ruta_imagen,
-        'polaridad': polaridad,
-        'usar_hsv': usar_hsv,
-        'metodo_hsv': metodo_hsv,
-        'umbral_hsv': umbral_hsv,
-        'contraste_mejorado': False,
-        'ruido_reducido': False
-    }
-    
-    # 2. Convertir a escala de grises
-    imagen_gris = convertir_a_gris(imagen_bgr)
-    
-    # 3. (Opcional) Segmentación HSV para resaltar núcleos por color
-    if usar_hsv:
-        mask_hsv = segmentar_por_hsv(imagen_bgr, umbral_sat=umbral_hsv,
-                                      umbral_val=umbral_hsv,
-                                      metodo=metodo_hsv)
-        # Combinar máscara HSV con imagen gris: donde hay máscara HSV = mantener píxel original
-        # donde no hay máscara = fondo negro
-        imagen_gris = cv2.bitwise_and(imagen_gris, imagen_gris, mask=mask_hsv)
-        metadata['metodo_hsv_aplicado'] = metodo_hsv
-        metadata['umbral_hsv_aplicado'] = umbral_hsv
-    
-    # 4. Mejorar contraste
-    if mejorar_contraste:
-        imagen_gris, metodo_usado, contraste_original, contraste_mejorado = \
-            mejorar_contraste(imagen_gris, metodo=metodo_contraste)
-        metadata['metodo_contraste'] = metodo_usado
-        metadata['contraste_original'] = float(contraste_original)
-        metadata['contraste_mejorado'] = float(contraste_mejorado)
-        metadata['contraste_aumento'] = float(contraste_mejorado - contraste_original)
-    else:
-        metadata['metodo_contraste'] = 'none'
-        metadata['contraste_original'] = float(np.std(imagen_gris))
-        metadata['contraste_mejorado'] = float(np.std(imagen_gris))
-    
-    # 5. Reducir ruido
-    if reducir_ruido:
-        imagen_gris = reducir_ruido(imagen_gris, nivel=nivel_ruido)
-        metadata['ruido_reducido'] = True
-        metadata['nivel_ruido'] = nivel_ruido
-    else:
-        metadata['ruido_reducido'] = False
-    
-    # 6. Normalizar intensidad (último paso antes de DoG)
-    imagen_procesada = cv2.normalize(imagen_gris, None, 0, 1, cv2.NORM_MINMAX)
-    
-    # Agregar metadata de normalización
-    metadata['normalizada'] = True
-    metadata['rango_normalizado'] = (0.0, 1.0)
-    
-    return imagen_procesada, metadata
