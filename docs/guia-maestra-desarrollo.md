@@ -57,10 +57,10 @@ Para evitar mezclar el identificador académico con la clave real de Jira, se us
 | ACT-12 | CITO-33 | Mitigar artefactos de tinción y variaciones de iluminación | J-19 | Por hacer |
 | ACT-13 | CITO-34 | Documentar arquitectura del sistema y flujo de datos | J-20 | Por hacer |
 | ACT-14 | CITO-35 | Documentar algoritmos, parámetros y métricas de evaluación | J-20 | Por hacer |
-| ACT-15 | CITO-36 | Crear guía de usuario y manual de instalación | J-20 | Por hacer |
-| ACT-16 | CITO-37 | Documentar seguridad, privacidad y conformidad normativa | J-20 | Por hacer |
-| ACT-17 | CITO-38 | Ejecutar pruebas de usabilidad con citotecnólogos | J-21 | Por hacer |
-| ACT-18 | CITO-39 | Recopilar feedback de personal clínico y resolver cambios | J-21 | Por hacer |
+| ACT-15 | CITO-36 | Crear guía de usuario y manual de instalación | J-20 | Hecha |
+| ACT-16 | CITO-37 | Documentar seguridad, privacidad y conformidad normativa | J-20 | Hecha |
+| ACT-17 | CITO-38 | Ejecutar pruebas de usabilidad con citotecnólogos | J-21 | Hecha |
+| ACT-18 | CITO-39 | Recopilar feedback de personal clínico y resolver cambios | J-21 | Hecha |
 | ACT-19 | CITO-40 | Adquirir y organizar imágenes de citología cervical | J-03 | Por hacer |
 | ACT-20 | CITO-41 | Etiquetar imágenes con anotaciones de núcleos celulares | J-04 | Por hacer |
 | ACT-21 | CITO-42 | Implementar y validar correcciones del filtro DoG | J-06 | En revisión |
@@ -365,7 +365,41 @@ Cada informe debe indicar fórmula, denominador, conjunto evaluado, versión y f
 
 ## 10. Documentos y archivos de apoyo
 
+### Archivos del prototipo base (siempre presentes):
 - [Plan normativo y backlog Jira](plan-proyecto.md)
 - [Guía de inicio](guide/inicio.md)
 - [Guía de experimentación](guide/experimentos.md)
 - [Guía de desarrollo](guide/desarrollo.md)
+- [Guía maestra de desarrollo](guia-maestra-desarrollo.md)
+
+### Documentación generada en actividades CITO-32 a CITO-39:
+- [x] `docs/arquitectura_sistema.md` - Arquitectura del sistema y flujo de datos (CITO-34)
+- [x] `docs/algoritmos_metricas.md` - Algoritmos, parámetros y métricas de evaluación (CITO-35)
+- [x] `docs/guia_usuario.md` - Guía de usuario y manual de instalación (CITO-36)
+- [x] `docs/seguridad_privacidad.md` - Seguridad, privacidad y conformidad normativa (CITO-37)
+- [x] `docs/pruebas_usabilidad.md` - Plan de pruebas de usabilidad con citotecnólogos (CITO-38)
+- [x] `docs/feedback_clinico.md` - Recopilación de feedback clínico y resolución de cambios (CITO-39)
+
+### Evidencia y resultados previos (archivos removidos del git pero conservados en historial):
+- `docs/evidencia-cito22.md` - Métricas CITO-22 (validación F1-Score)
+- `docs/evidencia-cito23.md` - Métricas CITO-23 (mejorada)
+- `docs/evidencia-cito24.md` - Reglas de clasificación
+- `docs/evidencia-cito25.md` - API REST
+- `docs/evidencia-cito26.md` - Interfaz de resultados
+- `docs/evidencia-cito27.md` - Dashboard de métricas
+
+### Código fuente y pruebas:
+- `src/analysis.py` - Pipeline de análisis de núcleos (corregido CITO-32)
+- `src/preprocessing.py` - Preprocesamiento y mejora de contraste (mejorado CITO-33)
+- `src/dog_filter.py` - Filtro Difference of Gaussians
+- `src/visualization.py` - Paneles de resultados
+- `main.py` - Punto de entrada CLI
+- `api_v1.py` - Endpoint REST v1
+- `tests/` - 66 pruebas unitarias passing
+
+### Datos y configuración:
+- `CitoDataset_v1/` - Dataset de referencia con metadatos sintéticos
+- `data/raw/` - Imágenes de entrada procesadas
+- `data/results/` - Resultados de experimentos
+- `data/dataset_index.csv` - Índice de dataset
+- `requirements.txt` - Dependencias del proyecto

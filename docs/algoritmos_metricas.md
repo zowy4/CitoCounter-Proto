@@ -232,7 +232,7 @@ Genera ground truth sintético para validación cuando no hay anotaciones humana
 
 ### Consideraciones de Seguridad
 - **No es software de diagnóstico**: Los resultados deben ser validados por personal calificado
-- **No presentar conteos aproximados** como validación clínica sin ground truth espacial
+- **No presentar conteos aproximados** como validación clínica sin ground trespacial
 - **Registrar cada experimento**: versión, dataset, parámetros, fecha, evidencia y decisión
 
 ### Reproducibilidad
