@@ -345,11 +345,25 @@ Para más información, consulta README.md
     )
     
     parser.add_argument(
-        "--bitacora",
-        type=str,
-        default=None,
-        help="ID de prueba para registrar en bitácora (ej: T-003). Si no se especifica, usa auto-incremento"
-    )
+            "--usar-hsv",
+            action="store_true",
+            help="Aplicar segmentación HSV antes del pipeline de preprocesamiento"
+        )
+    
+        parser.add_argument(
+            "--metodo-hsv",
+            type=str,
+            default="saturation",
+            choices=["saturation", "value"],
+            help="Método de umbralización HSV (default: saturation)"
+        )
+    
+        parser.add_argument(
+            "--bitacora",
+            type=str,
+            default=None,
+            help="ID de prueba para registrar en bitácora (ej: T-003). Si no se especifica, usa auto-incremento"
+        )
     
     args = parser.parse_args()
     

@@ -213,7 +213,8 @@ def reducir_ruido(imagen_gris, nivel='medio'):
 
 def preprocesar_imagen(ruta_imagen, mejorar_contraste_flag=True, 
                        reducir_ruido_flag=False, metodo_contraste='clahe',
-                       nivel_ruido='medio', polaridad='nucleos-claros'):
+                       nivel_ruido='medio', polaridad='nucleos-claros',
+                       usar_hsv=False, metodo_hsv='saturation', umbral_hsv=100):
     """
     Pipeline completo de preprocesamiento (función de conveniencia).
     
@@ -223,6 +224,7 @@ def preprocesar_imagen(ruta_imagen, mejorar_contraste_flag=True,
     3. Reducir ruido (opcional)
     4. Mejorar contraste (opcional)
     5. Ajustar polaridad (opcional, CITO-22/23 Fase 2.3)
+    6. Segmentación HSV (opcional, CITO-33)
     
     Args:
         ruta_imagen (str): Ruta al archivo de imagen
@@ -233,6 +235,10 @@ def preprocesar_imagen(ruta_imagen, mejorar_contraste_flag=True,
         polaridad (str): 'nucleos-claros' (default, sin cambios) o
             'nucleos-oscuros' (invierte la imagen para citología de campo
             claro tipo Papanicolaou/EDF)
+        usar_hsv (bool): Si True, aplica segmentación HSV sobre la imagen
+            original para resaltar núcleos por color (CITO-33)
+        metodo_hsv (str): 'saturation' o 'value'
+        umbral_hsv (int): Umbral HSV en 0-255 (default: 100)
     
     Returns:
         tuple: (imagen_procesada, imagen_original)
@@ -273,6 +279,16 @@ def preprocesar_imagen(ruta_imagen, mejorar_contraste_flag=True,
     validar_polaridad(polaridad)
     if polaridad == 'nucleos-oscuros':
         imagen_gris = invertir_polaridad(imagen_gris)
+    
+    # 6. Segmentación HSV (si se solicita, CITO-33)
+    # La máscara se calcula sobre la imagen BGR original y se aplica al final:
+    # si se aplicara antes de la inversión, el fondo a 0 se volvería 255
+    # (bitwise_not(0) = 255) y la máscara perdería su efecto.
+    if usar_hsv:
+        mask_hsv = segmentar_por_hsv(imagen_original, umbral_sat=umbral_hsv,
+                                     umbral_val=umbral_hsv,
+                                     metodo=metodo_hsv)
+        imagen_gris = cv2.bitwise_and(imagen_gris, imagen_gris, mask=mask_hsv)
     
     return imagen_gris, imagen_original
 
@@ -329,7 +345,7 @@ def verificar_calidad_imagen(imagen_gris):
 
 
 def recortar_region_interes(imagen, x, y, ancho, alto):
-    """
+    """"
     Recorta una región rectangular de la imagen (útil para análisis focal).
     
     Args:
@@ -343,3 +359,61 @@ def recortar_region_interes(imagen, x, y, ancho, alto):
         numpy.ndarray: Imagen recortada
     """
     return imagen[y:y+alto, x:x+ancho]
+
+
+def segmentar_por_hsv(imagen_bgr, umbral_sat=100, umbral_val=100, metodo='saturation'):
+    """
+    Segmenta núcleos usando el espacio de color HSV.
+
+    Convierte la imagen de BGR a HSV y aplica umbrales en el canal de saturación (S)
+    o valor (V) para separar núcleos del citoplasma. Útil cuando el contraste de intensidad
+    es bajo pero la diferencia de color es significativa.
+
+    Args:
+        imagen_bgr (numpy.ndarray): Imagen original en formato BGR (3 canales)
+        umbral_sat (int): Umbral mínimo para el canal de saturación (0-255). Default: 100
+        umbral_val (int): Umbral mínimo para el canal de valor (0-255). Default: 100
+        metodo (str): Método de umbralización:
+            - 'saturation': Umbralizar en canal S (saturación). Usa cuando los núcleos
+              tienen color distinto al citoplasma.
+            - 'value': Umbralizar en canal V (brillo/valor). Usa cuando los núcleos son
+              más brillos u oscuros que el fondo.
+
+    Returns:
+        numpy.ndarray: Máscara binaria donde blancos = núcleos detectados, negros = fondo
+
+    Ejemplo:
+        >>> mask = segmentar_por_hsv(imagen, umbral_sat=80, umbral_val=80, metodo='saturation')
+        >>> # Resultado: máscara lista para aplicar cv2.findContours()
+
+    Nota:
+        - El canal S (saturación) varía de 0 (gris) a 255 (color puro)
+        - El canal V (valor/brillo) varía de 0 (negro) a 255 (blanco brillante)
+        - Después del umbralizado, aplica apertura morfológica para eliminar ruido pequeño
+        - La dilatación ligera ayuda a conectar regiones nucleares cercanas
+    """
+    
+    # Convertir de BGR a HSV
+    imagen_hsv = cv2.cvtColor(imagen_bgr, cv2.COLOR_BGR2HSV)
+    
+    # Umbralizar según el método especificado
+    if metodo == 'saturation':
+        # Usar canal S (saturación): 1 = totalmente desaturado, 255 = color puro
+        _, mask = cv2.threshold(imagen_hsv[:, :, 1], umbral_sat, 255, cv2.THRESH_BINARY)
+    elif metodo == 'value':
+        # Usar canal V (brillo/valor): 0 = negro, 255 = blanco brillante
+        _, mask = cv2.threshold(imagen_hsv[:, :, 2], umbral_val, 255, cv2.THRESH_BINARY)
+    else:
+        raise ValueError(f"Método HSV desconocido: {metodo}. "
+                        "Usa 'saturation' o 'value'")
+    
+    # Aplicar morfología abierta para eliminar ruido pequeño
+    kernel = np.ones((3, 3), np.uint8)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+    
+    # Aplicar dilatación ligera para conectar regiones cercanas
+    mask = cv2.dilate(mask, kernel, iterations=1)
+    
+    return mask
+
+
