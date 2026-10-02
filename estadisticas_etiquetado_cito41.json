@@ -1,0 +1,17 @@
+{
+  "total_archivos": 243,
+  "archivos_validos": 242,
+  "archivos_con_errores": 1,
+  "archivos_con_advertencias": 0,
+  "total_nucleos": 71431,
+  "distribucion_clases": {
+    "0": 71093,
+    "1": 337,
+    "2": 1
+  },
+  "porcentaje_distribucion": {
+    "Normal": 99.526816088253,
+    "Anormal": 0.4717839593453822,
+    "Artefacto": 0.001399952401618345
+  }
+}

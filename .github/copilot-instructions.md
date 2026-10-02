@@ -38,7 +38,29 @@ streamlit run app.py
 - Los valores en `src/analysis.py` son provisionales hasta una calibracion respaldada por datos y ground truth. No afirmar que estan clinicamente validados.
 - Agrega una prueba de regresion bajo `tests/` al corregir comportamiento del pipeline o validadores de dataset.
 - Evita refactors no relacionados y no reviertas cambios no realizados en la sesion.
+## Programación Implícita (CITO-45)
 
+Estas reglas definen un esquema de "programación implícita" para optimizar la generación y auditoría de código futuro:
+
+1. **Ubicación de lógica**: Toda lógica de negocio debe residir en el directorio `src/`. Los archivos de entrada/salida (CLI, UI) deben delegar el procesamiento a módulos de `src/`.
+
+2. **Tipado estático estricto**: Todas las funciones deben usar tipado estático con `typing` y docstrings en estilo NumPy (formato `""" :param ... :type ... :rtype: ..."""`).
+
+3. **Validación de imágenes**: Todas las funciones que procesen imágenes deben validar que el tamaño de la imagen no supere los 64 KiB (65536 bytes) antes de procesarse, aplicando controles OWASP/STRIDE para prevenir ataques de denegación de servicio.
+
+4. **Conversión a 8-bit**: Los arreglos `float32` deben convertirse a `uint8` (8-bit) antes de operaciones como `cv2.watershed()` u otros operadores que requieren imágenes de 8 bits. Esta conversión debe hacerse usando `cv2.normalize()` o `np.clip()` seguido de `np.uint8()`.
+
+5. **Sugerencia de pruebas**: Toda nueva función debe sugerir su correspondiente prueba unitaria en `tests/`. El nombre de la prueba debe seguir el patrón `test_<nombre_funcion>.py` y cubrir casos edge (vacíos, nulos, valores extremos).
+
+6. **Contratos de datos**: Utilizar dataclasses y typing para definir contratos explícitos entre módulos (ver `src/contracts/pipeline_contract.py`).
+
+7. **Modularidad**: Cada módulo en `src/` debe ser importable independientemente y no debe tener efectos secundarios en la importación (evitar `import ...; procesar(...)` en nivel de módulo).
+
+8. **Documentación**: Cada función debe tener un docstring que describa:
+   - El propósito de la función
+   - Los parámetros de entrada
+   - El valor de retorno
+   - Cualquier excepción que pueda lanzarse
 ## Git y Jira
 
 - Trabaja en una rama de actividad `CITO-xx-...`. Antes de editar, ejecuta `git fetch origin --prune`, `git status -sb` y comprueba la rama de seguimiento.

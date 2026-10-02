@@ -58,9 +58,16 @@ def aplicar_filtro_dog(imagen_gris, sigma1=1.0, sigma2=2.0):
     
     # 4. Normalizar para visualizar mejor (mapea al rango 0-255)
     # Esto es opcional pero útil para depuración y visualización
+    # NOTA: cv2.normalize con NORM_MINMAX mapea el valor mínimo a 0 y el máximo a 255.
+    # Los valores negativos del DoG se desplazan hacia 0, lo que puede hacer que
+    # regiones con fuerte respuesta negativa aparezcan como fondo oscuro.
     dog_norm = cv2.normalize(dog, None, 0, 255, cv2.NORM_MINMAX)
     
-    return dog_norm.astype(np.uint8)
+    # 5. Convertir a uint8 para compatibilidad con watershed y visualización
+    # Rule CITO-42: float32 -> uint8 antes de watershed u otros operadores de 8-bit
+    dog_uint8 = dog_norm.astype(np.uint8)
+    
+    return dog_uint8
 
 
 def calcular_sigmas_optimas(diametro_promedio_nucleo):

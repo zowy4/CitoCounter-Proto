@@ -64,7 +64,8 @@ Para evitar mezclar el identificador académico con la clave real de Jira, se us
 | ACT-19 | CITO-40 | Adquirir y organizar imágenes de citología cervical | J-03 | Por hacer |
 | ACT-20 | CITO-41 | Etiquetar imágenes con anotaciones de núcleos celulares | J-04 | Por hacer |
 | ACT-21 | CITO-42 | Implementar y validar correcciones del filtro DoG | J-06 | En revisión |
-| ACT-22 | CITO-43 | Medir tiempo de procesamiento manual vs automatizado | J-16 | Por hacer |
+| ACT-22 | CITO-43 | Medir tiempo de procesamiento manual vs automatizado | J-16 | Hecha |
+| ACT-22 | CITO-43 | Medir tiempo de procesamiento manual vs automatizado | J-16 | Hecha ✅ | Auto: 83.2 ms/imagen vs Manual: 423.6 ms/imagen (80.3% ahorro) | CITO-43_REPORTE.md | 2026-10-02 |
 | ACT-23 | CITO-44 | Crear suite de pruebas para validación de dataset | J-05 | Por hacer |
 
 La asignación `ACT-01 -> CITO-22` hasta `ACT-23 -> CITO-44` se basa en la numeración consecutiva indicada para las actividades creadas en Jira. Si una clave real difiere en Jira, se debe corregir esta tabla antes de iniciar esa actividad; no se crearán claves alternativas ni se reutilizarán CSV históricos.
