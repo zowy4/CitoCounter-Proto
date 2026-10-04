@@ -631,3 +631,106 @@ def generar_reporte_estadistico(resultados):
     reporte.append("=" * 60)
     
     return "\n".join(reporte)
+
+
+def anonimizar_metadata_analysis(metadata: dict) -> dict:
+    """
+    Elimina identificadores personales de metadata de análisis.
+
+    Remueve claves que contengan información sensible:
+    - id_paciente: Identificador único del paciente
+    - fecha_muestra: Fecha de toma de la muestra
+    - nombre_archivo: Nombre de la imagen/archivo
+
+    Args:
+        metadata (dict): Diccionario de metadata del análisis
+
+    Returns:
+        dict: Metadata anonimizada sin identificadores personales
+
+    Ejemplo:
+        >>> metadata = {
+        ...     'id_paciente': 'P-6789',
+        ...     'fecha_muestra': '2024-03-15',
+        ...     'nombre_archivo': 'IMG_001.jpg',
+        ...     'porcentaje_riesgo': 12.5,
+        ...     'total_celulas': 50
+        ... }
+        >>> anonimizada = anonimizar_metadata_analysis(metadata)
+        >>> 'id_paciente' in anonimizada
+        False
+        >>> 'porcentaje_riesgo' in anonimizada  # se conserva
+        True
+    """
+    claves_remover = {'patient_id', 'id_paciente', 'fecha_muestra', 'nombre_archivo'}
+    return {k: v for k, v in metadata.items() if k not in claves_remover}
+
+
+def formatear_salida_cls(label: str) -> str:
+    """
+    Formatea una etiqueta de clasificación para salida sin contexto de paciente.
+
+    Convierte etiquetas técnicas en términos comprensibles para reporte:
+    - 'descartada' → 'normal' (área dentro de rango esperado)
+    - 'normal' → 'normal' (mantiene)
+    - 'sospechosa' → 'anormal' (área >= 3x umbral de riesgo)
+
+    Args:
+        label (str): Etiqueta de clasificación original
+
+    Returns:
+        str: Etiqueta formateada para reporte
+
+    Ejemplo:
+        >>> formatear_salida_cls('sospechosa')
+        'anormal'
+        >>> formatear_salida_cls('normal')
+        'normal'
+    """
+    mapeo = {
+        'descartada': 'normal',
+        'normal': 'normal',
+        'sospechosa': 'anormal',
+    }
+    return mapeo.get(label, label)
+
+
+def generar_reporte_estadisticos(resultados: dict) -> str:
+    """
+    Genera un reporte de estadísticas agregadas (proporciones).
+
+    Reporta solo proporciones agregadas para preservar privacidad,
+    sin contar células individuales ni identificar información.
+
+    Args:
+        resultados (dict): Diccionario de resultados de analizar_nucleos().
+            Acepta tanto 'total_celulas' como 'total' como clave de conteo total.
+
+    Returns:
+        str: Reporte con proporciones agregadas
+            (ej: 'total=100, porcentaje: 99.0% Normal, 1.0% Anormal')
+
+    Ejemplo:
+        >>> resultados = {
+        ...     'total_celulas': 100,
+        ...     'normales': 99,
+        ...     'sospechosas': 1,
+        ...     'porcentaje_riesgo': 1.0
+        ... }
+        >>> reporte = generar_reporte_estadisticos(resultados)
+        >>> print(reporte)
+        'total=100, porcentaje: 99.0% Normal, 1.0% Anormal'
+    """
+    total = resultados.get('total_celulas', resultados.get('total', 0))
+    normales = resultados.get('normales', 0)
+    sospechosas = resultados.get('sospechosas', 0)
+
+    if total == 0:
+        return "total=0, porcentaje: 0.0% Normal, 0.0% Anormal"
+
+    # Calcular proporciones
+    p_normales = (normales / total) * 100.0
+    p_sospechosas = (sospechosas / total) * 100.0
+
+    # Formatear con 1 decimal
+    return f"total={total}, porcentaje: {p_normales:.1f}% Normal, {p_sospechosas:.1f}% Anormal"

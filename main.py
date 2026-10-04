@@ -33,6 +33,10 @@ PIPELINE:
     3. Aplicar filtro DoG
     4. Análisis y clasificación (regla del 3x)
     5. Visualización y generación de reportes
+
+ADVERTENCIA:
+    Este es un prototipo de investigación. El resultado no equivale a diagnóstico clínico
+    y no debe usarse para decisiones médicas reales.
 """
 
 import argparse
@@ -345,25 +349,25 @@ Para más información, consulta README.md
     )
     
     parser.add_argument(
-            "--usar-hsv",
-            action="store_true",
-            help="Aplicar segmentación HSV antes del pipeline de preprocesamiento"
-        )
+        "--usar-hsv",
+        action="store_true",
+        help="Aplicar segmentación HSV antes del pipeline de preprocesamiento"
+    )
     
-        parser.add_argument(
-            "--metodo-hsv",
-            type=str,
-            default="saturation",
-            choices=["saturation", "value"],
-            help="Método de umbralización HSV (default: saturation)"
-        )
+    parser.add_argument(
+        "--metodo-hsv",
+        type=str,
+        default="saturation",
+        choices=["saturation", "value"],
+        help="Método de umbralización HSV (default: saturation)"
+    )
     
-        parser.add_argument(
-            "--bitacora",
-            type=str,
-            default=None,
-            help="ID de prueba para registrar en bitácora (ej: T-003). Si no se especifica, usa auto-incremento"
-        )
+    parser.add_argument(
+        "--bitacora",
+        type=str,
+        default=None,
+        help="ID de prueba para registrar en bitácora (ej: T-003). Si no se especifica, usa auto-incremento"
+    )
     
     args = parser.parse_args()
     
@@ -381,6 +385,7 @@ Para más información, consulta README.md
     print(f"  ⚙️  Parámetros DoG: σ1={args.sigma1}, σ2={args.sigma2}")
     print(f"  🔧 Preprocesamiento: CLAHE={'OFF' if args.no_contraste else 'ON'}, Ruido={'ON' if args.ruido else 'OFF'}")
     print(f"  📊 Bitácora: {args.bitacora}")
+    print("  ⚠️  Resultado no equivale a diagnóstico clínico")
     print("=" * 70)
     
     # --- PROCESAMIENTO ---
