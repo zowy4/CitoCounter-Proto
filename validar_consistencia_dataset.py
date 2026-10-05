@@ -1,15 +1,13 @@
 """
-validar_consistencia_dataset.py - Validador de Integridad del Dataset
+validar_consistencia_dataset.py - Validador de Integridad del Dataset CITO-72
 
 PROPÓSITO:
 Verificar que el dataset CitoDataset_v1 esté completo y coherente antes de usarlo
-para entrenamiento o validación.
-
-VALIDACIONES:
-1. Matching imagen-etiqueta: Cada .jpg debe tener su .txt
-2. Matching imagen-CSV: Cada ID_Imagen debe existir como archivo
-3. Coherencia de clases: Diagnósticos graves deben tener etiquetas de clase 1
-4. Distribución: Train/Val tienen proporciones similares
+para entrenamiento o validación. Incluye validaciones CITO-72 para detectar:
+- Splits vacíos
+- Archivos huérfanos (imágenes sin etiquetas o viceversa)
+- Etiquetas YOLO inválidas
+- CSV sin imágenes correspondientes
 
 USO:
     python validar_consistencia_dataset.py
@@ -24,14 +22,16 @@ from pathlib import Path
 
 
 # ============================================================================
-# CONFIGURACIÓN
+# CONFIGURACIÓN CITO-72
 # ============================================================================
 
 DATASET_DIR = 'CitoDataset_v1'
-IMAGES_TRAIN = os.path.join(DATASET_DIR, 'images', 'train')
-IMAGES_VAL = os.path.join(DATASET_DIR, 'images', 'val')
+IMAGES_TRAIN = os.path.join('data', 'raw', 'train')
+IMAGES_VAL = os.path.join('data', 'raw', 'val')
+IMAGES_TEST = os.path.join('data', 'raw', 'test')
 LABELS_TRAIN = os.path.join(DATASET_DIR, 'labels', 'train')
 LABELS_VAL = os.path.join(DATASET_DIR, 'labels', 'val')
+LABELS_TEST = os.path.join(DATASET_DIR, 'labels', 'test')
 METADATA_CSV = os.path.join(DATASET_DIR, 'metadata', 'clinical_data_synthetic.csv')
 CLASSES_FILE = os.path.join(DATASET_DIR, 'classes.txt')
 
@@ -423,6 +423,55 @@ def main():
     else:
         print("⚠️  ALGUNAS VALIDACIONES FALLARON")
         print("   Revisar los errores arriba y corregir antes de usar el dataset")
+    
+    print()
+    print("=" * 70)
+    print("📋 RESUMEN CITO-72: Validaciones Adicionales")
+    print("=" * 70)
+    
+    # Ejecutar validaciones CITO-72
+    print()
+    print("--- Validaciones CITO-72 ---")
+    
+    # 1. Splits vacíos
+    print()
+    print("1. Validar splits vacíos:")
+    splits_errores = validar_splits_vacios()
+    if splits_errores:
+        for split, error in splits_errores:
+            print(f"   ❌ {split}: {error}")
+    else:
+        print("   ✓ Todos los splits tienen imágenes")
+    
+    # 2. Archivos huérfanos
+    print()
+    print("2. Validar archivos huérfanos:")
+    huérfanos_errores = validar_archivos_huerfanos()
+    if huérfanos_errores:
+        for tipo, count in huérfanos_errores:
+            print(f"   ❌ {tipo}: {count} archivos huérfanos")
+    else:
+        print("   ✓ No hay archivos huérfanos")
+    
+    # 3. Etiquetas inválidas
+    print()
+    print("3. Validar etiquetas YOLO inválidas:")
+    etiquetas_errores = validar_etiquetas_invalidas()
+    if etiquetas_errores:
+        for tipo, count in etiquetas_errores:
+            print(f"   ❌ {tipo}: {count} errores de formato")
+    else:
+        print("   ✓ Todas las etiquetas son válidas")
+    
+    # 4. CSV sin imágenes
+    print()
+    print("4. Validar CSV sin imágenes:")
+    csv_errores = validar_csv_sin_imagen()
+    if csv_errores:
+        for tipo, count in csv_errores:
+            print(f"   ❌ {tipo}: {count} IDs sin imagen")
+    else:
+        print("   ✓ Todos los IDs del CSV tienen imagen correspondiente")
     
     print()
     print("=" * 70)
