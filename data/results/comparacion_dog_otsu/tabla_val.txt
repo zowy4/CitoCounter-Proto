@@ -1,0 +1,24 @@
+======================================================================
+📊 TABLA COMPARATIVA CITO-76: VAL
+======================================================================
+
+📐 Configuración de evaluación:
+   - Sigma1 (DoG): 5.0
+   - Sigma2 (DoG): 10.0
+   - Umbral DoG: 5
+   - Umbral base (fijo): 5
+   - Distancia matching: 10.0 px
+
+📈 Métricas comparativas:
+
+   Método       | Precision | Recall   | F1-Score | Células Prom
+   -------------|-----------|----------|----------|-------------
+   DoG          | 0.0000 | 0.0000 | 0.0000 | 0.0
+   Otsu         | 0.0000 | 0.0000 | 0.0000 | 0.6
+   Línea base   | 0.0000 | 0.0000 | 0.0000 | 0.0
+
+📋 Resumen:
+   - Total imágenes: 42
+   - Mejor F1: DoG
+   - Umbral Otsu promedio: 132.62
+======================================================================
