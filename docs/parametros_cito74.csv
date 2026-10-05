@@ -1,0 +1,8 @@
+Parámetro,Valor Actual,Valor Propuesto,Justificación,Referencia
+σ1 (Sigma1 - Desenfoque fino),7.0,5.0,Calibrado en CITO-74 con conjunto de prueba,BM5 - Tesis
+σ2 (Sigma2 - Desenfoque grueso),8.0,10.0,Calibrado en CITO-74 con conjunto de prueba,BM5 - Tesis
+UMBRAL_DOG (Umbral binarización),15.0,5.0,Calibrado en CITO-74 con conjunto de prueba,BM5 - Tesis
+ÁREA_MINIMA_NUCLEO (Área mínima),50.0,10.0,Calibrado en CITO-74 con conjunto de prueba,BM5 - Tesis
+ÁREA_MAXIMA_NUCLEO (Área máxima),5000.0,500.0,Calibrado en CITO-74 con conjunto de prueba,BM5 - Tesis
+FACTOR_RIESGO (Regla 3x),3.0,3.0,"Regla de la Dra. Rangel, se mantiene",CITO-24 / Dra. Rangel
+ÁREA_PROMEDIO_NUCLEO_NORMAL,300.0,300.0,"Valor temporal, debe calibrarse con datos reales",Definición del sistema
