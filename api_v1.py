@@ -20,6 +20,15 @@ ALLOWED_IMAGE_ROOTS = {
     "raw": PROJECT_ROOT / "data" / "raw",
     "ground_truth": PROJECT_ROOT / "data" / "ground_truth",
 }
+# CITO-79: Security validation constants
+MAX_IMAGE_BYTES = 64 * 1024  # 64 KiB OWASP limit
+PROHIBITED_PATH_PATTERNS = ["/", "\\", ".."]
+ERROR_CODES = {
+    "invalid_extension": "invalid_extension",
+    "invalid_size": "invalid_size",
+    "invalid_content": "invalid_content",
+    "unsafe_path": "unsafe_path",
+}
 
 
 def error_response(message, status_code=400):
@@ -199,6 +208,42 @@ class CitoCounterApiHandler(BaseHTTPRequestHandler):
             )
             return
 
+        # CITO-79: Additional security validations
+        if not validar_ruta_segura(payload.get("image_name", "")):
+            self._send_json(
+                {"ok": False, "error": {"code": 400, "message": "`image_name` contiene rutas prohibidas."}},
+                400,
+            )
+            return
+        
+        image_name = payload.get("image_name", "")
+        if not validar_extension(image_name):
+            self._send_json(
+                {"ok": False, "error": {"code": 400, "message": f"Extensión no permitida: {Path(image_name).suffix}. Usa {sorted(ALLOWED_EXTENSIONS)}."}},
+                400,
+            )
+            return
+        
+        image_dir = payload.get("image_dir", "raw")
+        path = ALLOWED_IMAGE_ROOTS[image_dir] / image_name
+        if not validar_tamaño(path):
+            self._send_json(
+                {"ok": False, "error": {"code": 400, "message": "Imagen excede el límite de 64 KiB."}},
+                400,
+            )
+            return
+        
+        import cv2
+        import os
+        if not validar_contenido(path):
+            self._send_json(
+                {"ok": False, "error": {"code": 400, "message": "Imagen corrupta o vacía."}},
+                400,
+            )
+            return
+        
+        registrar_acceso("/api/v1/analyze", "POST", True)
+        
         response, status = analyze_from_payload(payload)
         self._send_json(response, status)
 
@@ -216,3 +261,91 @@ if __name__ == "__main__":
     parser.add_argument("--port", type=int, default=8000)
     args = parser.parse_args()
     run_api(host=args.host, port=args.port)
+
+
+# CITO-79: Security validation functions
+def validar_extension(image_name):
+    """Validate file extension is allowed (CITO-79)."""
+    if not image_name:
+        return True
+    suffix = Path(image_name).suffix.lower()
+    return suffix in ALLOWED_EXTENSIONS
+
+
+def validar_tamaño(ruta_path):
+    """Validate file size is within OWASP 64 KiB limit (CITO-79)."""
+    try:
+        size = ruta_path.stat().st_size
+        return size <= MAX_IMAGE_BYTES
+    except OSError:
+        return False
+
+
+def validar_contenido(ruta_path):
+    """Validate image content is not empty and has valid format (CITO-79)."""
+    try:
+        import cv2
+        imagen = cv2.imread(str(ruta_path), cv2.IMREAD_UNCHANGED)
+        if imagen is None:
+            return False
+        # Check if image is completely empty (all zeros)
+        if imagen.size == 0:
+            return False
+        return True
+    except Exception:
+        return False
+
+
+def validar_ruta_segura(image_name):
+    """Validate path does not contain traversal patterns (OWASP CITO-79)."""
+    if not image_name:
+        return True
+    for patron in PROHIBITED_PATH_PATTERNS:
+        if patron in image_name:
+            return False
+    return True
+
+
+def limpiar_archivos_temporales():
+    """Clean temporary files older than 1 hour (CITO-79)."""
+    import time
+    import glob
+    import os
+    temp_dir = os.path.join(PROJECT_ROOT, "data", "results", "temp")
+    if not os.path.exists(temp_dir):
+        return
+    ahora = time.time()
+    for archivo in glob.glob(os.path.join(temp_dir, "*")):
+        try:
+            if ahora - os.path.getmtime(archivo) > 3600:
+                os.remove(archivo)
+        except OSError:
+            pass
+
+
+def registrar_acceso(endpoint, metodo, exito, detalles=None):
+    """Log API access for audit purposes (CITO-79)."""
+    import logging
+    logger = logging.getLogger("cito-api")
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+            "%(asctime)s [%(levelname)s] cito-api: %(message)s"
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+    mensaje = f"endpoint={endpoint}, metodo={metodo}, exito={exito}"
+    if detalles:
+        mensaje += f", detalles={detalles}"
+    logger.info(mensaje)
+
+
+def exito_response(data, mensaje="Operación exitosa"):
+    """Standardized success response (CITO-78/CITO-79)."""
+    return {
+        "ok": True,
+        "api_version": "v1",
+        "mensaje": mensaje,
+        "data": data,
+    }, 200

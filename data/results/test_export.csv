@@ -1,0 +1,2 @@
+timestamp,imagen,tiempo_total_segundos,tiempo_manual_estimado_segundos,reduccion_lograda_porcentaje,cumple_objetivo,version_codigo,etapa_etapa1_segundos
+2024-01-01 12:00:00,test.jpg,30.0,180.0,83.33,True,1.0,10.0

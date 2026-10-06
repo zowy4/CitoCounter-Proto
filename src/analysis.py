@@ -252,7 +252,7 @@ def clasificar_nucleo_por_area(area, polaridad: str = 'nucleos-claros'):
         }
 
     es_frontera = lim_inf <= area <= lim_sup
-    if area >= umbral:
+    if area >= umbral and area < area_max:
         return {
             "es_valida": True,
             "clasificacion": "sospechosa",
