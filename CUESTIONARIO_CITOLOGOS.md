@@ -1,392 +1,171 @@
-# Cuestionario para citólogos - revisión del prototipo CitoCounter Proto
+# Cuestionario de evaluación de usabilidad — CitoCounter Proto
 
-## 1. Información de la sesión
+## Antes de empezar
+
+Este cuestionario recoge comentarios sobre la interfaz y un prototipo experimental de análisis de imágenes. No es una evaluación diagnóstica ni una solicitud de validar resultados clínicos. La sesión no debe incluir nombres, identificadores, datos sensibles ni imágenes de pacientes sin autorización y anonimización aprobada. Usa un código de sesión, no el nombre del participante.
+
+El sistema no es un dispositivo médico ni sustituye el criterio profesional. Sus etiquetas “normal” y “sospechosa” describen exclusivamente una regla experimental de área; no constituyen un hallazgo clínico.
+
+## 1. Datos generales de la sesión
 
 | Campo | Respuesta |
 |---|---|
-| Fecha | __________________ |
-| Hora de inicio | __________________ |
-| Hora de fin | __________________ |
-| Participante | __________________ |
-| Rol profesional | __________________ |
-| Años de experiencia | __________________ |
-| Facilitador | __________________ |
-| Observador | __________________ |
+| Código de sesión | ______________________________ |
+| Fecha | ______________________________ |
+| Rol profesional | ______________________________ |
+| Años de experiencia | ☐ <2 ☐ 2–5 ☐ 6–10 ☐ >10 |
+| Familiaridad con herramientas de imagen | ☐ Ninguna ☐ Básica ☐ Intermedia ☐ Avanzada |
+| Facilitador (código) | ______________________________ |
 
----
+## 2. Impresión inicial
 
-## 2. Objetivo de la sesión
+Califique de **1 (muy en desacuerdo) a 5 (muy de acuerdo)**.
 
-1. Evaluar si la interfaz ayuda o confunde en la revisión de citologías.
-2. Valorar si la regla de riesgo por área es comprensible y útil.
-3. Identificar qué aspectos del prototipo necesitan mejorarse.
-4. Revisar si la información mostrada tiene valor para un flujo de trabajo clínico o de investigación.
-
-> El sistema es experimental y no sustituye la valoración profesional ni la interpretación clínica.
-
----
-
-## 3. Perfil del participante
-
-### 3.1 Especialidad
-
-- [ ] Citología
-- [ ] Patología
-- [ ] Ginecología
-- [ ] Citotecnología
-- [ ] Otro: __________________
-
-### 3.2 Experiencia
-
-- [ ] Menos de 2 años
-- [ ] 2-5 años
-- [ ] 5-10 años
-- [ ] Más de 10 años
-
-### 3.3 Volumen de trabajo
-
-- [ ] Menos de 50 casos/semana
-- [ ] 50-100 casos/semana
-- [ ] 100-200 casos/semana
-- [ ] Más de 200 casos/semana
-
-### 3.4 Familiaridad con herramientas digitales
-
-- [ ] Ninguna
-- [ ] Básica
-- [ ] Intermedia
-- [ ] Avanzada
-
----
-
-## 4. Primera impresión de la herramienta
-
-### 4.1 Evaluación general
-
-| Pregunta | 1 | 2 | 3 | 4 | 5 |
+| Afirmación | 1 | 2 | 3 | 4 | 5 |
 |---|---:|---:|---:|---:|---:|
-| La interfaz parece clara y profesional | [ ] | [ ] | [ ] | [ ] | [ ] |
-| El aviso experimental es suficiente | [ ] | [ ] | [ ] | [ ] | [ ] |
-| La navegación es intuitiva | [ ] | [ ] | [ ] | [ ] | [ ] |
-| La información es fácil de interpretar | [ ] | [ ] | [ ] | [ ] | [ ] |
+| Entiendo qué tarea realiza el prototipo | ☐ | ☐ | ☐ | ☐ | ☐ |
+| El aviso de uso experimental es visible y comprensible | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Puedo identificar dónde cargar o elegir una imagen | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Puedo distinguir la imagen original de las vistas procesadas | ☐ | ☐ | ☐ | ☐ | ☐ |
 
-### 4.2 Comentarios iniciales
+¿Qué entendió que hace el sistema?  
+____________________________________________________________________
 
-- ¿Qué le llamó la atención en la primera vista?
-  ____________________________________________________________
+¿Qué esperaba encontrar y no encontró?  
+____________________________________________________________________
 
-- ¿Qué le resulta confuso o poco claro?
-  ____________________________________________________________
+## 3. Prueba de tareas
 
----
+Para cada tarea, anote si pudo completarla sin ayuda. No puntúe la concordancia clínica de las etiquetas.
 
-## 5. Carga y manejo de imágenes
+| Tarea | Sin ayuda | Con ayuda | No completada | Comentario |
+|---|---:|---:|---:|---|
+| Elegir una imagen de prueba autorizada | ☐ | ☐ | ☐ | __________ |
+| Encontrar los controles Sigma 1 y Sigma 2 | ☐ | ☐ | ☐ | __________ |
+| Comparar original, preprocesamiento y DoG | ☐ | ☐ | ☐ | __________ |
+| Cambiar polaridad o contraste y describir qué cambió | ☐ | ☐ | ☐ | __________ |
+| Encontrar el conteo y los criterios por área | ☐ | ☐ | ☐ | __________ |
+| Encontrar las opciones de exportación | ☐ | ☐ | ☐ | __________ |
 
-| Tarea | Sí | No | Comentario |
+¿En qué paso necesitó más ayuda y qué habría hecho más claro ese paso?  
+____________________________________________________________________
+
+## 4. Comprensión de controles
+
+Califique la **claridad** y la **utilidad para revisar el procesamiento** de cada opción: 1 (muy baja) a 5 (muy alta). “No lo probé” es una respuesta válida.
+
+| Control | Claridad 1–5 / No probado | Utilidad 1–5 / No probado | Comentarios |
 |---|---|---|---|
-| Entiende cómo cargar la imagen | [ ] | [ ] | __________________ |
-| Entiende la diferencia entre imagen original y resultado | [ ] | [ ] | __________________ |
-| Elige parámetros con claridad | [ ] | [ ] | __________________ |
-| Entiende el uso de la polaridad | [ ] | [ ] | __________________ |
-| Reconoce la utilidad del filtro DoG | [ ] | [ ] | __________________ |
+| Sigma 1 y Sigma 2 | __________ | __________ | __________________ |
+| Polaridad: `nucleos-claros` / `nucleos-oscuros` | __________ | __________ | __________________ |
+| Mejorar Contraste (CLAHE) | __________ | __________ | __________________ |
+| Modo: `clahe`, `auto`, `histogram`, `normalize` | __________ | __________ | __________________ |
+| Reducir Ruido y nivel | __________ | __________ | __________________ |
+| Segmentación HSV (saturation/value y umbral) | __________ | __________ | __________________ |
+| Separación: sin separación / watershed / máximos locales | __________ | __________ | __________________ |
+| Dibujar Contornos Reales | __________ | __________ | __________________ |
+| Mostrar Áreas en Imagen | __________ | __________ | __________________ |
 
-### 5.1 Qué cambiaría en la carga de datos
+### Preguntas abiertas sobre los controles
 
-____________________________________________________________
+1. Con sus propias palabras, ¿qué cree que cambia al modificar Sigma 1 o Sigma 2?  
+   ____________________________________________________________________
+2. ¿Qué señales usaría para elegir entre polaridad de núcleos claros u oscuros?  
+   ____________________________________________________________________
+3. ¿En qué tipo de imagen probaría contraste, reducción de ruido o segmentación HSV? ¿Qué efecto adverso vigilaría?  
+   ____________________________________________________________________
+4. ¿Qué método de separación le resultó más fácil de interpretar? ¿Qué cambio observó en el conteo?  
+   ____________________________________________________________________
+5. ¿Qué información visual le ayudaría a revisar cada detección?  
+   ____________________________________________________________________
 
----
+> **Nota del facilitador sobre “Mostrar Áreas en Imagen”:** en la versión evaluada, el control está visible, pero no está conectado al dibujo de la imagen. No dibuja etiquetas de área al activarlo. Explique este hecho si la persona intenta probarlo; registre si desea esa función, pero no atribuya el comportamiento a un error del participante.
 
-## 6. Evaluación del criterio de clasificación
+## 5. Interpretación de resultados
 
-### 6.1 Regla del 3x
+El prototipo usa una regla de área provisional: referencia 300 px² × factor 3 = umbral 900 px²; la zona frontera es 810–990 px². Una región que supera el umbral se etiqueta “sospechosa” **por esa regla**, no por diagnóstico. Contornos y máscaras son predicciones del programa, no ground truth.
 
-- ¿La regla “área ≥ 3x el promedio normal = sospechoso” tiene sentido para su práctica?
-  - [ ] Sí, exacta
-  - [ ] Sí, aproximada
-  - [ ] No, usaría otra regla
-
-Si no, ¿cuál usaría?
-
-____________________________________________________________
-
-### 6.2 Zona frontera
-
-- ¿El margen de ±10% alrededor del umbral es útil?
-  - [ ] Sí
-  - [ ] No
-  - [ ] Debería ser ± __________ %
-
-¿Cómo manejaría usted los casos frontera en la práctica?
-
-____________________________________________________________
-
-### 6.3 Colores y etiquetado
-
-- [ ] Verde para normal y rojo para sospechoso es claro
-- [ ] Cambiaría los colores por __________________
-- [ ] La etiqueta “riesgo” es útil
-- [ ] La etiqueta “riesgo” puede causar confusión
-
----
-
-## 7. Evaluación de la interfaz y resultados
-
-| Sección | Comprende | Útil | Comentario |
-|---|---|---|---|
-| Original | [ ] [ ] | [ ] [ ] | __________________ |
-| DoG | [ ] [ ] | [ ] [ ] | __________________ |
-| Preprocesamiento | [ ] [ ] | [ ] [ ] | __________________ |
-| Clasificación por área | [ ] [ ] | [ ] [ ] | __________________ |
-| Criterios por célula | [ ] [ ] | [ ] [ ] | __________________ |
-| Historial | [ ] [ ] | [ ] [ ] | __________________ |
-| Exportación PNG/CSV/JSON | [ ] [ ] | [ ] [ ] | __________________ |
-
-### 7.1 Qué le parece la información mostrada
-
-- ¿Qué datos le parecen más útiles?
-  ____________________________________________________________
-
-- ¿Qué información le falta?
-  ____________________________________________________________
-
-- ¿Qué se ve demasiado técnico o poco útil?
-  ____________________________________________________________
-
----
-
-## 8. Evaluación de calidad y métricas
-
-| Métrica | Entiende | Útil | Comentario |
-|---|---|---|---|
-| Contraste | [ ] [ ] | [ ] [ ] | __________________ |
-| Brillo | [ ] [ ] | [ ] [ ] | __________________ |
-| Saturación | [ ] [ ] | [ ] [ ] | __________________ |
-| % Riesgo | [ ] [ ] | [ ] [ ] | __________________ |
-| Total de células detectadas | [ ] [ ] | [ ] [ ] | __________________ |
-
-### 8.1 ¿Qué tan útil sería esta herramienta para su flujo de trabajo?
-
-- [ ] Muy útil
-- [ ] Útil
-- [ ] Poco útil
-- [ ] No la usaría
-
-¿Por qué?
-
-____________________________________________________________
-
----
-
-## 9. Casos difíciles y observaciones clínicas
-
-Marque los casos que cree que el sistema maneja mal hoy:
-
-- [ ] Superposición celular
-- [ ] Artefactos de tinción
-- [ ] Iluminación irregular
-- [ ] Núcleos muy pequeños
-- [ ] Núcleos muy grandes
-- [ ] Inflamación o leucocitos
-- [ ] Sangrado o eritrocitos
-- [ ] Burbujas o pliegues
-- [ ] Otros: __________________
-
-¿Qué sería lo más importante mejorar antes de considerar la herramienta útil en un entorno clínico o de revisión?
-
-____________________________________________________________
-
----
-
-## 10. Feedback final
-
-### 10.1 Fortalezas del prototipo
-
-1. _________________________________________________
-2. _________________________________________________
-3. _________________________________________________
-
-### 10.2 Deficiencias o mejoras urgentes
-
-1. _________________________________________________
-2. _________________________________________________
-3. _________________________________________________
-
-### 10.3 Recomendación general
-
-- [ ] Lo recomiendo para investigación
-- [ ] Lo recomiendo para revisión asistida
-- [ ] No lo recomendaría todavía
-
-Comentario final:
-
-____________________________________________________________
-
----
-
-## 11. Cierre
-
-- Fecha de la entrevista: __________________
-- Nombre del facilitador: __________________
-- Observaciones adicionales: __________________
-
-_________________________________________________________________________
-
-### 5.4 Integración con Sistemas Existentes
-- **¿Usa LIS (Sistema de Información de Laboratorio)?** ☐ Sí ☐ No
-  - Si sí, ¿cuál? _________________________________________________________________________
-  - ¿Necesita integración HL7/FHIR? ☐ Sí ☐ No ☐ No sé
-- **¿Usa visor de imágenes digitales (WSI viewer)?** ☐ Sí ☐ No
-  - Si sí, ¿cuál? _________________________________________________________________________
-
-### 5.5 Decisión de Uso
-| Escenario | Lo usaría | Comentarios |
-|-----------|-----------|-------------|
-| Screening inicial (triage) | ☐ Sí ☐ No ☐ Tal vez | _______________ |
-| Segunda opinión / Control de calidad | ☐ Sí ☐ No ☐ Tal vez | _______________ |
-| Formación de residentes | ☐ Sí ☐ No ☐ Tal vez | _______________ |
-| Investigación / Estudios | ☐ Sí ☐ No ☐ Tal vez | _______________ |
-| Diagnóstico primario | ☐ Sí ☐ No ☐ Tal vez | _______________ |
-
----
-
-## ⚠️ PARTE 6: Seguridad y Aspectos Éticos (5 min)
-
-### 6.1 Privacidad y Datos
 | Pregunta | Respuesta |
-|----------|-----------|
-| ¿Le preocupa que las imágenes subidas se almacenen temporalmente? | ☐ Sí ☐ No ☐ Depende |
-| ¿Es aceptable el límite de 10MB por imagen? | ☐ Sí ☐ No, necesito _____ MB |
-| ¿El anonimizado automático (ID muestra_XXX) es suficiente? | ☐ Sí ☐ No, falta: _______________ |
+|---|---|
+| ¿Puede explicar qué significa “sospechosa” en esta interfaz? | ☐ Sí ☐ Parcialmente ☐ No |
+| ¿Puede distinguir etiqueta por área de un diagnóstico? | ☐ Sí ☐ Parcialmente ☐ No |
+| ¿Le queda claro qué significa “zona frontera”? | ☐ Sí ☐ Parcialmente ☐ No |
+| ¿Qué visualización o explicación le falta para interpretar el umbral? | ______________________________ |
+| ¿Qué riesgo de malinterpretación ve en las etiquetas o los colores? | ______________________________ |
 
-### 6.2 Responsabilidad y Aviso
-| Pregunta | Respuesta |
-|----------|-----------|
-| ¿El aviso "No es diagnóstico clínico" es suficiente? | ☐ Sí ☐ No, debería: _______________ |
-| ¿Firmaría un consentimiento para usar esta herramienta? | ☐ Sí ☐ No ☐ Con condiciones |
-| ¿Quién debería validar los resultados antes de reportar? | ☐ Citólogo senior ☐ Patólogo ☐ Comité ☐ IA + Humano |
+¿Qué pregunta le surge sobre la regla de área o sus límites?  
+____________________________________________________________________
 
----
+## 6. Métricas, calidad y exportación
 
-## 📈 PARTE 7: Puntuación Global (NPS)
+| Elemento | Lo entiendo | Me resulta útil | Comentario |
+|---|---:|---:|---|
+| Total de regiones detectadas | ☐ Sí ☐ Parcial ☐ No | ☐ Sí ☐ Parcial ☐ No | __________ |
+| Porcentaje de regiones “sospechosas” | ☐ Sí ☐ Parcial ☐ No | ☐ Sí ☐ Parcial ☐ No | __________ |
+| Indicadores de calidad de imagen | ☐ Sí ☐ Parcial ☐ No | ☐ Sí ☐ Parcial ☐ No | __________ |
+| Historial / parámetros usados | ☐ Sí ☐ Parcial ☐ No | ☐ Sí ☐ Parcial ☐ No | __________ |
+| Exportación CSV / JSON / imagen | ☐ Sí ☐ Parcial ☐ No | ☐ Sí ☐ Parcial ☐ No | __________ |
 
-### 7.1 Net Promoter Score
-**En una escala de 0 a 10, ¿qué tan probable es que recomiende CitoCounter a un colega?**
+¿Qué datos necesitaría que acompañaran una exportación para poder reproducir una prueba?  
+____________________________________________________________________
 
-☐ 0 ☐ 1 ☐ 2 ☐ 3 ☐ 4 ☐ 5 ☐ 6 ☐ 7 ☐ 8 ☐ 9 ☐ 10
+¿Qué entiende por el “% de riesgo” que muestra el prototipo?  
+____________________________________________________________________
 
-- **Promotores (9-10):** _________________________________________________________________________
-- **Pasivos (7-8):** _________________________________________________________________________
-- **Detractores (0-6):** _________________________________________________________________________
+> Recuerde que dicho porcentaje es la fracción de detecciones válidas etiquetadas por la regla de área; no es probabilidad de enfermedad, precisión ni sensibilidad.
 
-### 7.2 Priorización de Próximos Pasos
-*Ordene del 1 (más urgente) al 8:*
+## 7. Utilidad, confianza y limitaciones
 
-___ Mejorar precisión en casos superpuestos (Watershed/Máximos locales)
-___ Añadir más métricas (sensibilidad, especificidad, F1, IoU)
-___ Integrar con LIS / visor digital (HL7/FHIR)
-___ Añadir autenticación y auditoría
-___ Mejorar interfaz / experiencia de usuario
-___ Validar con dataset clínico mayor
-___ Documentación y manual de usuario
-___ Mejorar segmentación HSV para bajo contraste
-___ Mejorar separación Watershed para superposición
-___ Otros: _________________________________________________________________________
+1. Para tareas de investigación o comparación técnica, ¿qué utilidad tendría para usted?  
+   ☐ Alta ☐ Moderada ☐ Baja ☐ Ninguna ☐ No sé
+2. ¿Qué limitación le parece más importante comunicar a otra persona que use el prototipo?  
+   ____________________________________________________________________
+3. ¿Qué tipos de imagen o artefacto cree que deberían probarse antes de sacar conclusiones?  
+   ____________________________________________________________________
+4. ¿Qué tendría que cambiar para que la interfaz fuera más comprensible?  
+   ____________________________________________________________________
+5. ¿Hay algo en la pantalla que pueda inducir a pensar que la herramienta diagnostica?  
+   ____________________________________________________________________
 
----
+## 8. Priorización de mejoras
 
-## ✍️ PARTE 8: Firmas y Cierre
+Ordene hasta cinco opciones (1 = prioridad más alta); deje en blanco las que no elija.
 
-### 8.1 Compromisos de Acción
-| Acción | Responsable | Fecha Límite | Prioridad |
-|--------|-------------|--------------|-----------|
-| ___________________________________ | ___________ | ___________ | ☐ Alta ☐ Media ☐ Baja |
-| ___________________________________ | ___________ | ___________ | ☐ Alta ☐ Media ☐ Baja |
-| ___________________________________ | ___________ | ___________ | ☐ Alta ☐ Media ☐ Baja |
+| Mejora | Prioridad |
+|---|---:|
+| Explicar Sigma y la respuesta DoG en la interfaz | ____ |
+| Mejorar la selección de polaridad / contraste / ruido | ____ |
+| Mejorar HSV y mostrar con claridad su máscara | ____ |
+| Mejorar separación de regiones superpuestas | ____ |
+| Dibujar áreas numéricas junto a las detecciones | ____ |
+| Mostrar origen y limitaciones de las etiquetas de área | ____ |
+| Facilitar revisión de falsos positivos y falsos negativos | ____ |
+| Mejorar exportación y trazabilidad de parámetros | ____ |
+| Otra: ______________________________________________ | ____ |
 
-### 8.2 Firmas
+## 9. Comentario final
 
-**Participante (Citólogo):**
-- Nombre: ___________________________________
-- Firma: ___________________________________
-- Fecha: ___________________________________
+**Lo más claro o útil:**  
+____________________________________________________________________
 
-**Facilitador (Equipo Técnico):**
-- Nombre: ___________________________________
-- Firma: ___________________________________
-- Fecha: ___________________________________
+**Lo más confuso o prioritario de corregir:**  
+____________________________________________________________________
 
----
+**¿Participaría en otra prueba de usabilidad del prototipo?**  
+☐ Sí ☐ No ☐ Tal vez
 
-## 📎 ANEXOS
+## 10. Notas del facilitador
 
-### Anexo A: Checklist de Preparación Técnica
-- [ ] Imágenes de prueba cargadas en `data/raw/` o `mis_imagenes_nuevas/`
-- [ ] Ground truth disponible en `CitoDataset_v1/labels/`
-- [ ] Parámetros calibrados (σ1=3.0, σ2=5.0 o valores actuales)
-- [ ] Bitácora de experimentos (`bitacora_experimentos.csv`) funcional
-- [ ] Exportación CSV/JSON probada
-- [ ] Navegador compatible (Chrome/Firefox/Edge actualizado)
-- [ ] Resolución de pantalla ≥ 1366x768
-- [ ] Conexión a internet (para Streamlit cloud si aplica)
+- No solicitar ni registrar identificadores de pacientes o datos sensibles.
+- Separar observaciones de usabilidad de cualquier juicio clínico.
+- Si se compara detección con anotaciones, verificar antes que las imágenes y el ground truth estén emparejados y autorizados; documentar el protocolo por separado.
+- Registrar incidencias reproducibles y parámetros, sin cambiar varios controles a la vez.
 
-### Anexo B: Casos de Prueba Sugeridos
-| ID | Descripción | Archivo | Ground Truth | Dificultad |
-|----|-------------|---------|--------------|------------|
-| TC-01 | Caso normal claro | EDF004.png | 114 células, 9 sospechosas (7.9%) | Fácil |
-| TC-02 | Caso anormal moderado | EDF005.png | 272 células, 25 sospechosas (9.2%) | Media |
-| TC-03 | Caso alto riesgo | EDF001.png | 261 células, 36 sospechosas (13.8%) | Media |
-| TC-04 | Superposición nuclear | _________ | _________ | Difícil |
-| TC-05 | Artefactos tinción | _________ | _________ | Difícil |
-| TC-06 | Baja calidad/ruido | _________ | _________ | Difícil |
-| TC-07 | Inflamación marcada | _________ | _________ | Muy difícil |
-| TC-08 | Metaplasia escamosa | _________ | _________ | Muy difícil |
-| TC-09 | Bajo contraste (test HSV) | _________ | _________ | Difícil |
-| TC-10 | Núcleos superpuestos (test Watershed) | _________ | _________ | Muy difícil |
-| TC-11 | Artefactos de tinción + ruido | _________ | _________ | Muy difícil |
-| TC-12 | Metaplasia + inflamación | _________ | _________ | Muy difícil |
-
-### Anexo C: Plantilla de Reporte de Hallazgos
-```
-HALLAZGO #[NÚMERO]
-- Tipo: ☐ Bug ☐ Mejora ☐ Nueva funcionalidad ☐ Usabilidad ☐ Clínico
-- Severidad: ☐ Crítica ☐ Alta ☐ Media ☐ Baja
-- Descripción: _________________________________________________________________________
-- Pasos para reproducir: _________________________________________________________________________
-- Resultado esperado: _________________________________________________________________________
-- Resultado actual: _________________________________________________________________________
-- Evidencia (captura/log): _________________________________________________________________________
-- Reportado por: ___________________________________
-- Fecha: ___________________________________
-```
+| Observación / incidencia | Pantalla o control | Pasos para reproducir | Prioridad |
+|---|---|---|---|
+| __________________________ | __________________ | ______________________________ | ☐ Alta ☐ Media ☐ Baja |
+| __________________________ | __________________ | ______________________________ | ☐ Alta ☐ Media ☐ Baja |
 
 ---
 
-## 📌 Notas del Facilitador (Post-Sesión)
-
-### Resumen de Hallazgos Críticos
-_________________________________________________________________________
-_________________________________________________________________________
-
-### Decisiones Tomadas
-_________________________________________________________________________
-_________________________________________________________________________
-
-### Próximos Pasos Inmediatos
-1. _________________________________________________________________________
-2. _________________________________________________________________________
-3. _________________________________________________________________________
-
-### Métricas de la Sesión
-- Duración total: ______ minutos
-- Imágenes evaluadas: ______
-- Acuerdo global: ______%
-- NPS: ______
-- ¿Sesión grabada? ☐ Sí ☐ No
-- ¿Consentimiento firmado? ☐ Sí ☐ No
-
----
-
-**Versión del cuestionario:** 1.0  
-**Fecha:** 2026-10-07  
-**Proyecto:** CitoCounter Proto  
-**Basado en:** CITO-38, CITO-39, CITO-88 (Pruebas de usabilidad y feedback clínico)
+**Versión:** 2.0 · **Fecha:** 2026-10-08 · **Proyecto:** CitoCounter Proto
