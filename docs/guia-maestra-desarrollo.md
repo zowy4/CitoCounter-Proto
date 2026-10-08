@@ -10,7 +10,7 @@ La fuente operativa de seguimiento es Jira:
 
 - Tareas principales: `J-01` a `J-21`.
 - Actividades/subtareas: `ACT-01` a `ACT-23`.
-- Claves Jira de las actividades: `CITO-22` a `CITO-44`.
+- Claves Jira de las actividades: `CITO-22` a `CITO-49`.
 - Épicas: `E1` a `E9`.
 - Periodo de referencia: 18 semanas, de agosto a diciembre de 2026.
 - La fuente de verdad para las incidencias es Jira; los CSV históricos de importación se eliminaron después de importar las incidencias. Las nuevas actividades se crearán y relacionarán directamente desde la extensión de Jira.
@@ -38,7 +38,7 @@ Para evitar mezclar el identificador académico con la clave real de Jira, se us
 - `ACT-xx`: identificador interno de la actividad definida en el proyecto.
 - `CITO-xx`: clave real de la incidencia en Jira.
 - Las tareas principales conservan sus claves Jira previamente asignadas (`CITO-1` a `CITO-21`).
-- Las actividades agregadas posteriormente corresponden consecutivamente a `CITO-22` a `CITO-44`.
+- Las actividades agregadas posteriormente corresponden consecutivamente a `CITO-22` a `CITO-49`.
 - Este mapa es la referencia única para abrir, actualizar y cerrar actividades desde la extensión de Jira.
 
 | Actividad | Clave Jira | Resumen esperado en Jira | Tarea interna | Estado inicial |
@@ -68,13 +68,20 @@ Para evitar mezclar el identificador académico con la clave real de Jira, se us
 | ACT-22 | CITO-43 | Medir tiempo de procesamiento manual vs automatizado | J-16 | Hecha ✅ | Auto: 83.2 ms/imagen vs Manual: 423.6 ms/imagen (80.3% ahorro) | CITO-43_REPORTE.md | 2026-10-02 |
 | ACT-23 | CITO-44 | Crear suite de pruebas para validación de dataset | J-05 | Por hacer |
 
-La asignación `ACT-01 -> CITO-22` hasta `ACT-23 -> CITO-44` se basa en la numeración consecutiva indicada para las actividades creadas en Jira. Si una clave real difiere en Jira, se debe corregir esta tabla antes de iniciar esa actividad; no se crearán claves alternativas ni se reutilizarán CSV históricos.
+| ACT-24 | CITO-92 | Implementar autenticación básica y rate limiting en API REST | J-12 | Por hacer |
+| ACT-25 | CITO-93 | Endurecer seguridad: logs auditoría, HTTPS, revisión dependencias | J-12 | Por hacer |
+| ACT-26 | CITO-94 | Casos especiales: superposición celular, artefactos e iluminación | J-19 | Por hacer |
+| ACT-27 | CITO-95 | Validar F1-Score >= 90% en detección y segmentación con dataset congelado | J-18 | Por hacer |
+| ACT-28 | CITO-96 | Completar dataset con splits train/val/test y ground truth trazable | J-03/J-04/J-05 | Por hacer |
+| ACT-29 | CITO-97 | Calibrar DoG con conjunto autorizado separado | J-07 | Por hacer |
+
+La asignación `ACT-01 -> CITO-22` hasta `ACT-23 -> CITO-44` se basa en la numeración consecutiva indicada para las actividades creadas en Jira. Si una clave real difiere en Jira, se debe corregir esta tabla antes de iniciar esa actividad; no se crearán claves alternativas ni se reutilizarán CSV históricos. Las actividades ACT-24 a ACT-29 (CITO-92 a CITO-97) son nuevas actividades añadidas en esta sesión con prioridades ALTA y MEDIA según el plan de continuidad.
 
 ### Confirmación obligatoria en la extensión de Jira
 
 Antes de iniciar las actividades, confirmar manualmente en la extensión de Jira cada fila de la tabla anterior. La confirmación debe hacerse sobre la incidencia real, no sobre el identificador interno:
 
-1. Buscar la clave `CITO-22` a `CITO-44` en la extensión de Jira.
+1. Buscar la clave `CITO-22` a `CITO-49` en la extensión de Jira.
 2. Comprobar que el **Resumen** coincide con el nombre de la actividad `ACT-xx` correspondiente.
 3. Comprobar que la incidencia tiene como padre la tarea `J-xx` indicada en la tabla, usando la clave Jira de la tarea padre (`CITO-1` a `CITO-21`) cuando Jira la muestre.
 4. Confirmar que el tipo de incidencia es actividad/subtarea y que su estado inicial es `Por hacer`, salvo `CITO-42`, que queda `En revisión` por la corrección DoG ya realizada.
@@ -105,7 +112,13 @@ Antes de iniciar las actividades, confirmar manualmente en la extensión de Jira
 | CITO-41 | ACT-20 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | CITO-42 | ACT-21 | Confirmado localmente | Confirmado en plan | Actividad/subtarea pendiente de Jira | En revisión recomendado | Pendiente |
 | CITO-43 | ACT-22 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
-| CITO-44 | ACT-23 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-44 | ACT-23 | Confirmado localmente | Confirmado en plan | Actividad/subtarea pendiente de Jira | En revisión recomendado | Pendiente |
+| CITO-92 | ACT-24 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-93 | ACT-25 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-94 | ACT-26 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-95 | ACT-27 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-96 | ACT-28 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-97 | ACT-29 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 
 La tabla anterior registra el procedimiento y la asignación esperada; la extensión de Jira es la fuente final para confirmar el resumen real, la relación padre-hijo y el estado. No se debe marcar una actividad como `Hecha` hasta completar esta verificación y adjuntar la evidencia correspondiente.
 
@@ -123,7 +136,351 @@ La tabla anterior registra el procedimiento y la asignación esperada; la extens
 
 **Fecha de revisión local:** 2026-09-10  
 **Revisor local:** equipo del proyecto  
-**Cobertura esperada:** `CITO-22` a `CITO-44`  
+**Cobertura esperada:** `CITO-22` a `CITO-49`  
+**Criterio para liberar el inicio:** todas las filas deben tener resumen, padre, tipo, estado, fecha y revisor confirmados en Jira. Las filas con discrepancias deben pasar a `Bloqueada`.
+
+## 4. Trazabilidad Jira
+
+Cada actividad debe mantener la siguiente relación:
+
+`Épica -> J-xx -> ACT-xx -> commit/PR -> evidencia -> métrica -> decisión`
+
+En cada incidencia Jira se registrará:
+
+| Campo | Regla |
+|---|---|
+| Resumen | Mantener `ACT-xx` y la clave real `CITO-xx` en la descripción, por ejemplo `ACT-01 (CITO-22)`. |
+| Dependencias | No iniciar una tarea bloqueada; enlazar la incidencia predecesora. |
+| Estado | `Por hacer`, `En progreso`, `En revisión`, `Bloqueada`, `Hecha`; actualizarlo en Jira al comenzar, pausar, enviar a revisión y cerrar una actividad. |
+| Evidencia | Enlace a documento, commit/PR, reporte, captura o ejecución reproducible. |
+| Métrica | Valor observado, unidad, dataset, versión y fecha. |
+| Riesgo | Marcar impacto y mitigación, especialmente privacidad y falsos negativos. |
+| Cierre | Revisión por otra persona y criterios de aceptación cumplidos. |
+
+### Métricas de seguimiento del proyecto
+
+Estas métricas miden avance y calidad; no sustituyen las métricas científicas del algoritmo.
+
+| Métrica | Fórmula o criterio | Cadencia | Meta de control |
+|---|---|---|---|
+| Avance de tareas | Incidencias `Hechas` / incidencias planificadas x 100 | Semanal | Tendencia creciente, sin cerrar trabajo sin evidencia |
+| Avance ponderado | Puntos completados / puntos planificados x 100 | Semanal | Comparar con la semana del plan |
+| Trazabilidad | Actividades con evidencia y enlace Jira / actividades terminadas x 100 | Semanal | 100% |
+| Calidad de entrega | Criterios cumplidos / criterios evaluados x 100 | Por revisión | 100% antes de cerrar |
+| Bloqueos | Número de incidencias `Bloqueada` y días bloqueada | Dos veces por semana | Escalar cualquier bloqueo mayor a 3 días |
+| Reproducibilidad | Experimentos repetibles / experimentos reportados x 100 | Por experimento | 100% de resultados publicados |
+| Privacidad | Artefactos con datos identificables detectados | Por revisión | 0 en repositorio y reportes compartidos |
+
+El porcentaje de avance nunca se calcula únicamente por código escrito. Una actividad vale como completada cuando tiene resultado verificable y evidencia.
+
+### Actualización operativa desde la extensión de Jira
+
+Jira es el registro operativo del proyecto. Cada vez que se trabaje en una actividad:
+
+1. Abrir la incidencia desde la extensión de Jira usando la clave del mapa oficial, por ejemplo `ACT-01 (CITO-22)`.
+2. Pasar a `En progreso` antes de modificar código o documentación.
+3. Añadir en la incidencia el commit, PR, reporte o evidencia relacionada y actualizar la métrica observada.
+4. Pasar a `En revisión` cuando el trabajo esté listo para comprobarse.
+5. Pasar a `Hecha` únicamente después de verificar los criterios de aceptación y adjuntar la evidencia.
+6. Usar `Bloqueada` si falta una dependencia, autorización de datos o revisión; describir el motivo y la siguiente acción.
+
+La clave Jira debe aparecer en el commit o PR cuando sea posible. Si una actividad genera cambios en el repositorio, el estado de Jira se actualiza en la misma sesión de trabajo, no al final del sprint. Así el tablero refleja el estado real y no solo el avance del código.
+
+### Estado de ejecución actual
+
+| Incidencia | Estado recomendado | Evidencia |
+|---|---|---|
+| `J-06` / `ACT-21` / `CITO-42` | `En revisión` | `src/dog_filter.py`, `tests/test_dog_filter.py`, `python -m unittest discover -s tests -v` |
+| `J-08` / `ACT-02` / `CITO-23` | `En curso` | `data/results/CITO-23-metricas-template.csv`, `data/results/CITO-23-metricas-resumen.txt`, `python calcular_metricas_cito23.py --match-distance 10.0`; falta ground truth trazable para la validación formal |
+| `J-10` / `ACT-03` / `CITO-24` | `En revisión` | `src/analysis.py`, `tests/test_analysis_rules.py`, `docs/evidencia-cito24-reglas-clasificacion.md`; reglas normal/sospechosa y límites de frontera implementados |
+| `J-11` / `ACT-04` / `CITO-25` | `En revisión` | `api_v1.py`, `tests/test_api_v1.py`, `docs/evidencia-cito25-api-rest.md`; API v1 validada con `/health`, `/analyze`, rechazo HTTP de JSON inválido y límite de 64 KiB |
+| `J-13` / `ACT-05` / `CITO-26` | `En revisión` | `app.py`, `src/interfaz_resultados.py`, `tests/test_interfaz_resultados.py`, `docs/evidencia-cito26-interfaz.md`; interfaz local con carga limitada, incertidumbre y exportaciones reproducibles |
+| `J-15` / `ACT-06` / `CITO-27` | `En revisión` | `app.py`, `src/historial_resultados.py`, `tests/test_historial_resultados.py`, `docs/evidencia-cito27-dashboard.md`; historial normalizado y métricas consolidadas |
+
+La corrección convierte los gaussianos a `float32` antes de restarlos, evitando que `uint8` recorte las diferencias negativas. La suite actual pasa y `git diff --check` no reporta errores. La incidencia no debe pasar a `Hecha` hasta que se revisen los criterios de aceptación en Jira y se adjunte esta evidencia.
+
+## 5. Plan por fases de la guía maestra
+
+### Fase 0. Línea base del prototipo
+
+**Objetivo:** conocer exactamente qué existe antes de ampliarlo.
+
+- Ejecutar la prueba de entorno y el flujo CLI/Streamlit.
+- Inventariar módulos, entradas, salidas, parámetros y limitaciones.
+- Registrar dataset disponible y archivos huérfanos.
+- Crear una captura o reporte de resultados iniciales.
+
+**Jira relacionado:** `J-17`, `J-20`, `ACT-13 (CITO-34)`, `ACT-15 (CITO-36)`.
+
+**Salida:** registro de línea base aprobado. Esta fase no altera la historia ni las métricas obtenidas previamente.
+
+### Fase 1. Planificación y UX/UI
+
+**Objetivo:** definir usuarios, alcance y uso responsable antes de ampliar la interfaz.
+
+- **Personas:** operador de laboratorio/citotecnólogo, revisor clínico, investigador y administrador técnico.
+- **Necesidades:** cargar una imagen autorizada, revisar detecciones, consultar parámetros, exportar resultados y distinguir claramente un resultado experimental de un diagnóstico.
+- **Dispositivos:** estación de trabajo de laboratorio para la versión 1.0; el uso móvil queda fuera del alcance inicial.
+- **Versión 1.0:** CLI, dashboard local, procesamiento reproducible, resultados trazables, métricas y documentación.
+- **Después de 1.0:** multiusuario, integración clínica, DICOM/FHIR, despliegue público y automatización de decisiones.
+- **Wireflows mínimos:** carga/análisis, revisión de resultados, exportación y consulta histórica.
+- **Prototipo visual:** conservar Streamlit como prototipo funcional y documentar el diseño; no iniciar una migración a Next.js sin una decisión de alcance en Jira.
+
+**Jira relacionado:** `J-01`, `J-10`, `J-13`, `J-21`, `ACT-03 (CITO-24)`, `ACT-05 (CITO-26)`, `ACT-17 (CITO-38)`, `ACT-18 (CITO-39)`.
+
+**Puerta de salida:** alcance aprobado, advertencia de no diagnóstico, wireflows documentados y criterios de usabilidad definidos.
+
+### Fase 2. Arquitectura del sistema
+
+**Objetivo:** describir la arquitectura actual y la arquitectura objetivo sin imponer tecnologías que el prototipo todavía no necesita.
+
+**C4 - Contexto:**
+
+- Usuario de laboratorio/revisor: aporta imágenes autorizadas y revisa resultados.
+- CitoCounter: preprocesa, ejecuta DoG, analiza objetos y genera resultados explicables.
+- Dataset/almacenamiento: conserva imágenes autorizadas, anotaciones, parámetros y resultados.
+- Jira/GitHub: proporciona trazabilidad de tareas, código y evidencias.
+- APIs clínicas externas: fuera de la versión 1.0; cualquier integración futura requiere revisión de privacidad y seguridad.
+
+**C4 - Contenedores actuales y objetivo:**
+
+1. Aplicación Python de línea de comandos (`main.py`).
+2. Dashboard Streamlit (`app.py`).
+3. Librerías del pipeline (`src/`).
+4. Dataset y resultados (`CitoDataset_v1/`, `data/`).
+5. Bitácora y documentación (`docs/`).
+6. API REST versionada, prevista en `J-11`, únicamente cuando el contrato del pipeline esté estable.
+7. Almacenamiento analítico previsto en `J-14`; PostgreSQL/ORM son una decisión de la futura plataforma, no un requisito para fingir que el prototipo ya los usa.
+
+**Componentes a documentar:** carga y validación, preprocesamiento, DoG, detección, clasificación, métricas, persistencia, visualización y auditoría.
+
+**Jira relacionado:** `J-11`, `J-14`, `J-17`, `J-20`, `ACT-09 (CITO-30)`, `ACT-13 (CITO-34)`, `ACT-14 (CITO-35)`.
+
+**Puerta de salida:** diagrama C4, contrato de datos, decisiones tecnológicas y dependencias documentadas.
+
+### Fase 3. Seguridad y modelado de amenazas
+
+**Objetivo:** reducir riesgos antes de exponer cargas, resultados o datos.
+
+- **OWASP:** validar extensión, tamaño y contenido; evitar rutas arbitrarias y nombres identificables; controlar temporales; no mostrar trazas al usuario; gestionar secretos fuera del repositorio.
+- **STRIDE:** suplantación de usuario, manipulación de imágenes/resultados, repudio por falta de auditoría, exposición de datos, denegación de servicio por cargas grandes y elevación de privilegios.
+- **Controles:** autenticación y autorización cuando exista acceso multiusuario, rate limiting en API, logs sin datos sensibles, eliminación definida y revisión de dependencias.
+- **Privacidad:** inventario, anonimización, retención, eliminación y control de acceso conforme a la matriz aprobada.
+
+**Jira relacionado:** `J-02`, `J-12`, `J-17`, `J-20`, `ACT-16 (CITO-37)`.
+
+**Puerta de salida:** matriz STRIDE, checklist OWASP, política de datos y pruebas de abuso. Hasta entonces, el dashboard permanece local o en un entorno controlado.
+
+### Fase 4. Backend, lógica y datos
+
+**Objetivo:** estabilizar el motor científico y exponerlo mediante contratos verificables.
+
+1. Completar dataset, splits y doble revisión: `J-03`, `J-04`, `ACT-19 (CITO-40)`, `ACT-20 (CITO-41)`.
+2. Corregir y probar la representación numérica del DoG: `J-06`, `ACT-21 (CITO-42)`.
+3. Calibrar parámetros en un conjunto separado: `J-07`, `ACT-01 (CITO-22)`.
+4. Implementar métricas precisión, sensibilidad, F1 e IoU: `J-08`, `ACT-02 (CITO-23)`.
+5. Comparar contra Otsu y línea base: `J-09`.
+6. Formalizar reglas explicables: `J-10`, `ACT-03 (CITO-24)`.
+7. Implementar API REST versionada y validación de entradas: `J-11`, `ACT-04 (CITO-25)`.
+8. Diseñar almacenamiento trazable: `J-14`, `ACT-09 (CITO-30)`.
+
+La guía de arquitectura propone PostgreSQL, Prisma y NestJS como ejemplo. Para este repositorio se adopta una migración incremental: primero se estabiliza el pipeline Python y luego se decide si la API y el almacenamiento se implementan con FastAPI/PostgreSQL u otro stack aprobado. No se considera cumplida una actividad por crear carpetas vacías o modelos sin uso.
+
+Si la API evoluciona a un servicio multiusuario, esta fase debe añadir login, contraseñas con bcrypt, JWT, guards/RBAC y DTOs de validación. Esas capacidades se trazan a `J-12` y a los criterios de seguridad; no se habilita acceso multiusuario solo por tener un endpoint funcionando.
+
+La validación formal de F1, precisión, sensibilidad e IoU se ejecuta sobre el conjunto congelado mediante `J-18` y `ACT-10 (CITO-31)`. Los casos de superposición, artefactos e iluminación se analizan mediante `J-19`, `ACT-11 (CITO-32)` y `ACT-12 (CITO-33)` antes de cerrar la evaluación.
+
+**Puerta de salida:** API probada, resultados con versión de código/dataset/parámetros y validación científica reproducible.
+
+### Fase 5. Frontend e interfaz
+
+**Objetivo:** convertir el dashboard actual en un flujo claro para revisión humana.
+
+- Mostrar carga, procesamiento, éxito y error con mensajes accionables.
+- Mostrar imagen, detecciones, parámetros, métricas e incertidumbre sin presentar diagnóstico.
+- Permitir exportación trazable del resultado.
+- Probar accesibilidad básica, tamaños de pantalla de estación de trabajo y flujo de revisión.
+- Consumir la API mediante un cliente definido por el equipo (por ejemplo Axios y React Query si se separa el frontend), gestionando carga, error y reintento.
+- Proteger vistas y acciones mediante rutas protegidas cuando requieran sesión o rol; en la versión local, documentar explícitamente que no existe autenticación.
+- Usar componentes reutilizables si se migra a un frontend separado; la migración a Next.js/Tailwind queda condicionada a `J-11` y a una decisión registrada.
+- Ejecutar pruebas con usuarios potenciales, sin usar datos identificables.
+
+**Jira relacionado:** `J-13`, `J-15`, `J-21`, `ACT-05 (CITO-26)`, `ACT-06 (CITO-27)`, `ACT-07 (CITO-28)`, `ACT-08 (CITO-29)`, `ACT-17 (CITO-38)`, `ACT-18 (CITO-39)`.
+
+**Puerta de salida:** flujo funcional probado, advertencias visibles, exportación correcta y feedback registrado.
+
+### Fase 6. Infraestructura y despliegue
+
+**Objetivo:** hacer reproducible el entorno sin desplegar prematuramente datos sensibles.
+
+- **Docker:** empaquetar solo cuando API, almacenamiento y configuración estén definidos; incluir healthcheck y configuración por variables de entorno.
+- **CI:** ejecutar sintaxis, pruebas, lint, validación de dataset y revisión de secretos en cada pull request mediante GitHub Actions.
+- **Servidor:** AWS EC2 es una opción posterior. Antes se debe aprobar modelo de amenaza, HTTPS, control de acceso, copias, retención y monitoreo; solo deben abrirse los puertos necesarios para HTTPS y administración segura.
+- **Entrega:** congelar versión de código, dataset, parámetros, dependencias, reportes y documentación.
+
+**Jira relacionado:** `J-12`, `J-16`, `J-17`, `J-20`, `ACT-15 (CITO-36)`, `ACT-16 (CITO-37)`, `ACT-22 (CITO-43)`.
+
+**Puerta de salida:** paquete reproducible, informe de rendimiento, documentación completa y acta de aceptación. El despliegue público no es criterio de éxito de la versión de investigación.
+
+## 6. Puertas de control y orden de ejecución
+
+El orden mínimo es:
+
+`Línea base -> Fase 1 -> Fase 2 -> Fase 3 -> dataset/DoG -> métricas/calibración -> API -> interfaz -> CI/despliegue -> entrega`
+
+No se debe declarar `J-18` (F1 >= 90 %) ni `J-16` (reducción de tiempo >= 70 %) como cumplido antes de congelar el dataset de prueba y el protocolo de medición. Son metas experimentales, no resultados garantizados.
+
+| Puerta | Se habilita cuando | Incidencias clave |
+|---|---|---|
+| G0 Línea base | El prototipo corre y sus límites están registrados | `J-17`, `J-20` |
+| G1 Alcance | Usuarios, alcance y riesgos de datos están aprobados | `J-01`, `J-02` |
+| G2 Datos | Dataset autorizado, anotado y consistente | `J-03`, `J-04`, `J-05` |
+| G3 Algoritmo | DoG corregido y parámetros congelados para evaluación | `J-06`, `J-07`, `J-19` |
+| G4 Evidencia científica | Métricas y comparación reproducibles | `J-08`, `J-09`, `J-18` |
+| G5 Producto de investigación | API, interfaz, seguridad y almacenamiento probados | `J-10` a `J-15`, `J-21` |
+| G6 Entrega | Rendimiento, documentación y auditoría completos | `J-16`, `J-17`, `J-20` |
+
+## 7. Rutina de seguimiento
+
+**Cada inicio de semana:** revisar tablero, dependencias, capacidad y bloqueos; elegir actividades con criterios de aceptación claros.
+
+**Durante la semana:** actualizar estado de Jira, enlazar commits/PR, registrar experimentos y anotar el valor de las métricas con su versión de dataset.
+
+**Cada revisión semanal:** verificar avance ponderado, trazabilidad, riesgos, desviaciones y decisiones. Una métrica que no se pueda reproducir se registra como pendiente, no como éxito.
+
+**Al cerrar una actividad:** adjuntar evidencia, solicitar revisión, comprobar criterios de aceptación y vincular el resultado con la tarea padre.
+
+**Al final de cada fase:** completar la puerta de control correspondiente y registrar la decisión en Jira: aprobada, aprobada con riesgo o bloqueada.
+
+## 8. Definición de terminado adaptada
+
+Una tarea o actividad se puede mover a `Hecha` solo si:
+
+- Cumple sus criterios de aceptación.
+- Tiene evidencia enlazada y reproducible.
+- Incluye pruebas automatizadas o una prueba manual documentada según su riesgo.
+- Registra código, dataset, parámetros, entorno, fecha y operador cuando aplique.
+- Fue revisada por otra persona.
+- No introduce datos identificables en el repositorio.
+- Actualiza la documentación afectada.
+- Distingue resultados experimentales de diagnóstico clínico.
+- Deja registrados los riesgos residuales y las tareas derivadas.
+
+## 9. Indicadores científicos y de producto
+
+Los indicadores se separan para no confundir avance del proyecto con rendimiento del algoritmo:
+
+- **Algoritmo:** precisión, sensibilidad, F1, IoU, falsos positivos, falsos negativos y análisis por casos especiales.
+- **Datos:** número de imágenes por split, porcentaje con anotación válida, concordancia entre revisores y archivos huérfanos.
+- **Producto:** tiempo manual vs. automatizado, errores de carga, tiempo de respuesta, tareas completadas por usuario y problemas de usabilidad.
+- **Gobierno:** incidencias de privacidad, hallazgos de seguridad, cobertura de evidencia y bloqueos.
+
+Cada informe debe indicar fórmula, denominador, conjunto evaluado, versión y fecha. El resultado `F1 >= 90%` se reporta solo si el conjunto de prueba es independiente y congelado.
+
+## 10. Documentos y archivos de apoyo
+
+### Archivos del prototipo base (siempre presentes):
+- [Plan normativo y backlog Jira](plan-proyecto.md)
+- [Guía de inicio](guide/inicio.md)
+- [Guía de experimentación](guide/experimentos.md)
+- [Guía de desarrollo](guide/desarrollo.md)
+- [Guía maestra de desarrollo](guia-maestra-desarrollo.md)
+
+### Documentación generada en actividades CITO-32 a CITO-39:
+- [x] `docs/arquitectura_sistema.md` - Arquitectura del sistema y flujo de datos (CITO-34)
+- [x] `docs/algoritmos_metricas.md` - Algoritmos, parámetros y métricas de evaluación (CITO-35)
+- [x] `docs/guia_usuario.md` - Guía de usuario y manual de instalación (CITO-36)
+- [x] `docs/seguridad_privacidad.md` - Seguridad, privacidad y conformidad normativa (CITO-37)
+- [x] `docs/pruebas_usabilidad.md` - Plan de pruebas de usabilidad con citotecnólogos (CITO-38)
+- [x] `docs/feedback_clinico.md` - Recopilación de feedback clínico y resolución de cambios (CITO-39)
+
+### Evidencia y resultados previos (archivos removidos del git pero conservados en historial):
+- `docs/evidencia-cito22.md` - Métricas CITO-22 (validación F1-Score)
+- `docs/evidencia-cito23.md` - Métricas CITO-23 (mejorada)
+- `docs/evidencia-cito24.md` - Reglas de clasificación
+- `docs/evidencia-cito25.md` - API REST
+- `docs/evidencia-cito26.md` - Interfaz de resultados
+- `docs/evidencia-cito27.md` - Dashboard de métricas
+
+### Código fuente y pruebas:
+- `src/analysis.py` - Pipeline de análisis de núcleos (corregido CITO-32)
+- `src/preprocessing.py` - Preprocesamiento y mejora de contraste (mejorado CITO-33)
+- `src/dog_filter.py` - Filtro Difference of Gaussians
+- `src/visualization.py` - Paneles de resultados
+- `main.py` - Punto de entrada CLI
+- `api_v1.py` - Endpoint REST v1
+- `tests/` - 66 pruebas unitarias passing
+
+### Datos y configuración:
+- `CitoDataset_v1/` - Dataset de referencia con metadatos sintéticos
+- `data/raw/` - Imágenes de entrada procesadas
+- `data/results/` - Resultados de experimentos
+- `data/dataset_index.csv` - Índice de dataset
+- `requirements.txt` - Dependencias del proyecto
+
+
+La asignación `ACT-01 -> CITO-22` hasta `ACT-23 -> CITO-44` se basa en la numeración consecutiva indicada para las actividades creadas en Jira. Si una clave real difiere en Jira, se debe corregir esta tabla antes de iniciar esa actividad; no se crearán claves alternativas ni se reutilizarán CSV históricos. Las actividades ACT-24 a ACT-29 (CITO-92 a CITO-97) son nuevas actividades añadidas en esta sesión con prioridades ALTA y MEDIA según el plan de continuidad.
+
+### Confirmación obligatoria en la extensión de Jira
+
+Antes de iniciar las actividades, confirmar manualmente en la extensión de Jira cada fila de la tabla anterior. La confirmación debe hacerse sobre la incidencia real, no sobre el identificador interno:
+
+1. Buscar la clave `CITO-22` a `CITO-49` en la extensión de Jira.
+2. Comprobar que el **Resumen** coincide con el nombre de la actividad `ACT-xx` correspondiente.
+3. Comprobar que la incidencia tiene como padre la tarea `J-xx` indicada en la tabla, usando la clave Jira de la tarea padre (`CITO-1` a `CITO-21`) cuando Jira la muestre.
+4. Confirmar que el tipo de incidencia es actividad/subtarea y que su estado inicial es `Por hacer`, salvo `CITO-42`, que queda `En revisión` por la corrección DoG ya realizada.
+5. Añadir una marca en la descripción o comentario de Jira con el formato: `Mapa verificado: ACT-xx | CITO-xx | padre CITO-yy | fecha AAAA-MM-DD`.
+6. Si el resumen, la clave, el padre o el tipo no coinciden, marcar la incidencia como `Bloqueada` y corregir primero esta guía o la relación en Jira.
+
+| Clave Jira | Actividad | Resumen verificado | Padre verificado | Tipo verificado | Estado real | Fecha/revisor |
+|---|---|---|---|---|---|---|
+| CITO-22 | ACT-01 | Confirmado localmente | Confirmado en plan | Actividad/subtarea validada localmente | En revisión recomendado | 2026-09-11 |
+| CITO-23 | ACT-02 | Evaluación espacial exploratoria ejecutada; falta ground truth trazable para validación final | Confirmado en plan | Actividad/subtarea con evaluación cuantitativa en curso | En curso recomendado | 2026-09-14 |
+| CITO-24 | ACT-03 | Reglas de clasificación formalizadas por área y frontera | Confirmado en plan | Actividad/subtarea con reglas explicables implementadas | En revisión recomendado | 2026-09-13 |
+| CITO-25 | ACT-04 | API REST v1 validada localmente con pruebas unitarias e integración HTTP | Confirmado en plan | Actividad/subtarea con endpoint versionado, controles de entrada y evidencia reproducible | En revisión recomendado | 2026-09-14 |
+| CITO-26 | ACT-05 | Interfaz local actualizada con incertidumbre y exportación reproducible | Confirmado en plan | Actividad/subtarea con dashboard Streamlit y pruebas de exportación | En revisión recomendado | 2026-09-14 |
+| CITO-27 | ACT-06 | Dashboard consolidado de ejecuciones y métricas implementado | Confirmado en plan | Actividad/subtarea con historial normalizado y agregados en Streamlit | En revisión recomendado | 2026-09-14 |
+| CITO-28 | ACT-07 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-29 | ACT-08 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-30 | ACT-09 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-31 | ACT-10 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-32 | ACT-11 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-33 | ACT-12 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-34 | ACT-13 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-35 | ACT-14 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-36 | ACT-15 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-37 | ACT-16 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-38 | ACT-17 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-39 | ACT-18 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-40 | ACT-19 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-41 | ACT-20 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-42 | ACT-21 | Confirmado localmente | Confirmado en plan | Actividad/subtarea pendiente de Jira | En revisión recomendado | Pendiente |
+| CITO-43 | ACT-22 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-44 | ACT-23 | Confirmado localmente | Confirmado en plan | Actividad/subtarea pendiente de Jira | En revisión recomendado | Pendiente |
+| CITO-92 | ACT-24 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-93 | ACT-25 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-94 | ACT-26 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-95 | ACT-27 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-96 | ACT-28 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-97 | ACT-29 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+
+La tabla anterior registra el procedimiento y la asignación esperada; la extensión de Jira es la fuente final para confirmar el resumen real, la relación padre-hijo y el estado. No se debe marcar una actividad como `Hecha` hasta completar esta verificación y adjuntar la evidencia correspondiente.
+
+### Acta de revisión final de Jira
+
+| Control | Resultado local | Resultado remoto Jira | Estado |
+|---|---|---|---|
+| Protocolo de confirmación | Documentado en esta guía | Pendiente de ejecución en la extensión | Preparado |
+| Tabla canónica con resúmenes | 23 actividades y 23 claves documentadas | Pendiente de comparar con Jira | Preparado |
+| Padres y tipos de incidencia | Padres internos documentados | Pendiente de confirmar en Jira | Pendiente |
+| Estados iniciales | `Por hacer` para actividades nuevas; `CITO-22` validado localmente y `CITO-23` en evaluación | Pendiente de confirmar en Jira | Pendiente |
+| Pruebas del repositorio | 3 pruebas pasan; `git diff --check` correcto | No aplica | Confirmado localmente |
+| CITO-23 | TP=15, FP=24, FN=27, Precision=0.3846, Recall=0.3571, F1=0.3704, Jaccard de detección=0.2273 sobre 9 imágenes con distancia global de 10 px; faltan etiquetas YOLO trazables para el validador formal | Mantener en curso hasta disponer de ground truth y conjunto de evaluación independiente | En curso |
+| Revisión final | No hay acceso remoto desde el repositorio | Debe ejecutarse en la extensión | Pendiente |
+
+**Fecha de revisión local:** 2026-09-10  
+**Revisor local:** equipo del proyecto  
+**Cobertura esperada:** `CITO-22` a `CITO-49`  
 **Criterio para liberar el inicio:** todas las filas deben tener resumen, padre, tipo, estado, fecha y revisor confirmados en Jira. Las filas con discrepancias deben pasar a `Bloqueada`.
 
 ## 4. Trazabilidad Jira

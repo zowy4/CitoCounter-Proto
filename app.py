@@ -11,6 +11,10 @@ CARACTERÍSTICAS:
 - Visualización comparativa instantánea
 - Métricas clave en dashboard
 - Interfaz profesional para presentaciones
+- Separación de núcleos superpuestos (Watershed/Máximos locales)
+- Segmentación HSV por color
+- Verificación de calidad de imagen
+- Exportación JSON/CSV
 """
 
 import streamlit as st
@@ -18,12 +22,26 @@ import cv2
 import numpy as np
 import tempfile
 import os
+import json
 from pathlib import Path
+from datetime import datetime
 
 # Importar módulos existentes de CitoCounter Proto
-from src.preprocessing import preprocesar_imagen
-from src.dog_filter import aplicar_filtro_dog
-from src.analysis import analizar_nucleos
+from src.preprocessing import (
+    preprocesar_imagen, 
+    verificar_calidad_imagen,
+    segmentar_por_hsv,
+    anonimizar_metadata,
+    obtener_id_sin_identificar
+)
+from src.dog_filter import aplicar_filtro_dog, visualizar_filtros_gauss
+from src.analysis import (
+    analizar_nucleos, 
+    obtener_reglas_clasificacion,
+    AREA_PROMEDIO_NUCLEO_NORMAL,
+    FACTOR_RIESGO,
+    MARGEN_FRONTERA
+)
 from src.visualization import dibujar_estadisticas_en_imagen, crear_vista_deteccion
 from src.interfaz_resultados import (
     AVISO_USO_EXPERIMENTAL,
@@ -34,6 +52,12 @@ from src.metricas_sistema import (
     calcular_metricas_imagen,
     metricas_conjunto,
     reporte_resumen,
+)
+
+from src.historial_resultados import (
+    cargar_historial,
+    agregar_historial,
+    filas_para_tabla,
 )
 
 from src.etl_resultados import (
@@ -130,6 +154,21 @@ with st.expander("📊 Indicadores clave del rendimiento (CITO-28)", expanded=Fa
 with st.sidebar:
     st.header("⚙️ Configuración de Análisis")
     
+    # --- FUENTE DE IMÁGENES ---
+    st.subheader("📂 Fuente de Imágenes")
+    
+    fuente_imagenes = st.radio(
+        "Seleccionar origen",
+        options=["upload", "dataset"],
+        format_func=lambda x: {
+            "upload": "📤 Subir archivo(s)",
+            "dataset": "📁 Dataset del proyecto (data/raw/)"
+        }[x],
+        help="Elige entre subir tus propias imágenes o usar las del dataset del proyecto"
+    )
+    
+    st.markdown("---")
+    
     # --- PARÁMETROS DOG ---
     st.subheader("1️⃣ Parámetros del Filtro DoG")
     
@@ -181,21 +220,98 @@ with st.sidebar:
         help="Adaptive Histogram Equalization - mejora iluminación irregular"
     )
     
+    # Modo automático de CLAHE
+    if usar_clahe:
+        modo_clahe = st.selectbox(
+            "Modo CLAHE",
+            options=["clahe", "auto", "histogram", "normalize"],
+            index=0,
+            help="Auto selecciona automáticamente según el contraste de la imagen"
+        )
+    else:
+        modo_clahe = "clahe"
+    
     reducir_ruido = st.checkbox(
         "Reducir Ruido", 
         value=False,
         help="Filtro bilateral - útil para imágenes con mucho ruido"
     )
     
+    if reducir_ruido:
+        nivel_ruido = st.selectbox(
+            "Nivel de reducción",
+            options=["bajo", "medio", "alto"],
+            index=1,
+            help="Intensidad del filtro bilateral"
+        )
+    else:
+        nivel_ruido = "medio"
+    
+    st.markdown("---")
+    
+    # --- SEGMENTACIÓN AVANZADA (CITO-33, CITO-32) ---
+    st.subheader("3️⃣ Segmentación Avanzada")
+    
+    usar_hsv = st.checkbox(
+        "Segmentación HSV (Color)", 
+        value=False,
+        help="Usa el canal de saturación/valor HSV para resaltar núcleos por color. Útil cuando el contraste de intensidad es bajo."
+    )
+    
+    if usar_hsv:
+        metodo_hsv = st.selectbox(
+            "Método HSV",
+            options=["saturation", "value"],
+            index=0,
+            help="Saturation: núcleos con color distinto. Value: núcleos más brillos/oscuros."
+        )
+        umbral_hsv = st.slider(
+            "Umbral HSV",
+            min_value=0,
+            max_value=255,
+            value=100,
+            step=5,
+            help="Umbral mínimo en el canal seleccionado (0-255)"
+        )
+    else:
+        metodo_hsv = "saturation"
+        umbral_hsv = 100
+    
+    st.markdown("---")
+    
+    # --- SEPARACIÓN DE NÚCLEOS (CITO-32) ---
+    st.subheader("4️⃣ Separación de Núcleos Superpuestos")
+    
+    metodo_separacion = st.selectbox(
+        "Método de separación",
+        options=["none", "watershed", "maximos_locales"],
+        index=0,
+        format_func=lambda x: {
+            "none": "Sin separación (original)",
+            "watershed": "Watershed (Transformada de distancia)",
+            "maximos_locales": "Máximos locales (picos DoG)"
+        }[x],
+        help="Watershed separa núcleos en contacto. Máximos locales detecta picos en la respuesta DoG."
+    )
+    
+    if metodo_separacion != "none":
+        st.info("⚠️ Experimental: puede cambiar el conteo total de células")
+    
     st.markdown("---")
     
     # --- VISUALIZACIÓN ---
-    st.subheader("3️⃣ Opciones de Visualización")
+    st.subheader("5️⃣ Opciones de Visualización")
     
     mostrar_contornos = st.checkbox(
         "Dibujar Contornos Reales", 
         value=True,
         help="Muestra los contornos detectados sobre las células"
+    )
+    
+    mostrar_areas = st.checkbox(
+        "Mostrar Áreas en Imagen", 
+        value=False,
+        help="Muestra el área en píxeles² sobre cada detección"
     )
     
     st.markdown("---")
@@ -222,72 +338,453 @@ with st.sidebar:
     with st.expander("📚 Guía de Uso"):
         st.markdown("""
         **Pasos:**
-        1. Carga una imagen de microscopio
-        2. Ajusta los sliders de Sigma
-        3. Observa los resultados en tiempo real
-        4. Compara en las pestañas visuales
+        1. Selecciona la fuente de imágenes (subir o dataset)
+        2. Elige una o varias imágenes
+        3. Ajusta los sliders de Sigma
+        4. Observa los resultados en tiempo real
+        5. Compara en las pestañas visuales
         
         **Tips:**
         - Aumenta σ1 si detecta mucho ruido
         - Disminuye σ1 para captar más detalles
         - σ2 controla el tamaño de estructuras
+        - Usa HSV si los núcleos tienen color distintivo
+        - Watershed ayuda con núcleos superpuestos
+        - Modo lote: procesa múltiples imágenes a la vez
         """)
+
+# ============================================================================
+# FUNCIONES AUXILIARES PARA DATASET Y PROCESAMIENTO EN LOTE
+# ============================================================================
+
+@st.cache_data
+def escanear_dataset(ruta_base="data/raw"):
+    """Escanea el directorio del dataset y retorna lista de imágenes disponibles."""
+    ruta = Path(ruta_base)
+    if not ruta.exists():
+        return []
+    
+    extensiones = {'.jpg', '.jpeg', '.png', '.tif', '.tiff', '.bmp'}
+    imagenes = []
+    for ext in extensiones:
+        imagenes.extend(ruta.glob(f"*{ext}"))
+        imagenes.extend(ruta.glob(f"*{ext.upper()}"))
+    
+    # Ordenar por nombre
+    imagenes.sort(key=lambda x: x.name.lower())
+    return imagenes
+
+
+def procesar_imagen_individual(ruta_imagen, params):
+    """Procesa una sola imagen y retorna resultados."""
+    try:
+        # Preprocesar
+        imagen_gris, imagen_original = preprocesar_imagen(
+            str(ruta_imagen),
+            mejorar_contraste_flag=params['usar_clahe'],
+            reducir_ruido_flag=params['reducir_ruido'],
+            metodo_contraste=params['modo_clahe'],
+            nivel_ruido=params['nivel_ruido'],
+            polaridad=params['polaridad'],
+            usar_hsv=params['usar_hsv'],
+            metodo_hsv=params['metodo_hsv'],
+            umbral_hsv=params['umbral_hsv']
+        )
+        
+        # Verificar calidad
+        metricas_calidad = verificar_calidad_imagen(imagen_gris)
+        
+        # DoG
+        imagen_dog = aplicar_filtro_dog(imagen_gris, params['sigma1'], params['sigma2'])
+        
+        # Análisis
+        metodo_sep = None if params['metodo_separacion'] == "none" else params['metodo_separacion']
+        resultados = analizar_nucleos(
+            imagen_dog, 
+            imagen_original, 
+            polaridad=params['polaridad'],
+            metodo_separacion=metodo_sep
+        )
+        
+        # Visualizaciones
+        img_resultado = dibujar_estadisticas_en_imagen(
+            resultados['imagen_procesada'], 
+            resultados, 
+            posicion='superior'
+        )
+        
+        img_deteccion = crear_vista_deteccion(
+            imagen_original,
+            resultados['contornos_normales'],
+            resultados['contornos_sospechosos'],
+            dibujar_contornos=params['mostrar_contornos']
+        )
+        
+        return {
+            'exito': True,
+            'archivo': ruta_imagen.name,
+            'ruta': str(ruta_imagen),
+            'resultados': resultados,
+            'metricas_calidad': metricas_calidad,
+            'img_resultado': img_resultado,
+            'img_deteccion': img_deteccion,
+            'imagen_original': imagen_original,
+            'imagen_gris': imagen_gris,
+            'imagen_dog': imagen_dog
+        }
+    except Exception as e:
+        return {
+            'exito': False,
+            'archivo': ruta_imagen.name,
+            'ruta': str(ruta_imagen),
+            'error': str(e)
+        }
+
+
+def generar_csv_lote(resultados_lote, params):
+    """Genera CSV consolidado para procesamiento en lote."""
+    import csv
+    from io import StringIO
+    
+    buffer = StringIO()
+    writer = csv.writer(buffer)
+    
+    # Encabezados
+    writer.writerow([
+        "Archivo", "Total_Celulas", "Normales", "Sospechosas", 
+        "Frontera", "Porcentaje_Riesgo", "Sigma1", "Sigma2",
+        "Polaridad", "CLAHE", "Modo_CLAHE", "Reducir_Ruido",
+        "Nivel_Ruido", "HSV", "Metodo_HSV", "Umbral_HSV",
+        "Separacion", "Contraste", "Brillo", "Saturacion", "Calidad_Aceptable"
+    ])
+    
+    for r in resultados_lote:
+        if r['exito']:
+            res = r['resultados']
+            cal = r['metricas_calidad']
+            writer.writerow([
+                r['archivo'],
+                res['total_celulas'],
+                res['normales'],
+                res['sospechosas'],
+                res.get('frontera', 0),
+                f"{res['porcentaje_riesgo']:.1f}%",
+                params['sigma1'],
+                params['sigma2'],
+                params['polaridad'],
+                "Si" if params['usar_clahe'] else "No",
+                params['modo_clahe'],
+                "Si" if params['reducir_ruido'] else "No",
+                params['nivel_ruido'],
+                "Si" if params['usar_hsv'] else "No",
+                params['metodo_hsv'],
+                params['umbral_hsv'],
+                params['metodo_separacion'],
+                f"{cal['contraste']:.1f}",
+                f"{cal['brillo_promedio']:.1f}",
+                f"{cal['saturacion']:.1f}%",
+                "Si" if cal['es_aceptable'] else "No"
+            ])
+        else:
+            writer.writerow([r['archivo'], "ERROR", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""])
+    
+    return buffer.getvalue()
+
 
 # ============================================================================
 # ÁREA PRINCIPAL
 # ============================================================================
 
-uploaded_file = st.file_uploader(
-    "📂 Cargar imagen de microscopía cervical", 
-    type=['jpg', 'png', 'jpeg', 'tif', 'tiff'],
-    help="Formatos soportados: JPG, PNG, TIF"
-)
-
-if uploaded_file is not None:
-    contenido_subido = uploaded_file.getvalue()
-    extension = Path(uploaded_file.name).suffix.lower()
-    ruta_temp = None
-
-    if len(contenido_subido) > MAX_UPLOAD_BYTES:
-        st.error("La imagen supera el límite local de 10 MiB.")
+# Escanear dataset si se selecciona esa fuente
+if fuente_imagenes == "dataset":
+    imagenes_dataset = escanear_dataset("data/raw")
+    
+    if not imagenes_dataset:
+        st.warning("⚠️ No se encontraron imágenes en data/raw/")
+        st.info("Asegúrate de que el dataset esté en data/raw/ o usa la opción 'Subir archivo(s)'")
         st.stop()
     
-    try:
-        # Los módulos del pipeline requieren una ruta; la extensión se conserva para OpenCV.
-        with tempfile.NamedTemporaryFile(delete=False, suffix=extension) as archivo_temporal:
-            archivo_temporal.write(contenido_subido)
-            ruta_temp = archivo_temporal.name
+    st.markdown(f"### 📁 Dataset del proyecto: **{len(imagenes_dataset)} imágenes disponibles**")
+    
+    # Selector de modo
+    modo_procesamiento = st.radio(
+        "Modo de procesamiento",
+        options=["individual", "lote"],
+        format_func=lambda x: {
+            "individual": "🔍 Una imagen a la vez (vista detallada)",
+            "lote": "📦 Procesamiento en lote (múltiples imágenes)"
+        }[x],
+        horizontal=True
+    )
+    
+    if modo_procesamiento == "individual":
+        # Selector individual
+        nombres_imagenes = [img.name for img in imagenes_dataset]
+        idx_seleccionado = st.selectbox(
+            "Seleccionar imagen",
+            options=range(len(nombres_imagenes)),
+            format_func=lambda i: nombres_imagenes[i],
+            help=f"Elige una de las {len(nombres_imagenes)} imágenes del dataset"
+        )
+        imagenes_seleccionadas = [imagenes_dataset[idx_seleccionado]]
+    else:
+        # Selector múltiple para lote
+        nombres_imagenes = [img.name for img in imagenes_dataset]
+        indices_seleccionados = st.multiselect(
+            "Seleccionar imágenes para procesar en lote",
+            options=range(len(nombres_imagenes)),
+            format_func=lambda i: nombres_imagenes[i],
+            default=[0, 1, 2] if len(nombres_imagenes) >= 3 else list(range(len(nombres_imagenes))),
+            help=f"Elige múltiples imágenes (máx. {len(nombres_imagenes)} disponibles). Se procesarán secuencialmente."
+        )
+        imagenes_seleccionadas = [imagenes_dataset[i] for i in indices_seleccionados]
+        
+        if not imagenes_seleccionadas:
+            st.info("👆 Selecciona al menos una imagen para procesar en lote")
+            st.stop()
+        
+        st.info(f"📦 **{len(imagenes_seleccionadas)} imágenes seleccionadas** para procesamiento en lote")
+        
+        # Opciones de lote
+        col_lote1, col_lote2 = st.columns(2)
+        with col_lote1:
+            mostrar_progreso = st.checkbox("Mostrar barra de progreso", value=True)
+        with col_lote2:
+            guardar_resultados_lote = st.checkbox("Guardar resultados en bitácora", value=True)
 
-        # --- PROCESAMIENTO ---
-        with st.spinner('🔬 Analizando células... Esto puede tardar unos segundos.'):
-            
-            # A. Preprocesar
-            imagen_gris, imagen_original = preprocesar_imagen(
-                ruta_temp,
-                mejorar_contraste_flag=usar_clahe,
-                reducir_ruido_flag=reducir_ruido,
-                polaridad=polaridad
+else:
+    # Modo upload (original)
+    uploaded_files = st.file_uploader(
+        "📂 Cargar imagen(es) de microscopía cervical", 
+        type=['jpg', 'png', 'jpeg', 'tif', 'tiff'],
+        accept_multiple_files=True,
+        help="Formatos soportados: JPG, PNG, TIF. Puedes seleccionar múltiples archivos."
+    )
+    
+    if not uploaded_files:
+        st.info("👆 **Carga una o varias imágenes de microscopía para comenzar el análisis**")
+        st.stop()
+    
+    # Convertir uploaded_files a lista de rutas temporales
+    imagenes_seleccionadas = []
+    rutas_temporales = []
+    
+    for uploaded_file in uploaded_files:
+        contenido_subido = uploaded_file.getvalue()
+        extension = Path(uploaded_file.name).suffix.lower()
+        
+        if len(contenido_subido) > MAX_UPLOAD_BYTES:
+            st.error(f"❌ {uploaded_file.name}: supera el límite de 10 MiB.")
+            continue
+        
+        archivo_temporal = tempfile.NamedTemporaryFile(delete=False, suffix=extension)
+        archivo_temporal.write(contenido_subido)
+        archivo_temporal.close()
+        
+        imagenes_seleccionadas.append(Path(archivo_temporal.name))
+        rutas_temporales.append(archivo_temporal.name)
+    
+    if not imagenes_seleccionadas:
+        st.error("No se pudieron cargar imágenes válidas.")
+        st.stop()
+    
+    modo_procesamiento = "lote" if len(imagenes_seleccionadas) > 1 else "individual"
+    if modo_procesamiento == "lote":
+        st.info(f"📦 **{len(imagenes_seleccionadas)} imágenes cargadas** para procesamiento en lote")
+
+# Parámetros comunes para procesamiento
+params_procesamiento = {
+    'sigma1': sigma1,
+    'sigma2': sigma2,
+    'polaridad': polaridad,
+    'usar_clahe': usar_clahe,
+    'modo_clahe': modo_clahe,
+    'reducir_ruido': reducir_ruido,
+    'nivel_ruido': nivel_ruido,
+    'usar_hsv': usar_hsv,
+    'metodo_hsv': metodo_hsv,
+    'umbral_hsv': umbral_hsv,
+    'metodo_separacion': metodo_separacion,
+    'mostrar_contornos': mostrar_contornos,
+    'mostrar_areas': mostrar_areas
+}
+
+# ============================================================================
+# PROCESAMIENTO
+# ============================================================================
+
+if modo_procesamiento == "individual":
+    # Procesamiento individual (vista detallada original)
+    ruta_imagen = imagenes_seleccionadas[0]
+    
+    with st.spinner(f'🔬 Analizando {ruta_imagen.name}...'):
+        resultado = procesar_imagen_individual(ruta_imagen, params_procesamiento)
+    
+    if not resultado['exito']:
+        st.error(f"❌ Error procesando {resultado['archivo']}: {resultado['error']}")
+        st.stop()
+    
+    # Extraer resultados para compatibilidad con código existente
+    resultados = resultado['resultados']
+    metricas_calidad = resultado['metricas_calidad']
+    img_resultado = resultado['img_resultado']
+    img_deteccion = resultado['img_deteccion']
+    imagen_original = resultado['imagen_original']
+    imagen_gris = resultado['imagen_gris']
+    imagen_dog = resultado['imagen_dog']
+    
+    # Mostrar resultados individuales (código original)
+    
+else:
+    # PROCESAMIENTO EN LOTE
+    st.markdown("## 📦 Resultados del Procesamiento en Lote")
+    
+    # Barra de progreso
+    if 'mostrar_progreso' in locals() and mostrar_progreso:
+        progress_bar = st.progress(0)
+        status_text = st.empty()
+    else:
+        progress_bar = None
+        status_text = None
+    
+    resultados_lote = []
+    
+    for idx, ruta_imagen in enumerate(imagenes_seleccionadas):
+        if progress_bar:
+            progress_bar.progress((idx) / len(imagenes_seleccionadas))
+            status_text.text(f"Procesando {idx+1}/{len(imagenes_seleccionadas)}: {ruta_imagen.name}")
+        
+        resultado = procesar_imagen_individual(ruta_imagen, params_procesamiento)
+        resultados_lote.append(resultado)
+    
+    if progress_bar:
+        progress_bar.progress(1.0)
+        status_text.text("✅ Procesamiento completado")
+    
+    # Limpiar archivos temporales si vienen de upload
+    if fuente_imagenes == "upload" and 'rutas_temporales' in locals():
+        for ruta_temp in rutas_temporales:
+            try:
+                if os.path.exists(ruta_temp):
+                    os.unlink(ruta_temp)
+            except:
+                pass
+    
+    # ====================================================================
+    # RESUMEN CONSOLIDADO LOTE
+    # ====================================================================
+    exitosos = [r for r in resultados_lote if r['exito']]
+    fallidos = [r for r in resultados_lote if not r['exito']]
+    
+    st.markdown("### 📊 Resumen Consolidado")
+    
+    col_res1, col_res2, col_res3, col_res4, col_res5 = st.columns(5)
+    with col_res1:
+        st.metric("Total Procesadas", len(resultados_lote))
+    with col_res2:
+        st.metric("✅ Exitosas", len(exitosos))
+    with col_res3:
+        st.metric("❌ Fallidas", len(fallidos))
+    with col_res4:
+        total_celulas = sum(r['resultados']['total_celulas'] for r in exitosos)
+        st.metric("Total Células", total_celulas)
+    with col_res5:
+        total_sospechosas = sum(r['resultados']['sospechosas'] for r in exitosos)
+        pct_riesgo = (total_sospechosas / total_celulas * 100) if total_celulas > 0 else 0
+        st.metric("% Riesgo Global", f"{pct_riesgo:.1f}%")
+    
+    if fallidos:
+        with st.expander("❌ Errores en procesamiento", expanded=True):
+            for f in fallidos:
+                st.error(f"{f['archivo']}: {f['error']}")
+    
+    # Tabla de resultados
+    if exitosos:
+        st.markdown("### 📋 Detalle por Imagen")
+        
+        datos_tabla = []
+        for r in exitosos:
+            res = r['resultados']
+            datos_tabla.append({
+                "Archivo": r['archivo'],
+                "Células": res['total_celulas'],
+                "Normales": res['normales'],
+                "Sospechosas": res['sospechosas'],
+                "Frontera": res.get('frontera', 0),
+                "% Riesgo": f"{res['porcentaje_riesgo']:.1f}%",
+                "Calidad": "✅" if r['metricas_calidad']['es_aceptable'] else "⚠️"
+            })
+        
+        st.dataframe(datos_tabla, use_container_width=True, hide_index=True)
+        
+        # Gráfico de distribución de riesgo
+        st.markdown("### 📈 Distribución de Riesgo por Imagen")
+        import pandas as pd
+        df_riesgo = pd.DataFrame([
+            {"Imagen": r['archivo'][:20] + "...", "Riesgo %": r['resultados']['porcentaje_riesgo']}
+            for r in exitosos
+        ])
+        st.bar_chart(df_riesgo.set_index("Imagen"))
+        
+        # Descargas en lote
+        st.markdown("### 💾 Descargar Resultados del Lote")
+        
+        col_dl1, col_dl2 = st.columns(2)
+        with col_dl1:
+            csv_lote = generar_csv_lote(resultados_lote, params_procesamiento)
+            st.download_button(
+                label="📥 Descargar CSV Consolidado",
+                data=csv_lote,
+                file_name=f"citocounter_lote_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                mime="text/csv"
             )
-            
-            # B. Filtro DoG
-            imagen_dog = aplicar_filtro_dog(imagen_gris, sigma1, sigma2)
-            
-            # C. Análisis y clasificación
-            resultados = analizar_nucleos(imagen_dog, imagen_original, polaridad=polaridad)
-            
-            # D. Preparar visualizaciones
-            img_resultado = dibujar_estadisticas_en_imagen(
-                resultados['imagen_procesada'], 
-                resultados, 
-                posicion='superior'
+        
+        with col_dl2:
+            # JSON consolidado
+            json_lote = {
+                "metadata": {
+                    "timestamp": datetime.now().isoformat(),
+                    "version": "1.1",
+                    "modo": "lote",
+                    "total_imagenes": len(resultados_lote),
+                    "exitosas": len(exitosos),
+                    "parametros": params_procesamiento
+                },
+                "resultados": [
+                    {
+                        "archivo": r['archivo'],
+                        "exito": r['exito'],
+                        "total_celulas": r['resultados']['total_celulas'] if r['exito'] else 0,
+                        "normales": r['resultados']['normales'] if r['exito'] else 0,
+                        "sospechosas": r['resultados']['sospechosas'] if r['exito'] else 0,
+                        "porcentaje_riesgo": r['resultados']['porcentaje_riesgo'] if r['exito'] else 0,
+                        "error": r.get('error', None)
+                    }
+                    for r in resultados_lote
+                ]
+            }
+            st.download_button(
+                label="📥 Descargar JSON Consolidado",
+                data=json.dumps(json_lote, indent=2, ensure_ascii=False),
+                file_name=f"citocounter_lote_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+                mime="application/json"
             )
-            
-            img_deteccion = crear_vista_deteccion(
-                imagen_original,
-                resultados['contornos_normales'],
-                resultados['contornos_sospechosos'],
-                dibujar_contornos=mostrar_contornos
-            )
+    
+    # Si hay exitosos, mostrar la primera imagen en detalle
+    if exitosos:
+        st.markdown("---")
+        st.markdown("### 🔍 Vista Detallada de la Primera Imagen Exitosa")
+        
+        primer_exitoso = exitosos[0]
+        resultados = primer_exitoso['resultados']
+        metricas_calidad = primer_exitoso['metricas_calidad']
+        img_resultado = primer_exitoso['img_resultado']
+        img_deteccion = primer_exitoso['img_deteccion']
+        imagen_original = primer_exitoso['imagen_original']
+        imagen_gris = primer_exitoso['imagen_gris']
+        imagen_dog = primer_exitoso['imagen_dog']
+        
+        st.caption(f"Mostrando: {primer_exitoso['archivo']} | Usa el selector arriba para cambiar de imagen")
         
         # ====================================================================
         # SECCIÓN DE MÉTRICAS
@@ -333,6 +830,24 @@ if uploaded_file is not None:
         st.info("Resultado experimental: el porcentaje mostrado no constituye una evaluación clínica.")
         st.warning(resumen_resultado_experimental(resultados), icon="🔎")
         
+        # Métricas de calidad de imagen
+        if metricas_calidad.get('advertencias'):
+            with st.expander("⚠️ Advertencias de Calidad de Imagen", expanded=True):
+                for adv in metricas_calidad['advertencias']:
+                    st.warning(adv)
+        
+        with st.expander("📈 Métricas de Calidad de Imagen", expanded=False):
+            col_q1, col_q2, col_q3, col_q4 = st.columns(4)
+            with col_q1:
+                st.metric("Contraste", f"{metricas_calidad['contraste']:.1f}")
+            with col_q2:
+                st.metric("Brillo Promedio", f"{metricas_calidad['brillo_promedio']:.1f}")
+            with col_q3:
+                st.metric("Saturación", f"{metricas_calidad['saturacion']:.1f}%")
+            with col_q4:
+                estado = "✅ Aceptable" if metricas_calidad['es_aceptable'] else "❌ No Aceptable"
+                st.metric("Estado", estado)
+        
         st.markdown("---")
         
         # ====================================================================
@@ -340,11 +855,13 @@ if uploaded_file is not None:
         # ====================================================================
         st.markdown("### 🖼️ Comparativa Visual")
         
-        tab1, tab2, tab3, tab4 = st.tabs([
+        tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
             "🎯 Análisis Final", 
             "🔬 Filtro DoG", 
             "⚙️ Preprocesamiento",
-            "📷 Original"
+            "📷 Original",
+            "🎨 HSV / Separación",
+            "📋 Criterios de Clasificación"
         ])
         
         with tab1:
@@ -376,6 +893,15 @@ if uploaded_file is not None:
             - Rango de detección: ~{int((sigma2-sigma1)*3)} píxeles
             - Ajusta σ1 y σ2 para optimizar detección
             """)
+            
+            # Mostrar componentes del DoG
+            with st.expander("🔍 Ver componentes del DoG (G1, G2)"):
+                componentes = visualizar_filtros_gauss(imagen_gris, sigma1, sigma2)
+                col_g1, col_g2 = st.columns(2)
+                with col_g1:
+                    st.image(componentes['g1'], caption="G1 - Gaussiano σ1 (Detalle fino)", use_container_width=True)
+                with col_g2:
+                    st.image(componentes['g2'], caption="G2 - Gaussiano σ2 (Estructura general)", use_container_width=True)
         
         with tab3:
             st.image(
@@ -395,6 +921,9 @@ if uploaded_file is not None:
             else:
                 status_prep.append("❌ Sin reducción de ruido")
             
+            if usar_hsv:
+                status_prep.append(f"✅ Segmentación HSV ({metodo_hsv}, umbral={umbral_hsv})")
+            
             st.write("\n".join(status_prep))
         
         with tab4:
@@ -408,6 +937,81 @@ if uploaded_file is not None:
             # Información de la imagen
             alto, ancho = imagen_original.shape[:2]
             st.info(f"📐 Dimensiones: {ancho} × {alto} píxeles")
+        
+        with tab5:
+            if usar_hsv:
+                # Mostrar máscara HSV
+                mask_hsv = segmentar_por_hsv(imagen_original, umbral_sat=umbral_hsv, umbral_val=umbral_hsv, metodo=metodo_hsv)
+                st.image(mask_hsv, caption=f"Máscara HSV ({metodo_hsv}, umbral={umbral_hsv})", use_container_width=True)
+                
+                # Imagen con máscara aplicada
+                imagen_hsv_aplicada = cv2.bitwise_and(imagen_original, imagen_original, mask=mask_hsv)
+                st.image(imagen_hsv_aplicada, channels="BGR", caption="Imagen con máscara HSV aplicada", use_container_width=True)
+            else:
+                st.info("Activa 'Segmentación HSV' en la barra lateral para ver esta pestaña")
+            
+            if metodo_separacion != "none":
+                st.markdown("---")
+                st.markdown("#### Separación de Núcleos")
+                if metodo_separacion == "watershed":
+                    st.info("Método: Watershed (Transformada de distancia)")
+                elif metodo_separacion == "maximos_locales":
+                    st.info("Método: Máximos locales (picos DoG)")
+                
+                # Mostrar imagen con contornos de separación
+                if resultados['total_celulas'] > 0:
+                    st.image(
+                        img_deteccion, 
+                        channels="BGR", 
+                        caption=f"Detección con {metodo_separacion}", 
+                        use_container_width=True
+                    )
+            else:
+                if not usar_hsv:
+                    st.info("Activa 'Separación de Núcleos' en la barra lateral para ver esta pestaña")
+        
+        with tab6:
+            st.markdown("#### Reglas de Clasificación Activas")
+            
+            reglas = obtener_reglas_clasificacion(polaridad)
+            
+            col_r1, col_r2 = st.columns(2)
+            with col_r1:
+                st.metric("Área Mínima", f"{reglas['area_minima_nucleo']} px²")
+                st.metric("Área Promedio Normal", f"{reglas['area_promedio_nucleo_normal']} px²")
+                st.metric("Factor de Riesgo", f"{reglas['factor_riesgo']}x")
+            with col_r2:
+                st.metric("Área Máxima", f"{reglas['area_maxima_nucleo']} px²")
+                st.metric("Umbral Sospechoso", f"{reglas['umbral_sospechoso']:.1f} px²")
+                st.metric("Margen Frontera", f"±{int(MARGEN_FRONTERA*100)}%")
+            
+            st.markdown(f"""
+            **Zona Frontera:** {reglas['limite_frontera_inferior']:.1f} - {reglas['limite_frontera_superior']:.1f} px²
+            
+            **Regla:** Núcleos con área ≥ {reglas['umbral_sospechoso']:.1f} px² → **Sospechosos**
+            
+            **Polaridad:** {polaridad}
+            """)
+            
+            # Mostrar criterios de clasificación por célula
+            if resultados.get('criterios_clasificacion'):
+                st.markdown("#### Detalle por Célula")
+                criterios_df = []
+                for i, c in enumerate(resultados['criterios_clasificacion']):
+                    criterios_df.append({
+                        "Célula": i + 1,
+                        "Área (px²)": f"{c.get('area', 0):.1f}",
+                        "Clasificación": c.get('clasificacion', 'N/A'),
+                        "Frontera": "⚠️ Sí" if c.get('es_frontera', False) else "No",
+                        "Motivo": c.get('motivo', 'N/A')
+                    })
+                
+                if criterios_df:
+                    st.dataframe(criterios_df, use_container_width=True, hide_index=True)
+                else:
+                    st.info("No hay criterios de clasificación disponibles")
+            else:
+                st.info("No hay criterios de clasificación disponibles para esta ejecución")
         
         # ====================================================================
         # SECCIÓN DE DATOS DETALLADOS
@@ -460,35 +1064,70 @@ if uploaded_file is not None:
                 mime="image/png"
             )
             
+            st.markdown("#### Exportar Datos")
+            
+            # CSV
+            csv_data = generar_csv_resultados(
+                resultados,
+                sigma1,
+                sigma2,
+                usar_clahe,
+                reducir_ruido,
+            )
             st.download_button(
                 label="📥 Descargar Datos (CSV)",
-                data=generar_csv_resultados(
-                    resultados,
-                    sigma1,
-                    sigma2,
-                    usar_clahe,
-                    reducir_ruido,
-                ),
+                data=csv_data,
                 file_name=f"citocounter_datos_{uploaded_file.name.split('.')[0]}.csv",
                 mime="text/csv"
             )
-    
-    except Exception:
-        st.error("No fue posible procesar la imagen. Verifica que el archivo sea válido.")
-    
-    finally:
-        # Limpieza: eliminar archivo temporal
-        try:
-            if ruta_temp and os.path.exists(ruta_temp):
-                os.unlink(ruta_temp)
-        except:
-            pass
+            
+            # JSON completo con todos los metadatos
+            json_data = {
+                "metadata": {
+                    "timestamp": datetime.now().isoformat(),
+                    "version": "1.1",
+                    "archivo_original": uploaded_file.name,
+                    "id_anonimizado": obtener_id_sin_identificar(uploaded_file.name)
+                },
+                "parametros": {
+                    "sigma1": sigma1,
+                    "sigma2": sigma2,
+                    "polaridad": polaridad,
+                    "usar_clahe": usar_clahe,
+                    "modo_clahe": modo_clahe,
+                    "reducir_ruido": reducir_ruido,
+                    "nivel_ruido": nivel_ruido,
+                    "usar_hsv": usar_hsv,
+                    "metodo_hsv": metodo_hsv,
+                    "umbral_hsv": umbral_hsv,
+                    "metodo_separacion": metodo_separacion,
+                    "mostrar_contornos": mostrar_contornos
+                },
+                "reglas_clasificacion": obtener_reglas_clasificacion(polaridad),
+                "metricas_calidad_imagen": metricas_calidad,
+                "resultados": {
+                    "total_celulas": resultados['total_celulas'],
+                    "normales": resultados['normales'],
+                    "sospechosas": resultados['sospechosas'],
+                    "frontera": resultados.get('frontera', 0),
+                    "porcentaje_riesgo": resultados['porcentaje_riesgo'],
+                    "areas": resultados.get('areas', []),
+                    "criterios_clasificacion": resultados.get('criterios_clasificacion', [])
+                }
+            }
+            
+            st.download_button(
+                label="📥 Descargar Datos Completos (JSON)",
+                data=json.dumps(json_data, indent=2, ensure_ascii=False),
+                file_name=f"citocounter_completo_{uploaded_file.name.split('.')[0]}.json",
+                mime="application/json"
+            )
 
-else:
-    # ========================================================================
-    # PANTALLA DE BIENVENIDA
-    # ========================================================================
-    st.info("👆 **Carga una imagen de microscopía para comenzar el análisis**")
+# ========================================================================
+# PANTALLA DE BIENVENIDA (cuando no hay imágenes seleccionadas)
+# ========================================================================
+if 'imagenes_seleccionadas' not in locals() or not imagenes_seleccionadas:
+    st.info("👆 **Selecciona una fuente de imágenes y carga/elige imágenes para comenzar el análisis**")
     
     st.markdown("### 🎯 ¿Cómo usar CitoCounter Dashboard?")
     
@@ -497,11 +1136,13 @@ else:
     with col_info1:
         st.markdown("""
         **📋 Paso a Paso:**
-        1. Haz clic en "Browse files" arriba
-        2. Selecciona tu imagen de citología
+        1. Elige la fuente: **Subir archivo(s)** o **Dataset del proyecto**
+        2. Selecciona una o varias imágenes
         3. Ajusta los parámetros en la barra lateral
         4. Observa los resultados instantáneos
         5. Descarga los resultados si lo deseas
+        
+        **📦 Modo Lote:** Selecciona múltiples imágenes para procesarlas todas a la vez
         """)
     
     with col_info2:
@@ -518,6 +1159,30 @@ else:
         """)
     
     st.markdown("---")
+    
+    # Nuevas características
+    with st.expander("✨ Nuevas Características v1.1"):
+        st.markdown("""
+        **🎨 Segmentación HSV (CITO-33):**
+        - Resalta núcleos por color (saturación/valor)
+        - Útil cuando el contraste de intensidad es bajo
+        
+        **🔬 Separación de Núcleos (CITO-32):**
+        - Watershed: Transformada de distancia para núcleos en contacto
+        - Máximos locales: Detección de picos en respuesta DoG
+        
+        **📊 Métricas de Calidad:**
+        - Verificación automática de contraste, brillo, saturación
+        - Advertencias para imágenes problemáticas
+        
+        **📋 Criterios de Clasificación Explicables:**
+        - Detalle por célula: área, clasificación, zona frontera
+        - Reglas ajustables por polaridad
+        
+        **💾 Exportación Completa:**
+        - CSV: Resumen de resultados
+        - JSON: Metadatos completos, parámetros, criterios por célula
+        """)
     
     # Ejemplos de uso
     with st.expander("📸 Ver Ejemplos de Resultados"):

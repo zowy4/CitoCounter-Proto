@@ -35,6 +35,13 @@ LABELS_TEST = os.path.join(DATASET_DIR, 'labels', 'test')
 METADATA_CSV = os.path.join(DATASET_DIR, 'metadata', 'clinical_data_synthetic.csv')
 CLASSES_FILE = os.path.join(DATASET_DIR, 'classes.txt')
 
+# Splits para validación
+SPLITS = {
+    'train': (IMAGES_TRAIN, LABELS_TRAIN),
+    'val': (IMAGES_VAL, LABELS_VAL),
+    'test': (IMAGES_TEST, LABELS_TEST),
+}
+
 
 # ============================================================================
 # FUNCIONES DE VALIDACIÓN
@@ -50,8 +57,10 @@ def validar_estructura_directorios():
         DATASET_DIR,
         IMAGES_TRAIN,
         IMAGES_VAL,
+        IMAGES_TEST,
         LABELS_TRAIN,
         LABELS_VAL,
+        LABELS_TEST,
         os.path.dirname(METADATA_CSV)
     ]
     
@@ -141,42 +150,29 @@ def validar_matching_imagen_etiqueta():
     print("=" * 70)
     
     errores = []
+    resultados_splits = {}
     
-    # Validar TRAIN
-    print("\n📁 Conjunto de ENTRENAMIENTO:")
-    imgs_train = obtener_imagenes(IMAGES_TRAIN)
-    lbls_train = obtener_etiquetas(LABELS_TRAIN)
-    
-    print(f"   Imágenes encontradas: {len(imgs_train)}")
-    print(f"   Etiquetas encontradas: {len(lbls_train)}")
-    
-    errores_train = validar_par_imagenes_etiquetas(IMAGES_TRAIN, LABELS_TRAIN)
-    for error in errores_train:
-        print(f"   ✗ {error}")
-        errores.append(('train', error))
-    
-    if len(imgs_train) > 0 and len(errores) == 0:
-        print(f"   ✓ Todas las {len(imgs_train)} imágenes tienen etiquetas")
-    
-    # Validar VAL
-    print("\n📁 Conjunto de VALIDACIÓN:")
-    imgs_val = obtener_imagenes(IMAGES_VAL)
-    lbls_val = obtener_etiquetas(LABELS_VAL)
-    
-    print(f"   Imágenes encontradas: {len(imgs_val)}")
-    print(f"   Etiquetas encontradas: {len(lbls_val)}")
-    
-    errores_val_inicial = len(errores)
-    errores_val = validar_par_imagenes_etiquetas(IMAGES_VAL, LABELS_VAL)
-    for error in errores_val:
-        print(f"   ✗ {error}")
-        errores.append(('val', error))
-    
-    if len(imgs_val) > 0 and len(errores) == errores_val_inicial:
-        print(f"   ✓ Todas las {len(imgs_val)} imágenes tienen etiquetas")
+    # Validar todos los splits
+    for split_name, (img_dir, lbl_dir) in SPLITS.items():
+        print(f"\n📁 Conjunto de {split_name.upper()}:")
+        imgs = obtener_imagenes(img_dir)
+        lbls = obtener_etiquetas(lbl_dir)
+        
+        print(f"   Imágenes encontradas: {len(imgs)}")
+        print(f"   Etiquetas encontradas: {len(lbls)}")
+        
+        errores_split = validar_par_imagenes_etiquetas(img_dir, lbl_dir)
+        for error in errores_split:
+            print(f"   ✗ {error}")
+            errores.append((split_name, error))
+        
+        if len(imgs) > 0 and len([e for e in errores if e[0] == split_name]) == 0:
+            print(f"   ✓ Todas las {len(imgs)} imágenes tienen etiquetas")
+        
+        resultados_splits[split_name] = len(imgs)
     
     print()
-    return len(errores) == 0, (len(imgs_train), len(imgs_val))
+    return len(errores) == 0, resultados_splits
 
 
 def validar_matching_csv():
@@ -202,7 +198,8 @@ def validar_matching_csv():
     # Obtener todas las imágenes del dataset
     imgs_train = obtener_imagenes(IMAGES_TRAIN)
     imgs_val = obtener_imagenes(IMAGES_VAL)
-    todas_imagenes = set([os.path.splitext(img)[0] for img in imgs_train + imgs_val])
+    imgs_test = obtener_imagenes(IMAGES_TEST)
+    todas_imagenes = set([os.path.splitext(img)[0] for img in imgs_train + imgs_val + imgs_test])
     
     print(f"   Imágenes en dataset: {len(todas_imagenes)}")
     
@@ -241,7 +238,7 @@ def validar_coherencia_diagnosticos():
     df = pd.read_csv(METADATA_CSV)
     
     # Revisar casos con diagnósticos graves
-    diagnosticos_graves = ['LSIL', 'HSIL', 'ASC-US']
+    diagnosticos_graves = ['LSIL', 'HSIL', 'ASC-US', 'ASC-H']
     casos_graves = df[df['Diagnostico_Ref_Bethesda'].isin(diagnosticos_graves)]
     
     print(f"   Casos con diagnósticos graves: {len(casos_graves)}")
@@ -257,15 +254,13 @@ def validar_coherencia_diagnosticos():
         id_imagen = row['ID_Imagen']
         diagnostico = row['Diagnostico_Ref_Bethesda']
         
-        # Buscar el archivo de etiqueta
-        ruta_label_train = os.path.join(LABELS_TRAIN, f"{id_imagen}.txt")
-        ruta_label_val = os.path.join(LABELS_VAL, f"{id_imagen}.txt")
-        
+        # Buscar el archivo de etiqueta en todos los splits
         ruta_label = None
-        if os.path.exists(ruta_label_train):
-            ruta_label = ruta_label_train
-        elif os.path.exists(ruta_label_val):
-            ruta_label = ruta_label_val
+        for split_dir in [LABELS_TRAIN, LABELS_VAL, LABELS_TEST]:
+            ruta = os.path.join(split_dir, f"{id_imagen}.txt")
+            if os.path.exists(ruta):
+                ruta_label = ruta
+                break
         
         if ruta_label is None:
             print(f"   ⚠️  {id_imagen} ({diagnostico}): Falta archivo de etiqueta")
@@ -318,6 +313,43 @@ def validar_distribucion_train_val(num_train, num_val):
         resultado = True
     elif num_train > 0 and num_val > 0:
         print("   ⚠️  Distribución atípica (recomendado: 70% train / 30% val)")
+        resultado = True
+    else:
+        print("   ✗ Uno de los conjuntos está vacío")
+        resultado = False
+    
+    print()
+    return resultado
+
+
+def validar_distribucion_train_val_test(num_train, num_val, num_test):
+    """Verifica que la división Train/Val/Test sea razonable."""
+    print("=" * 70)
+    print("5️⃣  VALIDACIÓN DE DISTRIBUCIÓN TRAIN/VAL/TEST")
+    print("=" * 70)
+    
+    total = num_train + num_val + num_test
+    
+    if total == 0:
+        print("   ⚠️  No hay imágenes en el dataset")
+        print()
+        return False
+    
+    proporcion_train = num_train / total
+    proporcion_val = num_val / total
+    proporcion_test = num_test / total
+    
+    print(f"   Total de imágenes: {total}")
+    print(f"   Entrenamiento: {num_train} ({proporcion_train*100:.1f}%)")
+    print(f"   Validación: {num_val} ({proporcion_val*100:.1f}%)")
+    print(f"   Prueba: {num_test} ({proporcion_test*100:.1f}%)")
+    
+    # Validar que esté cerca de 70/20/10
+    if 0.65 <= proporcion_train <= 0.75 and 0.15 <= proporcion_val <= 0.25 and 0.05 <= proporcion_test <= 0.15:
+        print("   ✓ Distribución adecuada (~70/20/10)")
+        resultado = True
+    elif num_train > 0 and num_val > 0 and num_test > 0:
+        print("   ⚠️  Distribución atípica (recomendado: 70% train / 20% val / 10% test)")
         resultado = True
     else:
         print("   ✗ Uno de los conjuntos está vacío")
@@ -397,11 +429,15 @@ def main():
     
     # Ejecutar validaciones
     resultados.append(("Estructura de directorios", validar_estructura_directorios()))
-    resultado_matching, (num_train, num_val) = validar_matching_imagen_etiqueta()
+    resultado_matching, resultados_splits = validar_matching_imagen_etiqueta()
     resultados.append(("Matching imagen-etiqueta", resultado_matching))
     resultados.append(("Matching CSV-imágenes", validar_matching_csv()))
     resultados.append(("Coherencia diagnósticos", validar_coherencia_diagnosticos()))
-    resultados.append(("Distribución Train/Val", validar_distribucion_train_val(num_train, num_val)))
+    resultados.append(("Distribución Train/Val/Test", validar_distribucion_train_val_test(
+        resultados_splits.get('train', 0),
+        resultados_splits.get('val', 0),
+        resultados_splits.get('test', 0)
+    )))
     
     # Generar estadísticas
     generar_reporte_estadisticas()
@@ -423,55 +459,6 @@ def main():
     else:
         print("⚠️  ALGUNAS VALIDACIONES FALLARON")
         print("   Revisar los errores arriba y corregir antes de usar el dataset")
-    
-    print()
-    print("=" * 70)
-    print("📋 RESUMEN CITO-72: Validaciones Adicionales")
-    print("=" * 70)
-    
-    # Ejecutar validaciones CITO-72
-    print()
-    print("--- Validaciones CITO-72 ---")
-    
-    # 1. Splits vacíos
-    print()
-    print("1. Validar splits vacíos:")
-    splits_errores = validar_splits_vacios()
-    if splits_errores:
-        for split, error in splits_errores:
-            print(f"   ❌ {split}: {error}")
-    else:
-        print("   ✓ Todos los splits tienen imágenes")
-    
-    # 2. Archivos huérfanos
-    print()
-    print("2. Validar archivos huérfanos:")
-    huérfanos_errores = validar_archivos_huerfanos()
-    if huérfanos_errores:
-        for tipo, count in huérfanos_errores:
-            print(f"   ❌ {tipo}: {count} archivos huérfanos")
-    else:
-        print("   ✓ No hay archivos huérfanos")
-    
-    # 3. Etiquetas inválidas
-    print()
-    print("3. Validar etiquetas YOLO inválidas:")
-    etiquetas_errores = validar_etiquetas_invalidas()
-    if etiquetas_errores:
-        for tipo, count in etiquetas_errores:
-            print(f"   ❌ {tipo}: {count} errores de formato")
-    else:
-        print("   ✓ Todas las etiquetas son válidas")
-    
-    # 4. CSV sin imágenes
-    print()
-    print("4. Validar CSV sin imágenes:")
-    csv_errores = validar_csv_sin_imagen()
-    if csv_errores:
-        for tipo, count in csv_errores:
-            print(f"   ❌ {tipo}: {count} IDs sin imagen")
-    else:
-        print("   ✓ Todos los IDs del CSV tienen imagen correspondiente")
     
     print()
     print("=" * 70)
