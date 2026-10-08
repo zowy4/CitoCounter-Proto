@@ -1,222 +1,238 @@
-# Guion de Sesión para Facilitador
-## CitoCounter Proto - Revisión con Citólogos (CITO-38, CITO-39, CITO-88)
+# Guion de sesión para facilitador - CitoCounter Proto
+
+## 1. Objetivo de la sesión
+
+La sesión tiene dos metas:
+
+1. explicar de forma clara qué hace el sistema y qué no hace;
+2. mostrar una demo guiada del flujo, con énfasis en la lógica de detección, clasificación y limitaciones.
+
+La clave es no presentar el sistema como diagnóstico clínico. Debe quedar claro que es un prototipo experimental para investigación y apoyo visual.
 
 ---
 
-## ⏱️ Cronograma Estimado (100 minutos)
+## 2. Duración sugerida
 
-| Fase | Duración | Actividad |
-|------|----------|-----------|
-| **Bienvenida y Consentimiento** | 5 min | Presentación, firma de consentimiento, explicación del objetivo |
-| **Cuestionario Pre-Sesión** | 5 min | Perfil del participante y expectativas |
-| **Demo Guiada** | 15 min | Facilitador muestra flujo completo con caso conocido |
-| **Exploración Libre** | 15 min | Participante prueba con sus propias imágenes/casos |
-| **Validación Clínica** | 30 min | Evaluación de 8-12 casos de prueba con ground truth |
-| **Métricas y Exportación** | 15 min | Revisión de dashboard histórico, métricas calidad, exportaciones |
-| **Feedback Cualitativo** | 15 min | Fortalezas, debilidades, flujo ideal, NPS |
-| **Seguridad y Ética** | 5 min | Privacidad, responsabilidad, aviso legal |
-| **Cierre y Compromisos** | 5 min | Resumen, acciones, firmas |
+| Fase | Duración |
+|---|---:|
+| Bienvenida y aviso de uso experimental | 5 min |
+| Cuestionario breve | 5 min |
+| Demo guiada | 15 min |
+| Exploración libre | 15 min |
+| Validación de una o dos imágenes | 15 min |
+| Revisión de métricas y exportación | 10 min |
+| Feedback cualitativo | 10 min |
+| Cierre | 5 min |
 
----
-
-## 🎬 Guion Detallado
-
-### 1. BIENVENIDA Y CONSENTIMIENTO (5 min)
-
-**Facilitador:** *"Gracias por participar. Esta sesión dura ~100 minutos. Evaluaremos CitoCounter Proto v1.1, una herramienta experimental de apoyo al análisis de citologías cervicales. **No es un dispositivo médico ni sustituye su criterio diagnóstico.** Sus respuestas son confidenciales y se usarán solo para mejorar el prototipo. ¿Firma el consentimiento?"*
-
-- [ ] Entregar formulario de consentimiento
-- [ ] Explicar que puede retirarse en cualquier momento
-- [ ] Confirmar grabación (audio/pantalla) si aplica
-- [ ] Presentar al observador (si hay)
+Total estimado: 80-90 minutos.
 
 ---
 
-### 2. CUESTIONARIO PRE-SESIÓN (5 min)
+## 3. Guion completo: qué decir y qué mostrar
 
-**Facilitador:** *"Antes de ver la herramienta, unas preguntas rápidas sobre su perfil."*
+### 3.1 Bienvenida y aviso experimental
 
-- Entregar Parte 1 del cuestionario (papel o digital)
-- Dar 3-4 minutos para completar
-- No influir en respuestas
+**Lo que digo:**
 
----
+> “Gracias por acompañarnos. Esta sesión tiene como objetivo revisar un prototipo experimental de apoyo en citología cervical. Lo importante es entender que no es un dispositivo médico ni una herramienta de diagnóstico. Es una herramienta de investigación para estudiar detección automática de núcleos, y su salida requiere revisión profesional.”
 
-### 3. DEMO GUIADA (15 min)
+**Lo que muestro en pantalla:**
 
-**Facilitador:** *"Voy a mostrarle el flujo completo con un caso de referencia."*
+- pantalla principal de `streamlit run app.py`
+- aviso experimental visible arriba de todo
+- detalle de la app con barra lateral y pestañas
 
-**Pasos a demostrar:**
-1. **Pantalla de bienvenida** - Señalar aviso experimental, formatos, guía
-2. **Fuente de imágenes** - Seleccionar "Dataset del proyecto" (2000 imágenes, splits train/val/test)
-3. **Parámetros DoG** - σ1=7.0, σ2=8.0, explicar ratio 1.14x, validación visual
-4. **Polaridad + CLAHE** - "Claros=fluorescencia, Oscuros=Papanicolaou/EDF. CLAHE auto adapta contraste"
-5. **HSV + Watershed** - "HSV para color, Watershed para superposición. Experimentales"
-6. **Modo Lote** - "Procesa múltiples imágenes a la vez con barra de progreso"
-7. **Cargar EDF004.png** - "Caso normal, bajo riesgo. Ver pestañas"
-8. **Pestañas 1-3** - "Análisis Final (Verde/Rojo), DoG (G1/G2), Preprocesamiento"
-9. **Pestañas 4-6** - "Original, HSV/Separación, Criterios por célula"
-10. **Métricas + Expandibles** - "4 métricas clave, advertencias calidad, estadísticas, descargas"
-11. **Historial + Indicadores** - "Bitácora automática, indicadores CITO-28, evolución temporal"
-
-**NO dejar que el participante interactúe aún.** Solo observar.
+**Objetivo:** dejar claro el marco legal y de uso antes de mostrar resultados.
 
 ---
 
-### 4. EXPLORACIÓN LIBRE (15 min)
+### 3.2 Explicación rápida del proyecto
 
-**Facilitador:** *"Ahora es su turno. Tiene 15 minutos para explorar libremente. Cargue sus propias imágenes o use las de prueba. Ajuste parámetros, pruebe las opciones avanzadas. Piensen en voz alta: ¿qué espera ver? ¿Qué le sorprende?"*
+**Lo que digo:**
 
-**Observador toma notas de:**
-- Dudas / preguntas frecuentes
-- Errores / comportamientos inesperados
-- Comentarios espontáneos
-- Tiempo en cada tarea
-- Uso de controles avanzados (HSV, Watershed, Modo Lote, Modo CLAHE Auto)
+> “El proyecto analiza imágenes de citología cervical. Primero procesa la imagen, luego aplica un filtro Difference of Gaussians para resaltar estructuras del tamaño de un núcleo, después detecta contornos y clasifica cada posible núcleo por área. La regla actual es simple y explicable: si el área supera el umbral de riesgo, se marca como sospechosa; si está por debajo, se marca como normal.”
 
-**Casos sugeridos para probar:**
-- `EDF004.png` - Normal, buena calidad
-- `EDF001.png` - Alto riesgo
-- `EDF005.png` - Moderado
-- Imagen propia del participante (si trae)
-- Imagen con artefactos/ruido (si disponible)
-- Probar modo lote con 3-5 imágenes
+**Lo que muestro en pantalla:**
+
+- pestaña “Original”
+- pestaña “Preprocesamiento”
+- pestaña “Filtro DoG”
+- explicación de la relación entre imagen original y imagen tratada
+
+**Objetivo:** que el citólogo comprenda que el sistema no “adivina”, sino que sigue un flujo técnico transparente.
 
 ---
 
-### 5. VALIDACIÓN CLÍNICA (30 min) ⭐ PARTE MÁS IMPORTANTE
+### 3.3 Mostrar cómo se configura la imagen
 
-**Facilitador:** *"Ahora evaluaremos casos específicos donde conocemos la 'verdad' (ground truth anotado por experto). Para cada imagen, compararemos su criterio con el del sistema."*
+**Lo que digo:**
 
-**Metodología:**
-1. Mostrar imagen **SIN** resultados del sistema
-2. Preguntar: *"¿Cuántas células ve? ¿Cuáles son sospechosas? ¿% riesgo?"*
-3. Mostrar resultado del sistema
-4. Comparar y registrar en **Parte 3.1** del cuestionario
-5. Si hay discrepancia → **Parte 3.2** (análisis detallado)
+> “La parte de configuración permite elegir la fuente de la imagen, la polaridad de los núcleos, la mejora de contraste y la reducción de ruido. Esto importa porque no todas las preparaciones se ven igual: algunas muestran núcleos claros sobre fondo oscuro y otras muestran núcleos oscuros sobre fondo claro.”
 
-**Casos preparados (orden sugerido):**
+**Lo que muestro en pantalla:**
 
-| Orden | Imagen | Tipo | Por qué |
-|-------|--------|------|---------|
-| 1 | EDF004.png | Normal claro | Baseline, fácil acuerdo |
-| 2 | EDF005.png | Moderado | Zona frontera típica |
-| 3 | EDF001.png | Alto riesgo | Validar detección de sospechosas |
-| 4 | [Superposición] | Difícil | Test Watershed |
-| 5 | [Artefactos] | Difícil | Test robustez |
-| 6 | [Baja calidad] | Difícil | Test métricas calidad |
-| 7 | [Inflamación] | Muy difícil | Caso real complejo |
-| 8 | [Metaplasia] | Muy difícil | Caso real complejo |
-| 9 | [Bajo contraste] | Difícil | Test HSV |
-| 10 | [Superposición + artefactos] | Muy difícil | Test combinado |
+- sidebar “Fuente de Imágenes”
+- `Polaridad: nucleos-claros / nucleos-oscuros`
+- `CLAHE` y `Reducir Ruido`
+- slider de `Sigma 1` y `Sigma 2`
 
-**Preguntas clave durante discrepancias:**
-- *"¿Qué ve usted que el sistema no ve?"*
-- *"¿Por qué clasificaría esta célula diferente?"*
-- *"¿El umbral de 3x tiene sentido aquí?"*
-- *"¿Cambiaría σ1/σ2 para este caso?"*
-- *"¿El modo Watershed mejora la superposición?"*
-- *"¿El modo HSV ayuda en bajo contraste?"*
-
-**¡Registre TODOS los parámetros sugeridos por el citólogo!**
+**Objetivo:** explicar que la preparación y la configuración afectan la detección.
 
 ---
 
-### 6. MÉTRICAS Y EXPORTACIÓN (15 min)
+### 3.4 Mostrar DoG y la lógica de detección
 
-**Facilitador:** *"Veamos el seguimiento histórico y las opciones de reporte."*
+**Lo que digo:**
 
-1. Abrir expander "📈 Historial de ejecuciones"
-2. Abrir expander "📊 Indicadores clave (CITO-28)"
-3. Abrir expander "📈 Métricas de Calidad de Imagen"
-3. Probar exportación PNG, CSV, JSON
-4. Completar **Parte 4** del cuestionario
+> “El filtro DoG utiliza dos versiones suavizadas de la imagen: una más fina y otra más gruesa. La resta resalta estructuras con un tamaño parecido al núcleo. En otras palabras, no se está buscando todo lo que sea oscuro o brillante; se busca lo que encaja en la escala del núcleo.”
 
-**Preguntas guía:**
-- *"¿Estas métricas le sirven para control de calidad del laboratorio?"*
-- *"¿Qué gráfico/reporte le falta?"*
-- *"El JSON, ¿se lo daría a TI para integrar en el LIS?"*
-- *"Las métricas de calidad (contraste, brillo, saturación), ¿le ayudan a decidir si la imagen es apta?"*
+**Lo que muestro en pantalla:**
+
+- pestaña `Filtro DoG`
+- imagen original comparada con imagen DoG
+- G1/G2 si está disponible en el dashboard
+
+**Objetivo:** hacer tangible el concepto de escala y detección.
 
 ---
 
-### 7. FEEDBACK CUALITATIVO (15 min)
+### 3.5 Mostrar clasificación por área
 
-**Facilitador:** *"Ahora sus impresiones generales. No hay respuestas correctas."*
+**Lo que digo:**
 
-- Completar **Partes 5, 6, 7** del cuestionario
-- Para NPS (Parte 7.1): *"En escala 0-10, ¿recomendaría esto a un colega?"*
-- Para priorización (Parte 7.2): *"Ordene lo que más le urge"*
+> “La clasificación actual se basa en área. El proyecto usa un umbral temporal. En la versión actual, el área promedio normal se toma como 300 px² y el factor de riesgo es 3x. Eso implica un umbral de riesgo de aproximadamente 900 px². Si la célula supera esa zona, se marca como sospechosa; si está por debajo, como normal; si está muy cercana al umbral, se considera zona frontera.”
 
-**Escuchar activamente. No defender el sistema. Preguntar "¿por qué?" frecuentemente.**
+**Lo que muestro en pantalla:**
 
----
+- pestaña “Criterios de Clasificación”
+- tabla por célula con área, clase y motivo
+- verde = normal, rojo = sospechosa
 
-### 8. SEGURIDAD Y ÉTICA (5 min)
-
-**Facilitador:** *"Unas preguntas finales sobre aspectos legales y éticos."*
-
-- Completar **Parte 6** del cuestionario
-- Aclarar: *"El sistema anonimiza automáticamente (muestra_XXX), no guarda imágenes permanentemente, y el aviso legal está en cada resultado."*
+**Objetivo:** que se entienda que el sistema usa reglas explicables, no una caja negra completa.
 
 ---
 
-### 9. CIERRE Y COMPROMISOS (5 min)
+### 3.6 Mostrar resultado final sobre una imagen
 
-**Facilitador:** *"Resumamos lo más importante."*
+**Lo que digo:**
 
-1. Leer hallazgos críticos en voz alta
-2. Acordar **3 acciones máximas** con responsable y fecha
-3. Completar **Parte 8** (firmas)
-4. Agradecer y entregar incentivo si corresponde
-5. Explicar seguimiento: *"Recibirá resumen de mejoras en 2 semanas"*
+> “Aquí vemos el resultado final. Las células normales aparecen en verde y las sospechosas en rojo. También se calcula un porcentaje de riesgo y se muestran métricas del análisis.”
 
----
+**Lo que muestro en pantalla:**
 
-## 📋 Checklist del Facilitador (Durante la Sesión)
+- `Análisis Final`
+- imagen con contornos y etiquetas
+- métricas principales: total, normales, sospechosas, % riesgo
 
-### Técnico
-- [ ] Streamlit corriendo (`streamlit run app.py`)
-- [ ] Imágenes de prueba accesibles
-- [ ] Navegador en pantalla completa
-- [ ] Grabación iniciada (si aplica)
-- [ ] Plan B si falla la app (capturas de pantalla impresas)
-
-### Metodológico
-- [ ] No liderar al participante ("¿Le gusta este botón?" → "¿Qué opina de este botón?")
-- [ ] Permitir silencio (dar tiempo a pensar)
-- [ ] Registrar citas textuales ("Me confunde que...")
-- [ ] No explicar/justificar el diseño durante la prueba
-- [ ] Anotar lenguaje corporal (frustración, satisfacción, confusión)
-
-### Ético
-- [ ] Recordar aviso experimental antes de cada caso clínico
-- [ ] No presionar para usar la herramienta en casos reales
-- [ ] Respetar si no quiere firmar/ser grabado
-- [ ] Anonimizar datos en reportes (usar "Participante 1", "Citólogo A")
+**Objetivo:** mostrar la lectura del resultado sin convertirlo en diagnóstico.
 
 ---
 
-## 🚨 Señales de Alerta (Detener y Profundizar)
+### 3.7 Mostrar la parte de calidad y advertencias
 
-| Señal | Acción |
-|-------|--------|
-| "Esto es peligroso" | Detener, entender por qué, documentar como **Crítico** |
-| "No confío en esto" | Explorar causa raíz (falsos negativos? UX? Falta de validación?) |
-| "Esto me ralentiza" | Medir tiempo real vs manual, comparar |
-| "No entiendo qué hace" | Problema de UX / terminología / onboarding |
-| Silencio prolongado + ceño fruncido | Preguntar "¿Qué está pensando?" |
+**Lo que digo:**
+
+> “Además del conteo, el sistema evalúa calidad de imagen. Esto puede ayudar a determinar si la preparación tiene variaciones de brillo, contraste o saturación. Si la imagen está muy degradada, la detección puede ser menos fiable.”
+
+**Lo que muestro en pantalla:**
+
+- expanders de “Advertencias de calidad”
+- “Métricas de calidad”
+- contrastes, brillo y saturación
+
+**Objetivo:** separar calidad de imagen de la clasificación del núcleo.
 
 ---
 
-## 📊 Plantilla de Resumen Post-Sesión (Rellenar en caliente)
+### 3.8 Mostrar historial y métricas del proyecto
 
-```
-SESION #[NÚMERO] - RESUMEN EJECUTIVO
-=====================================
-Participante: [Iniciales/Rol]
-Fecha: [DD/MM/AAAA]
-Duración real: [XX] min
+**Lo que digo:**
+
+> “El proyecto también guarda un historial de ejecuciones y consolida indicadores. Esto ayuda a comparar resultados entre imágenes y entre configuraciones, aunque se trata de un prototipo experimental.”
+
+**Lo que muestro en pantalla:**
+
+- historial de ejecuciones
+- métricas de conjunto
+- indicadores de riesgo promedio
+
+**Objetivo:** explicar la utilidad del seguimiento y la reproducibilidad.
+
+---
+
+### 3.9 Mostrar exportación
+
+**Lo que digo:**
+
+> “Finalmente, el sistema puede exportar resultados como PNG, CSV o JSON. Esto permite mantener evidencia y facilitar revisión posterior o integración con otros sistemas.”
+
+**Lo que muestro en pantalla:**
+
+- botón de descarga
+- ejemplo de CSV/JSON
+
+**Objetivo:** que se vea la utilidad real para documentación y trazabilidad.
+
+---
+
+### 3.10 Cerrar con la limitación clínica
+
+**Lo que digo:**
+
+> “El valor del sistema no está en sustituir la decisión clínica, sino en apoyar la revisión, la trazabilidad y la comparación técnica. La validación real requiere ground truth experto y datasets adecuados. Por ahora, la herramienta debe usarse como apoyo experimental.”
+
+**Lo que muestro en pantalla:**
+
+- aviso experimental
+- última vista del dashboard
+
+**Objetivo:** dejar una conclusión honesta y clara.
+
+---
+
+## 4. Preguntas clave para hacer durante la demo
+
+- “¿Le parece claro el objetivo del sistema?”
+- “¿Entiende la diferencia entre normal, sospechoso y zona frontera?”
+- “¿Qué le parece la regla de 3x?”
+- “¿Qué le falta para confiar más en la herramienta?”
+- “¿Qué criterio clínico le gustaría que apareciera en la interfaz?”
+- “¿Qué debería cambiar para que la herramienta le resulte más útil?”
+
+---
+
+## 5. Observaciones del facilitador
+
+Durante la sesión, anotar:
+
+- dónde titubea el participante,
+- qué parámetros le resultan más difíciles,
+- qué parte entiende mejor,
+- qué dice literalmente sobre la confianza o la utilidad del sistema,
+- si percibe la herramienta como apoyo o como riesgo.
+
+---
+
+## 6. Cierre recomendado
+
+**Lo que digo:**
+
+> “Resumen: el sistema ayuda a detectar y contar núcleos, pero aún no tiene la validación clínica necesaria para sustituir la revisión profesional. Lo más valioso de esta prueba es escuchar qué parte del flujo necesita cambiar para que sea realmente útil para la práctica.”
+
+---
+
+## 7. Plantilla breve de notes de sesión
+
+| Tema | Observación |
+|---|---|
+| Entendimiento general | __________________ |
+| Claridad de la regla de riesgo | __________________ |
+| Confusión en interfaz | __________________ |
+| Comentarios sobre calidad de imagen | __________________ |
+| Comentarios sobre métricas | __________________ |
+| Sugerencia principal | __________________ |
+| Recomendación final | __________________ |
+
 
 NPS: [0-10] → [Promotor/Pasivo/Detractor]
 
