@@ -1,223 +1,343 @@
-# Guía de Estudio Completa - CitoCounter Proto
+# Guía de estudio completa - CitoCounter Proto
 
-## 📋 Resumen Ejecutivo
+## 1. Resumen ejecutivo
 
-**CitoCounter Proto** es un prototipo de investigación para la detección y clasificación automatizada de núcleos celulares en imágenes de citología cervical. Utiliza el filtro **Difference of Gaussians (DoG)** combinado con una **regla de área de referencia (regla del 3x)** .
+CitoCounter Proto es un prototipo de investigación para detectar, segmentar y contar núcleos celulares en imágenes de citología cervical. El sistema combina:
 
-> ⚠️ **IMPORTANTE**: Es un **prototipo de investigación**, NO un dispositivo médico ni herramienta de diagnóstico. Los resultados requieren revisión experta.
+- preprocesamiento de imagen,
+- filtro Difference of Gaussians (DoG),
+- umbralización y contornos,
+- clasificación por área, y
+- visualización y reporte de resultados.
 
----
+El proyecto está pensado para apoyo de investigación y evaluación técnica, no para diagnóstico clínico. El resultado de la herramienta debe revisarse siempre por un citotecnólogo, patólogo o especialista.
 
-## 🎯 ¿Qué hace el proyecto?
-
-### Función Principal
-Detecta y clasifica núcleos celulares en imágenes de citología cervical mediante:
-1. **Preprocesamiento** de imagen (CLAHE, reducción de ruido, ajuste de polaridad)
-2. **Filtro DoG** (Difference of Gaussians) para resaltar bordes nucleares
-3. **Segmentación** mediante umbralización Otsu + detección de contornos
-4. **Clasificación** por regla del 3x (área ≥ 3× promedio = sospechoso)
-5. **Visualización** y exportación de resultados
-
-### Clasificación
-- **Normal (Verde)**: Área < 3× promedio de referencia
-- **Sospechosa (Rojo)**: Área ≥ 3× promedio de referencia  
-- **Zona Frontera (±10%)**: Requiere revisión experta
-- **Descartadas**: Ruido (área < mínimo) o artefactos (área > máximo)
+> Aviso clave: este proyecto no es un dispositivo médico ni una herramienta certificada para diagnóstico.
 
 ---
 
-## 🛠️ Tecnologías Implementadas
+## 2. ¿Qué hace el proyecto?
 
-### Stack Tecnológico
-| Componente | Tecnología | Versión/Detalle |
-|------------|------------|-----------------|
-| **Lenguaje** | Python | 3.12+ |
-| **Visión por Computadora** | OpenCV | 4.x |
-| **Procesamiento Numérico** | NumPy | 1.26+ |
-| **Interfaz Web** | Streamlit | 1.28+ |
-| **Análisis de Datos** | Pandas | 2.1+ |
-| **Testing** | pytest | 9.1+ |
-| **Gestión de Entorno** | pip/venv | - |
+El proyecto analiza imágenes de citología cervical y trata de responder dos preguntas:
 
-### Módulos Principales (`src/`)
-| Módulo | Función | Archivos Clave |
-|--------|---------|----------------|
-| **preprocessing.py** | Preprocesamiento de imagen | CLAHE, bilateral filter, HSV, polaridad |
-| **dog_filter.py** | Filtro DoG | GaussianBlur, diferencia de Gaussianas |
-| **analysis.py** | Análisis y clasificación | Otsu, contornos, regla 3x, Watershed |
-| **visualization.py** | Visualización | Paneles, overlays, estadísticas |
-| **interfaz_resultados.py** | Exportación/Interfaz | CSV, JSON, avisos |
-| **metricas_sistema.py** | Métricas del sistema | Precision, recall, F1, histórico |
-| **historial_resultados.py** | Bitácora | CSV logging, agregación |
-| **etl_resultados.py** | ETL | Extracción, transformación, carga |
-| **metricas_sistema.py** | Métricas de validación | Precision, recall, F1, IoU |
+1. ¿Cuántos núcleos parecen estar presentes?
+2. ¿Cuáles tienen una morfología o tamaño que podría considerarse sospechosa?
 
----
+El flujo principal es:
 
-## 🔬 Cómo Funciona - Pipeline Completo
+1. Cargar la imagen.
+2. Convertirla a escala de grises.
+3. Mejorar contraste y reducir ruido.
+4. Aplicar filtro DoG para resaltar estructuras nucleares.
+5. Binarizar y detectar contornos.
+6. Filtrar artefactos por tamaño y forma.
+7. Clasificar cada detección como normal, sospechosa o descartada.
+8. Mostrar el resultado con anotaciones y exportarlo.
 
-### 1. Preprocesamiento (`src/preprocessing.py`)
-```
-Imagen Original (BGR)
-    ↓
-Convertir a Grises (cv2.COLOR_BGR2GRAY)
-    ↓
-[Opcional] Reducir Ruido → Filtro Bilateral (d=7, σColor=75, σSpace=75)
-    ↓
-[Opcional] Mejorar Contraste → CLAHE (clipLimit=2.0, tileGridSize=8x8)
-    ↓
-[Opcional] Ajustar Polaridad → Inversión si 'nucleos-oscuros'
-    ↓
-[Opcional] Segmentación HSV → Máscara por saturación/valor
-    ↓
-Imagen Procesada (Grises, lista para DoG)
-```
+### Regla de clasificación
+La regla actual del proyecto se define en `src/analysis.py`:
 
-**Polaridades soportadas:**
-- `nucleos-claros`: Fluorescencia (núcleos claros sobre fondo oscuro)
-- `nucleos-oscuros`: Papanicolaou/EDF (núcleos oscuros sobre fondo claro) → Invierte imagen
+- `AREA_PROMEDIO_NUCLEO_NORMAL = 300` px²
+- `FACTOR_RIESGO = 3.0`
+- `UMBRAL_SOSPECHOSO = 300 * 3 = 900` px²
+- `MARGEN_FRONTERA = 0.10` (±10%)
 
-### 2. Filtro DoG (`src/dog_filter.py`)
-```
-Imagen Grises
-    ↓
-Gaussiano 1 (σ1) → Detalles finos
-    ↓
-Gaussiano 2 (σ2) → Estructura general (σ2 > σ1, típicamente σ2 ≈ 1.6-2.0 × σ1)
-    ↓
-DoG = G1 - G2 (en float32 para preservar negativos)
-    ↓
-Normalizar 0-255 (cv2.NORM_MINMAX)
-    ↓
-Convertir a uint8
-```
+Por tanto:
 
-**Parámetros típicos:**
-- `sigma1`: 2.0-8.0 (detalles finos)
-- `sigma2`: 4.0-12.0 (estructura general)
-- Regla: σ2 ≈ 1.6-2.0 × σ1
+- Si el área es menor que el mínimo permitido: se descarta como ruido.
+- Si el área es mayor que el máximo permitido: se descarta como artefacto.
+- Si el área es mayor o igual a 900 px²: se etiqueta como sospechosa.
+- Si el área es menor a 900 px²: se etiqueta como normal.
+- Si está dentro de ±10% del umbral: se marca como zona frontera y requiere revisión.
 
-### 3. Análisis y Clasificación (`src/analysis.py`)
-```
-Imagen DoG (uint8)
-    ↓
-Binarización Otsu (cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    ↓
-Detección Contornos (cv2.RETR_EXTERNAL, CHAIN_APPROX_SIMPLE)
-    ↓
-[Opcional] Separación Watershed / Máximos Locales
-    ↓
-Para cada contorno:
-    → Calcular área (cv2.contourArea)
-    → Filtrar por área mínima/máxima
-    → [Opcional] Filtrar circularidad/aspecto (polaridad oscura)
-    ↓
-Clasificar por Regla del 3x:
-    Área ≥ 3× AREA_PROMEDIO_NUCLEO_NORMAL → SOSPECHOSA (Rojo)
-    Área < 3× AREA_PROMEDIO_NUCLEO_NORMAL → NORMAL (Verde)
-    Zona Frontera: ±10% alrededor del umbral
-    ↓
-Anotación Visual: Rectángulo + Etiqueta (VERDE/ROJO)
-    ↓
-Calcular % Riesgo = Sospechosas / Total × 100
-```
-
-### Parámetros de Clasificación (Configurables)
-| Parámetro | Valor Default | Descripción |
-|-----------|---------------|-------------|
-| `AREA_PROMEDIO_NUCLEO_NORMAL` | 300 px² | **DEBE CALIBRARSE** con datos reales |
-| `FACTOR_RIESGO` | 3.0 | Regla del 3x (Dra. Rangel) |
-| `MARGEN_FRONTERA` | 0.10 | ±10% zona frontera |
-| `AREA_MINIMA_NUCLEO` | 50/200 px² | Ruido (claro/oscuro) |
-| `AREA_MAXIMA_NUCLEO` | 5000/300000 px² | Artefactos (claro/oscuro) |
-| `UMBRAL_DOG` | 15 | Umbral mínimo para borde |
-
-### Zona Frontera (±10%)
-- **Límite inferior**: umbral × 0.9
-- **Límite superior**: umbral × 1.1
-- Las células en esta zona requieren revisión experta
+La clasificación final se presenta visualmente en verde para normales y rojo para sospechosas.
 
 ---
 
-## 🖥️ Interfaz Streamlit (`app.py`) - Secciones y Funciones
+## 3. Cómo se usa
 
-### Header
-- Título: "CitoCounter Proto - Panel de Control Interactivo"
-- Aviso experimental prominente (⚠️)
+### 3.1 Uso desde línea de comandos
 
-### Sidebar - Controles (5 secciones)
+Requisitos:
 
-#### 1. 📂 Fuente de Imágenes
-- **Upload**: Subir 1+ archivos (JPG, PNG, TIF, TIFF, BMP) - máx 10MB
-- **Dataset**: Usar imágenes de `data/raw/` (train/val/test)
+```bash
+python -m pip install -r requirements.txt
+python verificar_entorno.py
+```
 
-#### 2. 1️⃣ Parámetros DoG
-- **Sigma 1** (0.5-10.0, default 7.0): Detalle fino
-- **Sigma 2** (0.5-15.0, default 8.0): Estructura general
-- Validación: σ2 > σ1, muestra ratio σ2/σ1
+Analizar una imagen individual:
 
-#### 3. 2️⃣ Preprocesamiento
-- **Polaridad**: `nucleos-claros` / `nucleos-oscuros`
-- **CLAHE**: On/Off + Modo (clahe/auto/histogram/normalize)
-- **Reducir Ruido**: On/Off + Nivel (bajo/medio/alto)
+```bash
+python main.py data/raw/imagen.jpg --no-gui
+```
 
-#### 4. 3️⃣ Segmentación Avanzada (CITO-33)
-- **HSV**: On/Off + Método (saturation/value) + Umbral (0-255)
+Procesar una carpeta entera:
 
-#### 5. 4️⃣ Separación Núcleos (CITO-32)
-- **Método**: none / watershed / maximos_locales
+```bash
+python main.py data/raw --lote --no-gui --sigma1 7.0 --sigma2 8.0
+```
 
-#### 6. 5️⃣ Visualización
-- Contornos reales On/Off
-- Mostrar áreas On/Off
+Parámetros habituales:
 
-### Área Principal - Pestañas de Resultados
+- `--sigma1`: desenfoque fino
+- `--sigma2`: desenfoque general, mayor que `sigma1`
+- `--ruido`: activar reducción extra de ruido
+- `--no-contraste`: desactivar CLAHE
+- `--polaridad`: `nucleos-claros` o `nucleos-oscuros`
 
-| Pestaña | Contenido |
-|---------|-----------|
-| 🎯 **Análisis Final** | Imagen anotada (Verde=Normal, Rojo=Sospechoso), métricas |
-| 🔬 **Filtro DoG** | Imagen DoG + componentes G1/G2 (expandible) |
-| ⚙️ **Preprocesamiento** | Imagen gris + estado de cada paso |
-| 📷 **Original** | Imagen original + dimensiones |
-| 🎨 **HSV / Separación** | Máscara HSV + imagen con máscara / Separación Watershed |
-| 📋 **Criterios Clasificación** | Reglas activas + tabla por célula (área, clase, frontera, motivo) |
+### 3.2 Uso desde la interfaz web
 
-### Métricas Principales (4 columnas)
-| Métrica | Descripción |
-|---------|-------------|
-| **Total Células** | Núcleos detectados totales |
-| **Normales** | Área < 3× promedio |
-| **Sospechosas** | Área ≥ 3× promedio (delta rojo) |
-| **% Riesgo** | Sospechosas/Total × 100 (semáforo: 🟢<5% 🟡5-10% 🔴>10%) |
+```bash
+streamlit run app.py
+```
 
-### Expandibles Adicionales
-- ⚠️ **Advertencias Calidad**: Contraste, brillo, saturación
-- 📈 **Métricas Calidad**: Contraste, brillo, saturación, estado
-- 📊 **Estadísticas Detalladas**: Min/Max/Promedio áreas + gráfico barras + umbral
-- 💾 **Descargas**: PNG, CSV, JSON completo
+La app contiene:
 
-### Expandibles Inferiores
-- 📈 **Historial** (CITO-27): Ejecuciones, imágenes, células, % riesgo
-- 📊 **Indicadores CITO-28**: Totales, promedios, tasa riesgo alto, evolución
+- panel lateral con parámetros,
+- vista de imagen original,
+- vista DoG,
+- análisis final,
+- métricas de calidad,
+- historial y exportación.
+
+### 3.3 Qué hace cada pantalla
+
+La interfaz de Streamlit (`app.py`) incluye secciones para:
+
+- cargar imagen o escoger dataset,
+- ajustar sigma 1 y sigma 2,
+- activar CLAHE y reducción de ruido,
+- cambiar polaridad,
+- usar HSV y separación de núcleos,
+- revisar resultados por pestaña,
+- guardar PNG, CSV y JSON.
 
 ---
 
-## 📊 Métricas de Validación y Porcentaje de Detección
+## 4. Tecnologías implementadas
 
-### Estado Actual (Validación Exploratoria)
-| Métrica | Valor | Estado |
-|---------|-------|--------|
-| **Precisión** | ~38% | Exploratoria |
-| **Sensibilidad (Recall)** | ~36% | Exploratoria |
-| **F1-Score** | ~37% | Exploratoria |
-| **IoU** | ~23% | Exploratoria |
+| Componente | Tecnología | Propósito |
+|---|---|---|
+| Lenguaje principal | Python | Orquestación del pipeline |
+| Visión por computadora | OpenCV | carga, filtros, contornos, umbralización |
+| Procesamiento numérico | NumPy | matrices, transformaciones y estadísticas |
+| Interfaz web | Streamlit | dashboard visual y exploración interactiva |
+| Datos tabulares | Pandas | historial y consolidación de resultados |
+| Validación | pytest / unittest | pruebas automatizadas |
+| Reproducibilidad | CSV, JSON, bitácora | seguimiento de experimentos |
 
-> ⚠️ **NOTA**: Estos valores son **exploratorios** basados en 9 imágenes con distancia 10px. **NO son métricas clínicas validadas**. Requieren:
-> - Ground truth espacial válido (anotaciones expertas)
-> - Dataset congelado separado (train/val/test)
-> - Calibración DoG con conjunto autorizado separado (CITO-22)
+### Módulos principales
 
-### Métricas del Sistema (CITO-28)
+- `main.py`: punto de entrada CLI.
+- `app.py`: dashboard web con controls.
+- `src/preprocessing.py`: gris, CLAHE, ruido, polaridad e HSV.
+- `src/dog_filter.py`: Difference of Gaussians.
+- `src/analysis.py`: umbralizado, contornos, filtrado y clasificación.
+- `src/visualization.py`: anotaciones y paneles.
+- `src/interfaz_resultados.py`: resúmenes y exportación.
+- `src/metricas_sistema.py`: indicadores y cálculo de métricas.
+- `src/historial_resultados.py`: log de ejecuciones.
+- `src/etl_resultados.py`: agregado y exportación.
+- `api_v1.py`: API REST experimental.
+
+---
+
+## 5. Cómo funciona el cálculo
+
+### 5.1 Preprocesamiento
+El módulo `src/preprocessing.py` hace lo siguiente:
+
+- convierte la imagen a escala de grises,
+- mejora el contraste con CLAHE o ecualización,
+- puede reducir ruido con filtro bilateral,
+- puede invertir la polaridad si la imagen tiene núcleos oscuros sobre fondo claro,
+- permite segmentación por HSV para reforzar zonas con intensidad o saturación distinta.
+
+Esto se hace porque los núcleos en citología pueden ser claros o oscuros según la preparación y el tipo de tinción.
+
+### 5.2 Filtro DoG
+El módulo `src/dog_filter.py` aplica dos desenfoques Gaussianos y resta sus resultados:
+
+- `G1 = GaussianBlur(imagen, sigma1)`
+- `G2 = GaussianBlur(imagen, sigma2)`
+- `DoG = G1 - G2`
+
+La parte importante es que la diferencia se conserva en `float32` antes de normalizar y convertir a `uint8` para ser compatible con OpenCV y watershed. Esto ayuda a resaltar estructuras con tamaño parecido al núcleo, y no se destruye la información por recorte prematuro.
+
+### 5.3 Binarización y contornos
+En `src/analysis.py` se hace:
+
+- umbralización de Otsu,
+- detección de contornos externos,
+- cálculo del área con `cv2.contourArea`,
+- eliminación por tamaño mínimo/máximo,
+- opcionalmente separación con watershed o máximos locales.
+
+Esto produce una lista de objetos candidatos con su área, forma y posición.
+
+### 5.4 Clasificación por área
+Cada contorno se evalúa así:
+
+- si `area < area_minima`: descartada por ruido
+- si `area > area_maxima`: descartada por artefacto
+- si `area >= umbral_sospechoso`: sospechosa
+- si `area < umbral_sospechoso`: normal
+- si está en ±10% del umbral: frontera
+
+La decisión se registra con motivo explicable: ruido, artefacto, `Área >= umbral de riesgo`, etc.
+
+---
+
+## 6. Para qué sirve cada apartado del sistema
+
+| Apartado | Qué hace | Para qué sirve |
+|---|---|---|
+| `main.py` | Ejecuta el pipeline completo desde CLI | Permite análisis por terminal y lotes |
+| `app.py` | Interfaz Streamlit | Facilita uso visual y demostración para evaluadores |
+| `src/preprocessing.py` | Ajusta brillo, contraste y polaridad | Mejora la calidad y prepara la imagen para DoG |
+| `src/dog_filter.py` | Calcula la diferencia de Gaussianas | Resalta núcleos según su tamaño |
+| `src/analysis.py` | Detecta contornos y clasifica | Decide qué es normal/sospechoso |
+| `src/visualization.py` | Dibuja cajas y etiquetas | Muestra resultados en la imagen |
+| `src/metricas_sistema.py` | Calcula indicadores | Resumen de rendimiento y comparación |
+| `src/historial_resultados.py` | Guarda ejecuciones | Permite seguimiento temporal |
+| `src/etl_resultados.py` | Consolida y exporta | Hace análisis por lote y extra exportación |
+| `api_v1.py` | Exposición REST | Permite integración con otras apps |
+| `validar_consistencia_dataset.py` | Comprueba integridad del dataset | Evita errores en datos de entrada |
+| `calcular_metricas_cito23.py` | Calcula TP/FP/FN y precisión/recall/F1 | Evalúa detección con ground truth |
+
+---
+
+## 7. Cómo probar el proyecto
+
+### 7.1 Verificar entorno
+
+```bash
+python verificar_entorno.py
+```
+
+### 7.2 Ejecutar pruebas unitarias
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+### 7.3 Validar integridad del dataset
+
+```bash
+python validar_consistencia_dataset.py
+```
+
+### 7.4 Ejecutar una imagen individual
+
+```bash
+python main.py data/raw/imagen.jpg --no-gui --sigma1 7.0 --sigma2 8.0 --polaridad nucleos-oscuros
+```
+
+### 7.5 Ejecutar lote
+
+```bash
+python main.py data/raw --lote --no-gui --sigma1 7.0 --sigma2 8.0
+```
+
+### 7.6 Ejecutar la interfaz web
+
+```bash
+streamlit run app.py
+```
+
+### 7.7 Calcular métricas exploratorias
+
+```bash
+python calcular_metricas_cito23.py
+```
+
+Esto ayuda a preparar un resumen con `precision`, `recall`, `f1` y `jaccard_deteccion` cuando existe ground truth o centroides anotados.
+
+---
+
+## 8. ¿Qué porcentaje de detección tiene y qué tan válido es?
+
+El repositorio documenta un estado exploratorio: en la guía y los artefactos del proyecto, se reportan valores aproximados de:
+
+- precisión: ~38%
+- recall: ~36%
+- F1: ~37%
+- IoU: ~23%
+
+Estos valores se describen como exploratorios y no clínicamente validados. El proyecto mismo deja claro que:
+
+- no es una herramienta de diagnóstico,
+- requiere ground truth válido,
+- necesita un dataset separado para entrenamiento y evaluación,
+- debe calibrarse con datos autorizados,
+- no se debe usar como decisión médica.
+
+Además, el script `calcular_metricas_cito23.py` calcula métricas reconociendo `TP`, `FP` y `FN` usando emparejamiento espacial, pero la referencia del proyecto recomienda marcos de revisión y validación y no afirma rendimiento clínico.
+
+En otras palabras: el sistema puede ser útil como prototipo de investigación, pero su precisión todavía no está validada para uso clínico.
+
+---
+
+## 9. Preguntas frecuentes (FAQ)
+
+### ¿Es una herramienta diagnóstica?
+No. Es un prototipo de investigación para apoyo en detección y conteo de núcleos.
+
+### ¿Cómo decide si una célula es sospechosa?
+Por el área total del contorno. Si el área supera un umbral determinado por el promedio normal multiplicado por 3, se marca como sospechosa.
+
+### ¿Qué es la zona frontera?
+Es el margen de ±10% alrededor del umbral. Las células en esa zona requieren revisión humana.
+
+### ¿Cómo maneja imágenes con núcleos oscuros?
+La polaridad `nucleos-oscuros` invierte la imagen antes del DoG para que los núcleos actúen como blobs claros.
+
+### ¿Qué hace el DoG exactamente?
+Resta dos versiones suavizadas de una imagen (con distintos sigmas). Eso resalta estructuras con un tamaño determinado y ayuda a aislar núcleos.
+
+### ¿Cómo se reducen falsos positivos?
+Filtrando por tamaño mínimo y máximo, circularidad y relación de aspecto, según el caso y la polaridad.
+
+### ¿Qué pasa si la imagen tiene mucho ruido?
+Se puede usar reducción de ruido y CLAHE, o cambiar sigma y polaridad en la app/CLI.
+
+### ¿Se puede usar con varias imágenes a la vez?
+Sí, el proyecto incluye modo lote desde `main.py` y la interfaz puede procesar múltiples archivos.
+
+### ¿Cómo se sabe si la imagen es útil o está mala?
+La app incluye indicadores de calidad de imagen: contraste, brillo, saturación y advertencias.
+
+### ¿La métrica final del sistema es válida?
+No como valor clínico. Solo es una señal exploratoria que requiere revisión y validación con ground truth real.
+
+---
+
+## 10. Conclusión
+
+CitoCounter Proto es un sistema experimental orientado a entender patrones celulares en citología cervical mediante visión por computadora. Su valor real está en:
+
+- ayudar a automatizar la detección preliminar,
+- acelerar la revisión visual,
+- facilitar comparación de parámetros,
+- soportar investigación reproducible,
+- documentar reglas explicables de clasificación.
+
+Pero su uso debe mantenerse dentro del marco de investigación, con supervisión profesional y con la clara advertencia de que no sustituye la interpretación clínica.
+
+---
+
+## 11. Documentos recomendados para profundizar
+
+- `README.md`
+- `docs/arquitectura_sistema.md`
+- `docs/plan-proyecto.md`
+- `docs/guia-maestra-desarrollo.md`
+- `docs/guide/inicio.md`
+- `docs/guide/cli.md`
+- `docs/guide/dataset.md`
+- `docs/guide/experimentos.md`
+
+Estos documentos son el contexto técnico y normativo del proyecto y ayudan a comprender la intención, el alcance y las limitaciones reales del prototipo.
 | Métrica | Descripción |
 |---------|-------------|
 | **Ejecuciones totales** | Contador de corridas |
