@@ -28,10 +28,10 @@ Califique de **1 (muy en desacuerdo) a 5 (muy de acuerdo)**.
 | Puedo identificar dónde cargar o elegir una imagen | ☐ | ☐ | ☐ | ☐ | ☐ |
 | Puedo distinguir la imagen original de las vistas procesadas | ☐ | ☐ | ☐ | ☐ | ☐ |
 
-¿Qué entendió que hace el sistema?  
+¿Qué entendió que hace el sistema?
 ____________________________________________________________________
 
-¿Qué esperaba encontrar y no encontró?  
+¿Qué esperaba encontrar y no encontró?
 ____________________________________________________________________
 
 ## 3. Prueba de tareas
@@ -47,7 +47,7 @@ Para cada tarea, anote si pudo completarla sin ayuda. No puntúe la concordancia
 | Encontrar el conteo y los criterios por área | ☐ | ☐ | ☐ | __________ |
 | Encontrar las opciones de exportación | ☐ | ☐ | ☐ | __________ |
 
-¿En qué paso necesitó más ayuda y qué habría hecho más claro ese paso?  
+¿En qué paso necesitó más ayuda y qué habría hecho más claro ese paso?
 ____________________________________________________________________
 
 ## 4. Comprensión de controles
@@ -68,15 +68,15 @@ Califique la **claridad** y la **utilidad para revisar el procesamiento** de cad
 
 ### Preguntas abiertas sobre los controles
 
-1. Con sus propias palabras, ¿qué cree que cambia al modificar Sigma 1 o Sigma 2?  
+1. Con sus propias palabras, ¿qué cree que cambia al modificar Sigma 1 o Sigma 2?
    ____________________________________________________________________
-2. ¿Qué señales usaría para elegir entre polaridad de núcleos claros u oscuros?  
+2. ¿Qué señales usaría para elegir entre polaridad de núcleos claros u oscuros?
    ____________________________________________________________________
-3. ¿En qué tipo de imagen probaría contraste, reducción de ruido o segmentación HSV? ¿Qué efecto adverso vigilaría?  
+3. ¿En qué tipo de imagen probaría contraste, reducción de ruido o segmentación HSV? ¿Qué efecto adverso vigilaría?
    ____________________________________________________________________
-4. ¿Qué método de separación le resultó más fácil de interpretar? ¿Qué cambio observó en el conteo?  
+4. ¿Qué método de separación le resultó más fácil de interpretar? ¿Qué cambio observó en el conteo?
    ____________________________________________________________________
-5. ¿Qué información visual le ayudaría a revisar cada detección?  
+5. ¿Qué información visual le ayudaría a revisar cada detección?
    ____________________________________________________________________
 
 > **Nota del facilitador sobre “Mostrar Áreas en Imagen”:** en la versión evaluada, el control está visible, pero no está conectado al dibujo de la imagen. No dibuja etiquetas de área al activarlo. Explique este hecho si la persona intenta probarlo; registre si desea esa función, pero no atribuya el comportamiento a un error del participante.
@@ -93,7 +93,7 @@ El prototipo usa una regla de área provisional: referencia 300 px² × factor 3
 | ¿Qué visualización o explicación le falta para interpretar el umbral? | ______________________________ |
 | ¿Qué riesgo de malinterpretación ve en las etiquetas o los colores? | ______________________________ |
 
-¿Qué pregunta le surge sobre la regla de área o sus límites?  
+¿Qué pregunta le surge sobre la regla de área o sus límites?
 ____________________________________________________________________
 
 ## 6. Métricas, calidad y exportación
@@ -106,25 +106,25 @@ ____________________________________________________________________
 | Historial / parámetros usados | ☐ Sí ☐ Parcial ☐ No | ☐ Sí ☐ Parcial ☐ No | __________ |
 | Exportación CSV / JSON / imagen | ☐ Sí ☐ Parcial ☐ No | ☐ Sí ☐ Parcial ☐ No | __________ |
 
-¿Qué datos necesitaría que acompañaran una exportación para poder reproducir una prueba?  
+¿Qué datos necesitaría que acompañaran una exportación para poder reproducir una prueba?
 ____________________________________________________________________
 
-¿Qué entiende por el “% de riesgo” que muestra el prototipo?  
+¿Qué entiende por el “% de riesgo” que muestra el prototipo?
 ____________________________________________________________________
 
 > Recuerde que dicho porcentaje es la fracción de detecciones válidas etiquetadas por la regla de área; no es probabilidad de enfermedad, precisión ni sensibilidad.
 
 ## 7. Utilidad, confianza y limitaciones
 
-1. Para tareas de investigación o comparación técnica, ¿qué utilidad tendría para usted?  
+1. Para tareas de investigación o comparación técnica, ¿qué utilidad tendría para usted?
    ☐ Alta ☐ Moderada ☐ Baja ☐ Ninguna ☐ No sé
-2. ¿Qué limitación le parece más importante comunicar a otra persona que use el prototipo?  
+2. ¿Qué limitación le parece más importante comunicar a otra persona que use el prototipo?
    ____________________________________________________________________
-3. ¿Qué tipos de imagen o artefacto cree que deberían probarse antes de sacar conclusiones?  
+3. ¿Qué tipos de imagen o artefacto cree que deberían probarse antes de sacar conclusiones?
    ____________________________________________________________________
-4. ¿Qué tendría que cambiar para que la interfaz fuera más comprensible?  
+4. ¿Qué tendría que cambiar para que la interfaz fuera más comprensible?
    ____________________________________________________________________
-5. ¿Hay algo en la pantalla que pueda inducir a pensar que la herramienta diagnostica?  
+5. ¿Hay algo en la pantalla que pueda inducir a pensar que la herramienta diagnostica?
    ____________________________________________________________________
 
 ## 8. Priorización de mejoras
@@ -145,13 +145,13 @@ Ordene hasta cinco opciones (1 = prioridad más alta); deje en blanco las que no
 
 ## 9. Comentario final
 
-**Lo más claro o útil:**  
+**Lo más claro o útil:**
 ____________________________________________________________________
 
-**Lo más confuso o prioritario de corregir:**  
+**Lo más confuso o prioritario de corregir:**
 ____________________________________________________________________
 
-**¿Participaría en otra prueba de usabilidad del prototipo?**  
+**¿Participaría en otra prueba de usabilidad del prototipo?**
 ☐ Sí ☐ No ☐ Tal vez
 
 ## 10. Notas del facilitador

@@ -188,37 +188,37 @@ El “% de riesgo” de la interfaz se calcula a partir de regiones etiquetadas 
 
 ## 9. Preguntas que pueden hacerte y respuestas breves
 
-**¿Qué hace el proyecto?**  
+**¿Qué hace el proyecto?**
 Resalta regiones con DoG, obtiene contornos y cuenta/clasifica candidatos a núcleo usando principalmente su área. Permite inspeccionar el procesamiento y comparar parámetros.
 
-**¿Detecta células o diagnostica cáncer?**  
+**¿Detecta células o diagnostica cáncer?**
 No. Trabaja con regiones candidatas a núcleo y una regla experimental por área. No determina diagnóstico, tipo celular ni lesión.
 
-**¿Qué significa sigma?**  
+**¿Qué significa sigma?**
 Es la escala, en píxeles, del desenfoque Gaussiano. DoG resta dos escalas para resaltar ciertas variaciones de tamaño/intensidad. Los sigmas cambian la respuesta; no son una medida directa del tamaño de una célula.
 
-**¿Por qué hay dos sigmas?**  
+**¿Por qué hay dos sigmas?**
 La resta entre un desenfoque más fino y uno más amplio conserva cambios que difieren entre escalas. `σ2` debe ser mayor que `σ1`.
 
-**¿Cómo decide que algo es sospechoso?**  
+**¿Cómo decide que algo es sospechoso?**
 Por área: referencia provisional 300 px² × factor 3 = 900 px². No usa un modelo clínico; las detecciones cerca del límite tienen una marca de frontera de ±10%.
 
-**¿Qué porcentaje de detección tiene?**  
+**¿Qué porcentaje de detección tiene?**
 No hay un porcentaje universal. El resumen exploratorio de nueve imágenes reportó precisión 38.46%, recall 35.71% y F1 37.04% con emparejamiento espacial a 10 px. No está validado clínicamente ni permite prometer ese resultado en otras imágenes.
 
-**¿Qué significan falsos positivos y falsos negativos?**  
+**¿Qué significan falsos positivos y falsos negativos?**
 Un FP es una detección que no coincide con una anotación de referencia; un FN es una anotación que no fue detectada. Ambos dependen de tener ground truth espacial correcto.
 
-**¿CLAHE, HSV o Watershed garantizan mejores resultados?**  
+**¿CLAHE, HSV o Watershed garantizan mejores resultados?**
 No. Son opciones experimentales que cambian la imagen/máscara o intentan separar regiones. Pueden ayudar en algunos casos y empeorar otros; se comparan sobre datos etiquetados.
 
-**¿Qué es “Dibujar Contornos Reales”?**  
+**¿Qué es “Dibujar Contornos Reales”?**
 Son contornos extraídos por el programa, no contornos verdaderos confirmados por una persona.
 
-**¿Qué ocurre con “Mostrar Áreas en Imagen”?**  
+**¿Qué ocurre con “Mostrar Áreas en Imagen”?**
 El control aparece, pero no está conectado a la visualización actual. Las áreas se consultan en los criterios de clasificación; el interruptor no dibuja sus números sobre la imagen.
 
-**¿Se puede usar para tomar decisiones clínicas?**  
+**¿Se puede usar para tomar decisiones clínicas?**
 No. Es un prototipo de investigación; todas las salidas deben ser revisadas por profesionales y no deben usarse como diagnóstico.
 
 ## 10. Documentación relacionada
