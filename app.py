@@ -72,6 +72,742 @@ from src.etl_resultados import (
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 
 # ============================================================================
+# DESIGN SYSTEM - Medical Health Dashboard
+# ============================================================================
+DESIGN_SYSTEM_CSS = """
+<style>
+/* ============================================================================
+   DESIGN SYSTEM - Medical Health Dashboard
+   ============================================================================ */
+
+/* CSS Custom Properties (Design Tokens) */
+:root {
+  /* Colors - Medical Health Dashboard Design System */
+  /* Backgrounds */
+  --color-bg-main-light: #F8FAFC;
+  --color-bg-main-warm: #FAF8F5;
+  --color-bg-panel-dark: #22252A;
+  --color-bg-card-light: #FFFFFF;
+  --color-bg-card-hover: #F5F7FA;
+  
+  /* Primary Brand */
+  --color-brand-primary: #2A55E5;
+  --color-brand-primary-light: #E8EDF5;
+  --color-brand-primary-dark: #1E3A8A;
+  
+  /* Text Colors - Enhanced Contrast */
+  --color-text-primary-dark: #1E293B;
+  --color-text-primary-light: #FFFFFF;
+  --color-text-on-warm: #1E293B;
+  --color-text-subtle: #64748B;
+  --color-text-caption: #94A3B8;
+  
+  /* Semantic Colors */
+  --color-semantic-success: #10B981;
+  --color-semantic-success-bg: #ECFDF5;
+  --color-semantic-warning: #F59E0B;
+  --color-semantic-warning-bg: #FFFBEB;
+  --color-semantic-danger: #EF4444;
+  --color-semantic-danger-bg: #FEE2E2;
+  
+  /* Elevation */
+  --shadow-card: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-floating: 0 4px 12px 0 rgba(0, 0, 0, 0.15);
+  --shadow-input: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 9999px;
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  
+  /* Typography */
+  --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-size-xs: 10px;
+  --font-size-sm: 12px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 20px;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+}
+
+/* ============================================================================
+   BASE STYLES
+   ============================================================================ */
+
+html, body, [data-testid="stAppViewContainer"] {
+    font-family: var(--font-family, 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif) !important;
+    background-color: var(--color-bg-main-light) !important;
+    color: var(--color-text-primary-dark) !important;
+}
+
+/* Hide Streamlit default elements */
+#MainMenu { visibility: hidden; }
+footer { visibility: hidden; }
+header { visibility: hidden; }
+
+/* Main container */
+[data-testid="stAppViewContainer"] > .main {
+    padding-top: var(--spacing-lg) !important;
+    padding-bottom: var(--spacing-lg) !important;
+}
+
+/* ============================================================================
+   CARD COMPONENTS
+   ============================================================================ */
+
+.medical-card {
+    background: var(--color-bg-card-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--spacing-md);
+    transition: all 0.2s ease;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.medical-card:hover {
+    box-shadow: var(--shadow-floating);
+    transform: translateY(-2px);
+}
+
+.medical-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-sm);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.medical-card-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary-dark);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.medical-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.medical-card-icon.primary { background: var(--color-brand-primary-light); color: var(--color-brand-primary); }
+.medical-card-icon.success { background: var(--color-semantic-success-bg); color: var(--color-semantic-success); }
+.medical-card-icon.warning { background: #FEF3C7; color: var(--color-semantic-warning); }
+.medical-card-icon.danger { background: var(--color-semantic-danger-bg); color: var(--color-semantic-danger); }
+.medical-card-icon.info { background: var(--color-brand-primary-light); color: var(--color-brand-primary); }
+
+.medical-card-content {
+    color: var(--color-text-secondary-dark);
+    font-size: var(--font-size-md);
+    line-height: 1.6;
+}
+
+/* ============================================================================
+   METRIC CARDS
+   ============================================================================ */
+
+.metric-card {
+    background: var(--color-bg-card-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--spacing-md);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    transition: all 0.2s ease;
+}
+
+.metric-card:hover {
+    box-shadow: var(--shadow-floating);
+    transform: translateY(-2px);
+}
+
+.metric-value {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary-dark);
+    line-height: 1.2;
+}
+
+.metric-label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary-dark);
+    margin-top: var(--spacing-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.metric-delta {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    margin-top: var(--spacing-xs);
+}
+
+.metric-delta.positive { color: var(--color-semantic-success); }
+.metric-delta.negative { color: var(--color-semantic-danger); }
+.metric-delta.neutral { color: var(--color-text-secondary-dark); }
+
+/* ============================================================================
+   BUTTONS
+   ============================================================================ */
+
+.btn-primary {
+    background: var(--color-brand-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.btn-primary:hover {
+    background: #1E40C0;
+    box-shadow: var(--shadow-floating);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: var(--color-bg-main-light);
+    color: var(--color-text-primary-dark);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.btn-secondary:hover {
+    background: var(--color-bg-main-warm);
+    border-color: var(--color-brand-primary);
+}
+
+.btn-pill {
+    background: var(--color-brand-primary-light);
+    color: var(--color-brand-primary);
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.btn-pill:hover {
+    background: var(--color-brand-primary);
+    color: white;
+}
+
+.btn-pill.success { background: var(--color-semantic-success-bg); color: var(--color-semantic-success); }
+.btn-pill.success:hover { background: var(--color-semantic-success); color: white; }
+.btn-pill.warning { background: #FEF3C7; color: var(--color-semantic-warning); }
+.btn-pill.warning:hover { background: var(--color-semantic-warning); color: white; }
+.btn-pill.danger { background: var(--color-semantic-danger-bg); color: var(--color-semantic-danger); }
+.btn-pill.danger:hover { background: var(--color-semantic-danger); color: white; }
+
+/* ============================================================================
+   BADGES & PILLS
+   ============================================================================ */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: var(--radius-pill);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    gap: var(--spacing-xs);
+}
+
+.badge.primary { background: var(--color-brand-primary-light); color: var(--color-brand-primary); }
+.badge.success { background: var(--color-semantic-success-bg); color: var(--color-semantic-success); }
+.badge.warning { background: #FEF3C7; color: var(--color-semantic-warning); }
+.badge.danger { background: var(--color-semantic-danger-bg); color: var(--color-semantic-danger); }
+.badge.info { background: var(--color-brand-primary-light); color: var(--color-brand-primary); }
+
+/* ============================================================================
+   NAVIGATION SIDEBAR
+   ============================================================================ */
+
+.sidebar-nav {
+    background: var(--color-bg-card-light);
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-card);
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.nav-section {
+    margin-bottom: var(--spacing-md);
+}
+
+.nav-section-title {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-secondary-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    color: var(--color-text-primary-dark);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: var(--spacing-xs);
+}
+
+.nav-item:hover {
+    background: var(--color-brand-primary-light);
+    color: var(--color-brand-primary);
+}
+
+.nav-item.active {
+    background: var(--color-brand-primary);
+    color: white;
+}
+
+.nav-item-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ============================================================================
+   QUICK ACTION BUTTONS
+   ============================================================================ */
+
+.quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin: var(--spacing-md) 0;
+}
+
+.quick-action-btn {
+    background: var(--color-bg-card-light);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary-dark);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.quick-action-btn:hover {
+    border-color: var(--color-brand-primary);
+    background: var(--color-brand-primary-light);
+    color: var(--color-brand-primary);
+    box-shadow: var(--shadow-floating);
+    transform: translateY(-1px);
+}
+
+.quick-action-btn.primary {
+    background: var(--color-brand-primary);
+    color: white;
+    border-color: var(--color-brand-primary);
+}
+
+.quick-action-btn.primary:hover {
+    background: #1E40C0;
+}
+
+/* ============================================================================
+   TABS
+   ============================================================================ */
+
+.stTabs [data-baseweb="tab-list"] {
+    gap: var(--spacing-xs);
+    background: transparent;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    padding-bottom: 0;
+}
+
+.stTabs [data-baseweb="tab"] {
+    background: transparent !important;
+    border-radius: var(--radius-md) !important;
+    padding: var(--spacing-sm) var(--spacing-md) !important;
+    font-size: var(--font-size-sm) !important;
+    font-weight: var(--font-weight-medium) !important;
+    color: var(--color-text-secondary-dark) !important;
+    border: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.stTabs [data-baseweb="tab"]:hover {
+    background: var(--color-brand-primary-light) !important;
+    color: var(--color-brand-primary) !important;
+}
+
+.stTabs [aria-selected="true"] {
+    background: var(--color-brand-primary) !important;
+    color: white !important;
+    box-shadow: var(--shadow-floating) !important;
+}
+
+/* ============================================================================
+   METRICS
+   ============================================================================ */
+
+[data-testid="stMetric"] {
+    background: var(--color-bg-card-light) !important;
+    border-radius: var(--radius-lg) !important;
+    padding: var(--spacing-md) !important;
+    border: 1px solid rgba(0, 0, 0, 0.03) !important;
+    box-shadow: var(--shadow-card) !important;
+}
+
+[data-testid="stMetricValue"] {
+    font-size: var(--font-size-2xl) !important;
+    font-weight: var(--font-weight-bold) !important;
+    color: var(--color-text-primary-dark) !important;
+}
+
+[data-testid="stMetricLabel"] {
+    font-size: var(--font-size-sm) !important;
+    font-weight: var(--font-weight-medium) !important;
+    color: var(--color-text-secondary-dark) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+[data-testid="stMetricDelta"] {
+    font-size: var(--font-size-xs) !important;
+    font-weight: var(--font-weight-medium) !important;
+}
+
+/* ============================================================================
+   EXPANDERS
+   ============================================================================ */
+
+.streamlit-expanderHeader {
+    background: var(--color-bg-card-light) !important;
+    border-radius: var(--radius-md) !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    font-weight: var(--font-weight-semibold) !important;
+    color: var(--color-text-primary-dark) !important;
+    font-size: var(--font-size-md) !important;
+}
+
+.streamlit-expanderContent {
+    background: var(--color-bg-main-light) !important;
+    border-radius: 0 0 var(--radius-md) var(--radius-md) !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    border-top: none !important;
+    padding: var(--spacing-md) !important;
+}
+
+/* ============================================================================
+   SIDEBAR
+   ============================================================================ */
+
+[data-testid="stSidebar"] {
+    background: var(--color-bg-main-warm) !important;
+    border-right: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-testid="stSidebar"] .stMarkdown h1,
+[data-testid="stSidebar"] .stMarkdown h2,
+[data-testid="stSidebar"] .stMarkdown h3 {
+    color: var(--color-text-primary-dark) !important;
+}
+
+[data-testid="stSidebar"] .stRadio > label {
+    font-weight: var(--font-weight-semibold) !important;
+    color: var(--color-text-primary-dark) !important;
+}
+
+[data-testid="stSidebar"] .stSlider > div > div > div > div {
+    background: var(--color-brand-primary) !important;
+}
+
+[data-testid="stSidebar"] .stSelectbox > div > div {
+    background: var(--color-bg-card-light) !important;
+    border-radius: var(--radius-md) !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+/* ============================================================================
+   BUTTONS (Streamlit native)
+   ============================================================================ */
+
+.stButton > button {
+    background: var(--color-brand-primary) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: var(--radius-md) !important;
+    padding: var(--spacing-sm) var(--spacing-md) !important;
+    font-size: var(--font-size-sm) !important;
+    font-weight: var(--font-weight-semibold) !important;
+    transition: all 0.2s ease !important;
+}
+
+.stButton > button:hover {
+    background: #1E40C0 !important;
+    box-shadow: var(--shadow-floating) !important;
+    transform: translateY(-1px) !important;
+}
+
+.stButton > button[kind="secondary"] {
+    background: var(--color-bg-main-light) !important;
+    color: var(--color-text-primary-dark) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.stButton > button[kind="secondary"]:hover {
+    background: var(--color-bg-main-warm) !important;
+    border-color: var(--color-brand-primary) !important;
+}
+
+/* ============================================================================
+   ALERTS
+   ============================================================================ */
+
+.stAlert {
+    border-radius: var(--radius-md) !important;
+    border: none !important;
+    padding: var(--spacing-md) !important;
+}
+
+.stAlert[data-baseweb="notification"][kind="info"] {
+    background: var(--color-brand-primary-light) !important;
+    color: var(--color-brand-primary) !important;
+    border-left: 4px solid var(--color-brand-primary) !important;
+}
+
+.stAlert[data-baseweb="notification"][kind="success"] {
+    background: var(--color-semantic-success-bg) !important;
+    color: var(--color-semantic-success) !important;
+    border-left: 4px solid var(--color-semantic-success) !important;
+}
+
+.stAlert[data-baseweb="notification"][kind="warning"] {
+    background: #FEF3C7 !important;
+    color: var(--color-semantic-warning) !important;
+    border-left: 4px solid var(--color-semantic-warning) !important;
+}
+
+.stAlert[data-baseweb="notification"][kind="error"] {
+    background: var(--color-semantic-danger-bg) !important;
+    color: var(--color-semantic-danger) !important;
+    border-left: 4px solid var(--color-semantic-danger) !important;
+}
+
+/* ============================================================================
+   DATAFRAME
+   ============================================================================ */
+
+[data-testid="stDataFrame"] {
+    border-radius: var(--radius-lg) !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    box-shadow: var(--shadow-card) !important;
+}
+
+[data-testid="stDataFrame"] table {
+    font-size: var(--font-size-sm) !important;
+}
+
+[data-testid="stDataFrame"] th {
+    background: var(--color-bg-main-warm) !important;
+    font-weight: var(--font-weight-semibold) !important;
+    color: var(--color-text-primary-dark) !important;
+    padding: var(--spacing-sm) var(--spacing-md) !important;
+}
+
+[data-testid="stDataFrame"] td {
+    padding: var(--spacing-sm) var(--spacing-md) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
+}
+
+/* ============================================================================
+   FILE UPLOADER
+   ============================================================================ */
+
+[data-testid="stFileUploader"] {
+    background: var(--color-bg-card-light) !important;
+    border: 2px dashed rgba(42, 85, 229, 0.3) !important;
+    border-radius: var(--radius-lg) !important;
+    padding: var(--spacing-lg) !important;
+}
+
+[data-testid="stFileUploader"]:hover {
+    border-color: var(--color-brand-primary) !important;
+    background: var(--color-brand-primary-light) !important;
+}
+
+/* ============================================================================
+   PROGRESS BAR
+   ============================================================================ */
+
+.stProgress > div > div > div > div {
+    background: var(--color-brand-primary) !important;
+    border-radius: var(--radius-pill) !important;
+}
+
+/* ============================================================================
+   SELECTBOX / MULTISELECT
+   ============================================================================ */
+
+.stSelectbox > div > div,
+.stMultiSelect > div > div {
+    background: var(--color-bg-card-light) !important;
+    border-radius: var(--radius-md) !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+/* ============================================================================
+   SLIDER
+   ============================================================================ */
+
+.stSlider > div > div > div > div {
+    background: var(--color-brand-primary) !important;
+}
+
+.stSlider > div > div > div > div::after {
+    background: var(--color-brand-primary) !important;
+    border-color: var(--color-brand-primary) !important;
+}
+
+/* ============================================================================
+   CHECKBOX
+   ============================================================================ */
+
+.stCheckbox > label > div:first-child {
+    background: var(--color-bg-card-light) !important;
+    border: 2px solid rgba(0, 0, 0, 0.1) !important;
+    border-radius: var(--radius-sm) !important;
+}
+
+.stCheckbox > label > div:first-child[data-checked="true"] {
+    background: var(--color-brand-primary) !important;
+    border-color: var(--color-brand-primary) !important;
+}
+
+/* ============================================================================
+   RADIO
+   ============================================================================ */
+
+.stRadio > label > div:first-child {
+    background: var(--color-bg-card-light) !important;
+    border: 2px solid rgba(0, 0, 0, 0.1) !important;
+    border-radius: var(--radius-sm) !important;
+}
+
+.stRadio > label > div:first-child[data-checked="true"] {
+    background: var(--color-brand-primary) !important;
+    border-color: var(--color-brand-primary) !important;
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+    .stMetric {
+        padding: var(--spacing-sm) !important;
+    }
+    
+    .metric-value {
+        font-size: var(--font-size-xl) !important;
+    }
+    
+    .medical-card {
+        padding: var(--spacing-sm) !important;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        padding: var(--spacing-xs) var(--spacing-sm) !important;
+        font-size: var(--font-size-xs) !important;
+    }
+}
+
+/* ============================================================================
+   ANIMATIONS
+   ============================================================================ */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.4s ease-out forwards;
+}
+
+.animate-pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Staggered animation for cards */
+.medical-card:nth-child(1) { animation-delay: 0ms; }
+.medical-card:nth-child(2) { animation-delay: 50ms; }
+.medical-card:nth-child(3) { animation-delay: 100ms; }
+.medical-card:nth-child(4) { animation-delay: 150ms; }
+.medical-card:nth-child(5) { animation-delay: 200ms; }
+.medical-card:nth-child(6) { animation-delay: 250ms; }
+
+</style>
+"""
+
+# ============================================================================
 # CONFIGURACIÓN DE LA PÁGINA
 # ============================================================================
 st.set_page_config(
@@ -81,76 +817,263 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# CSS personalizado para mejorar la apariencia
-st.markdown("""
-    <style>
-    .stMetric {
-        background-color: #f0f2f6;
-        padding: 10px;
-        border-radius: 5px;
-    }
-    .stAlert {
-        margin-top: 1rem;
-    }
-    </style>
-""", unsafe_allow_html=True)
+# Inject Design System CSS
+st.markdown(DESIGN_SYSTEM_CSS, unsafe_allow_html=True)
+
+# ============================================================================
+# CONFIGURACIÓN DE LA PÁGINA
+# ============================================================================
+st.set_page_config(
+    page_title="CitoCounter Dashboard",
+    page_icon="🔬",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
 # ============================================================================
 # HEADER
 # ============================================================================
-st.title("🔬 CitoCounter Proto - Panel de Control Interactivo")
-st.caption("Análisis experimental de núcleos con filtro DoG y regla de área de referencia.")
+st.markdown("""
+<div class="medical-card" style="margin-bottom: var(--spacing-lg);">
+    <div class="medical-card-header">
+        <div class="medical-card-title">
+            <span class="medical-card-icon primary">🔬</span>
+            <span>CitoCounter Dashboard</span>
+        </div>
+        <span class="badge info">v1.1 Web</span>
+    </div>
+    <div class="medical-card-content">
+        <p style="margin: 0; color: var(--color-text-secondary-dark);">
+            Análisis experimental de núcleos con filtro DoG y regla de área de referencia.
+        </p>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
 st.warning(AVISO_USO_EXPERIMENTAL, icon="⚠️")
-st.markdown("---")
 
 # ============================================================================
-# HISTORIAL Y MÉTRICAS CONSOLIDADAS (CITO-27)
+# QUICK ACTIONS BAR
 # ============================================================================
-historial = cargar_historial()
-with st.expander("📈 Historial de ejecuciones y métricas consolidadas", expanded=False):
-    if not historial:
-        st.info("Aún no hay ejecuciones registradas en la bitácora.")
-    else:
+# Set section from query params if available
+seccion = st.query_params.get("section", "dashboard")
+
+st.markdown("""
+<div class="quick-actions">
+    <button class="quick-action-btn primary" onclick="window.location.search='?section=config'">
+        ⚙️ Configuración
+    </button>
+    <button class="quick-action-btn" onclick="window.location.search='?section=upload'">
+        📤 Subir Imagen
+    </button>
+    <button class="quick-action-btn" onclick="window.location.search='?section=dataset'">
+        📁 Dataset
+    </button>
+    <button class="quick-action-btn" onclick="window.location.search='?section=historial'">
+        📊 Historial
+    </button>
+    <button class="quick-action-btn" onclick="window.location.search='?section=metricas'">
+        📊 Métricas
+    </button>
+    <button class="quick-action-btn" onclick="window.location.search='?section=exportar'">
+        📥 Exportar
+    </button>
+</div>
+""", unsafe_allow_html=True)
+
+st.warning(AVISO_USO_EXPERIMENTAL, icon="⚠️")
+
+# ============================================================================
+# QUICK STATS CARDS ROW
+# ============================================================================
+if seccion == "historial" or seccion == "dashboard":
+    historial = cargar_historial()
+    if historial:
         resumen_historial = agregar_historial(historial)
-        col_hist_1, col_hist_2, col_hist_3, col_hist_4 = st.columns(4)
-        with col_hist_1:
-            st.metric("Ejecuciones", resumen_historial["total_ejecuciones"])
-        with col_hist_2:
-            st.metric("Imágenes", resumen_historial["imagenes_unicas"])
-        with col_hist_3:
-            st.metric("Células detectadas", resumen_historial["total_celulas"])
-        with col_hist_4:
-            st.metric("Promedio experimental", f"{resumen_historial['promedio_riesgo']:.1f}%")
+        m = metricas_conjunto(historial)
+        
+        st.markdown("""
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+            <div class="metric-card animate-fade-in-up">
+                <div class="metric-value">{}</div>
+                <div class="metric-label">Ejecuciones Totales</div>
+            </div>
+            <div class="metric-card animate-fade-in-up" style="animation-delay: 50ms;">
+                <div class="metric-value">{}</div>
+                <div class="metric-label">Imágenes Únicas</div>
+            </div>
+            <div class="metric-card animate-fade-in-up" style="animation-delay: 100ms;">
+                <div class="metric-value">{}</div>
+                <div class="metric-label">Células Detectadas</div>
+            </div>
+            <div class="metric-card animate-fade-in-up" style="animation-delay: 150ms;">
+                <div class="metric-value">{}%</div>
+                <div class="metric-label">Riesgo Promedio</div>
+            </div>
+        </div>
+        """.format(
+            resumen_historial["total_ejecuciones"],
+            resumen_historial["imagenes_unicas"],
+            resumen_historial["total_celulas"],
+            f"{resumen_historial['promedio_riesgo']:.1f}"
+        ), unsafe_allow_html=True)
 
-        st.caption(
-            "Resumen de bitacora_experimentos.csv. Los porcentajes son experimentales "
-            "y no equivalen a una evaluación clínica."
+# ============================================================================
+# MAIN CONTENT LAYOUT
+# ============================================================================
+main_col, side_col = st.columns([7, 3], gap="large")
+
+with main_col:
+    # Main content area will be rendered based on processing mode
+    pass
+
+with side_col:
+    # Sidebar content will be rendered here
+    pass
+
+# ============================================================================
+# FUNCIONES AUXILIARES PARA DATASET Y PROCESAMIENTO EN LOTE
+# ============================================================================
+
+@st.cache_data
+def escanear_dataset(ruta_base="data/raw"):
+    """Escanea el directorio del dataset y retorna lista de imágenes disponibles."""
+    ruta = Path(ruta_base)
+    if not ruta.exists():
+        return []
+    
+    extensiones = {'.jpg', '.jpeg', '.png', '.tif', '.tiff', '.bmp'}
+    imagenes = []
+    for ext in extensiones:
+        imagenes.extend(ruta.glob(f"*{ext}"))
+        imagenes.extend(ruta.glob(f"*{ext.upper()}"))
+    
+    # Ordenar por nombre
+    imagenes.sort(key=lambda x: x.name.lower())
+    return imagenes
+
+
+def procesar_imagen_individual(ruta_imagen, params):
+    """Procesa una sola imagen y retorna resultados."""
+    try:
+        # Preprocesar
+        imagen_gris, imagen_original = preprocesar_imagen(
+            str(ruta_imagen),
+            mejorar_contraste_flag=params['usar_clahe'],
+            reducir_ruido_flag=params['reducir_ruido'],
+            metodo_contraste=params['modo_clahe'],
+            nivel_ruido=params['nivel_ruido'],
+            polaridad=params['polaridad'],
+            usar_hsv=params['usar_hsv'],
+            metodo_hsv=params['metodo_hsv'],
+            umbral_hsv=params['umbral_hsv']
         )
-        st.dataframe(filas_para_tabla(historial), use_container_width=True, hide_index=True)
+        
+        # Verificar calidad
+        metricas_calidad = verificar_calidad_imagen(imagen_gris)
+        
+        # DoG
+        imagen_dog = aplicar_filtro_dog(imagen_gris, params['sigma1'], params['sigma2'])
+        
+        # Análisis
+        metodo_sep = None if params['metodo_separacion'] == "none" else params['metodo_separacion']
+        resultados = analizar_nucleos(
+            imagen_dog, 
+            imagen_original, 
+            polaridad=params['polaridad'],
+            metodo_separacion=metodo_sep
+        )
+        
+        # Visualizaciones
+        img_resultado = dibujar_estadisticas_en_imagen(
+            resultados['imagen_procesada'], 
+            resultados, 
+            posicion='superior'
+        )
+        
+        img_deteccion = crear_vista_deteccion(
+            imagen_original,
+            resultados['contornos_normales'],
+            resultados['contornos_sospechosos'],
+            dibujar_contornos=params['mostrar_contornos']
+        )
+        
+        return {
+            'exito': True,
+            'archivo': ruta_imagen.name,
+            'ruta': str(ruta_imagen),
+            'resultados': resultados,
+            'metricas_calidad': metricas_calidad,
+            'img_resultado': img_resultado,
+            'img_deteccion': img_deteccion,
+            'imagen_original': imagen_original,
+            'imagen_gris': imagen_gris,
+            'imagen_dog': imagen_dog
+        }
+    except Exception as e:
+        return {
+            'exito': False,
+            'archivo': ruta_imagen.name,
+            'ruta': str(ruta_imagen),
+            'error': str(e)
+        }
+
+
+def generar_csv_lote(resultados_lote, params):
+    """Genera CSV consolidado para procesamiento en lote."""
+    import csv
+    from io import StringIO
+    
+    buffer = StringIO()
+    writer = csv.writer(buffer)
+    
+    # Encabezados
+    writer.writerow([
+        "Archivo", "Total_Celulas", "Normales", "Sospechosas", 
+        "Frontera", "Porcentaje_Riesgo", "Sigma1", "Sigma2",
+        "Polaridad", "CLAHE", "Modo_CLAHE", "Reducir_Ruido",
+        "Nivel_Ruido", "HSV", "Metodo_HSV", "Umbral_HSV",
+        "Separacion", "Contraste", "Brillo", "Saturacion", "Calidad_Aceptable"
+    ])
+    
+    for r in resultados_lote:
+        if r['exito']:
+            res = r['resultados']
+            cal = r['metricas_calidad']
+            writer.writerow([
+                r['archivo'],
+                res['total_celulas'],
+                res['normales'],
+                res['sospechosas'],
+                res.get('frontera', 0),
+                f"{res['porcentaje_riesgo']:.1f}%",
+                params['sigma1'],
+                params['sigma2'],
+                params['polaridad'],
+                "Si" if params['usar_clahe'] else "No",
+                params['modo_clahe'],
+                "Si" if params['reducir_ruido'] else "No",
+                params['nivel_ruido'],
+                "Si" if params['usar_hsv'] else "No",
+                params['metodo_hsv'],
+                params['umbral_hsv'],
+                params['metodo_separacion'],
+                f"{cal['contraste']:.1f}",
+                f"{cal['brillo_promedio']:.1f}",
+                f"{cal['saturacion']:.1f}%",
+                "Si" if cal['es_aceptable'] else "No"
+            ])
+        else:
+            writer.writerow([r['archivo'], "ERROR", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""])
+    
+    return buffer.getvalue()
+
 
 # ============================================================================
-# MÉTRICAS CLAVE DEL SISTEMA (CITO-28 / ACT-07)
+# ÁREA PRINCIPAL
 # ============================================================================
-with st.expander("📊 Indicadores clave del rendimiento (CITO-28)", expanded=False):
-    m = metricas_conjunto(historial)
-    col_k1, col_k2, col_k3, col_k4 = st.columns(4)
-    with col_k1:
-        st.metric("Ejecuciones totales", m["total_ejecuciones"])
-    with col_k2:
-        st.metric("Imágenes únicas", m["imagenes_unicas"])
-    with col_k3:
-        st.metric("Células/detected avg", m["total_celulas_promedio"])
-    with col_k4:
-        st.metric("Riesgo avg (%)", m["riesgo_promedio"])
 
-    st.caption(
-        "Indicadores consolidados del pipeline CitoCounter. "
-        "Los porcentajes son experimentales y no equivalen a diagnóstico clínico."
-    )
-
-# ============================================================================
-# BARRA LATERAL (CONTROLES)
-# ============================================================================
+# Barra lateral con configuración
 with st.sidebar:
     st.header("⚙️ Configuración de Análisis")
     
@@ -354,144 +1277,6 @@ with st.sidebar:
         """)
 
 # ============================================================================
-# FUNCIONES AUXILIARES PARA DATASET Y PROCESAMIENTO EN LOTE
-# ============================================================================
-
-@st.cache_data
-def escanear_dataset(ruta_base="data/raw"):
-    """Escanea el directorio del dataset y retorna lista de imágenes disponibles."""
-    ruta = Path(ruta_base)
-    if not ruta.exists():
-        return []
-    
-    extensiones = {'.jpg', '.jpeg', '.png', '.tif', '.tiff', '.bmp'}
-    imagenes = []
-    for ext in extensiones:
-        imagenes.extend(ruta.glob(f"*{ext}"))
-        imagenes.extend(ruta.glob(f"*{ext.upper()}"))
-    
-    # Ordenar por nombre
-    imagenes.sort(key=lambda x: x.name.lower())
-    return imagenes
-
-
-def procesar_imagen_individual(ruta_imagen, params):
-    """Procesa una sola imagen y retorna resultados."""
-    try:
-        # Preprocesar
-        imagen_gris, imagen_original = preprocesar_imagen(
-            str(ruta_imagen),
-            mejorar_contraste_flag=params['usar_clahe'],
-            reducir_ruido_flag=params['reducir_ruido'],
-            metodo_contraste=params['modo_clahe'],
-            nivel_ruido=params['nivel_ruido'],
-            polaridad=params['polaridad'],
-            usar_hsv=params['usar_hsv'],
-            metodo_hsv=params['metodo_hsv'],
-            umbral_hsv=params['umbral_hsv']
-        )
-        
-        # Verificar calidad
-        metricas_calidad = verificar_calidad_imagen(imagen_gris)
-        
-        # DoG
-        imagen_dog = aplicar_filtro_dog(imagen_gris, params['sigma1'], params['sigma2'])
-        
-        # Análisis
-        metodo_sep = None if params['metodo_separacion'] == "none" else params['metodo_separacion']
-        resultados = analizar_nucleos(
-            imagen_dog, 
-            imagen_original, 
-            polaridad=params['polaridad'],
-            metodo_separacion=metodo_sep
-        )
-        
-        # Visualizaciones
-        img_resultado = dibujar_estadisticas_en_imagen(
-            resultados['imagen_procesada'], 
-            resultados, 
-            posicion='superior'
-        )
-        
-        img_deteccion = crear_vista_deteccion(
-            imagen_original,
-            resultados['contornos_normales'],
-            resultados['contornos_sospechosos'],
-            dibujar_contornos=params['mostrar_contornos']
-        )
-        
-        return {
-            'exito': True,
-            'archivo': ruta_imagen.name,
-            'ruta': str(ruta_imagen),
-            'resultados': resultados,
-            'metricas_calidad': metricas_calidad,
-            'img_resultado': img_resultado,
-            'img_deteccion': img_deteccion,
-            'imagen_original': imagen_original,
-            'imagen_gris': imagen_gris,
-            'imagen_dog': imagen_dog
-        }
-    except Exception as e:
-        return {
-            'exito': False,
-            'archivo': ruta_imagen.name,
-            'ruta': str(ruta_imagen),
-            'error': str(e)
-        }
-
-
-def generar_csv_lote(resultados_lote, params):
-    """Genera CSV consolidado para procesamiento en lote."""
-    import csv
-    from io import StringIO
-    
-    buffer = StringIO()
-    writer = csv.writer(buffer)
-    
-    # Encabezados
-    writer.writerow([
-        "Archivo", "Total_Celulas", "Normales", "Sospechosas", 
-        "Frontera", "Porcentaje_Riesgo", "Sigma1", "Sigma2",
-        "Polaridad", "CLAHE", "Modo_CLAHE", "Reducir_Ruido",
-        "Nivel_Ruido", "HSV", "Metodo_HSV", "Umbral_HSV",
-        "Separacion", "Contraste", "Brillo", "Saturacion", "Calidad_Aceptable"
-    ])
-    
-    for r in resultados_lote:
-        if r['exito']:
-            res = r['resultados']
-            cal = r['metricas_calidad']
-            writer.writerow([
-                r['archivo'],
-                res['total_celulas'],
-                res['normales'],
-                res['sospechosas'],
-                res.get('frontera', 0),
-                f"{res['porcentaje_riesgo']:.1f}%",
-                params['sigma1'],
-                params['sigma2'],
-                params['polaridad'],
-                "Si" if params['usar_clahe'] else "No",
-                params['modo_clahe'],
-                "Si" if params['reducir_ruido'] else "No",
-                params['nivel_ruido'],
-                "Si" if params['usar_hsv'] else "No",
-                params['metodo_hsv'],
-                params['umbral_hsv'],
-                params['metodo_separacion'],
-                f"{cal['contraste']:.1f}",
-                f"{cal['brillo_promedio']:.1f}",
-                f"{cal['saturacion']:.1f}%",
-                "Si" if cal['es_aceptable'] else "No"
-            ])
-        else:
-            writer.writerow([r['archivo'], "ERROR", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""])
-    
-    return buffer.getvalue()
-
-
-# ============================================================================
 # ÁREA PRINCIPAL
 # ============================================================================
 
@@ -633,8 +1418,351 @@ if modo_procesamiento == "individual":
     imagen_gris = resultado['imagen_gris']
     imagen_dog = resultado['imagen_dog']
     
-    # Mostrar resultados individuales (código original)
+    # ====================================================================
+    # MOSTRAR RESULTADOS INDIVIDUALES
+    # ====================================================================
     
+    # ====================================================================
+    # SECCIÓN DE MÉTRICAS
+    # ====================================================================
+    st.markdown("### 📊 Resultados del Análisis")
+    
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.metric(
+            label="Total Células", 
+            value=resultados['total_celulas'],
+            help="Número total de núcleos detectados"
+        )
+    
+    with col2:
+        st.metric(
+            label="Normales", 
+            value=resultados['normales'],
+            delta=None,
+            help="Células con área < 3x promedio"
+        )
+    
+    with col3:
+        st.metric(
+            label="Sospechosas", 
+            value=resultados['sospechosas'],
+            delta=f"{resultados['sospechosas']} detectadas",
+            delta_color="inverse",
+            help="Células con área ≥ 3x promedio (Regla del 3x)"
+        )
+    
+    with col4:
+        porcentaje = resultados['porcentaje_riesgo']
+        color_riesgo = "🟢" if porcentaje < 5 else "🟡" if porcentaje < 10 else "🔴"
+        st.metric(
+            label="% Riesgo", 
+            value=f"{porcentaje:.1f}%",
+            delta=f"{color_riesgo}",
+            help="Porcentaje de células sospechosas respecto al total"
+        )
+    
+    st.info("Resultado experimental: el porcentaje mostrado no constituye una evaluación clínica.")
+    st.warning(resumen_resultado_experimental(resultados), icon="🔎")
+    
+    # Métricas de calidad de imagen
+    if metricas_calidad.get('advertencias'):
+        with st.expander("⚠️ Advertencias de Calidad de Imagen", expanded=(seccion != "metricas")):
+            for adv in metricas_calidad['advertencias']:
+                st.warning(adv)
+    
+    with st.expander("📈 Métricas de Calidad de Imagen", expanded=(seccion == "metricas")):
+        col_q1, col_q2, col_q3, col_q4 = st.columns(4)
+        with col_q1:
+            st.metric("Contraste", f"{metricas_calidad['contraste']:.1f}")
+        with col_q2:
+            st.metric("Brillo Promedio", f"{metricas_calidad['brillo_promedio']:.1f}")
+        with col_q3:
+            st.metric("Saturación", f"{metricas_calidad['saturacion']:.1f}%")
+        with col_q4:
+            estado = "✅ Aceptable" if metricas_calidad['es_aceptable'] else "❌ No Aceptable"
+            st.metric("Estado", estado)
+    
+    st.markdown("---")
+    
+    # ====================================================================
+    # SECCIÓN DE VISUALIZACIÓN
+    # ====================================================================
+    st.markdown("### 🖼️ Comparativa Visual")
+    
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+        "🎯 Análisis Final", 
+        "🔬 Filtro DoG", 
+        "⚙️ Preprocesamiento",
+        "📷 Original",
+        "🎨 HSV / Separación",
+        "📋 Criterios de Clasificación"
+    ])
+    
+    with tab1:
+        st.image(
+            img_resultado, 
+            channels="BGR", 
+            caption="Detección y Clasificación (Verde=Normal | Rojo=Sospechoso)", 
+            use_container_width=True
+        )
+        
+        if resultados['total_celulas'] > 0:
+            col_a, col_b = st.columns(2)
+            with col_a:
+                st.info(f"✅ **{resultados['normales']}** células normales detectadas")
+            with col_b:
+                st.error(f"⚠️ **{resultados['sospechosas']}** células sospechosas detectadas")
+    
+    with tab2:
+        st.image(
+            imagen_dog, 
+            caption=f"Diferencia de Gaussiana (σ1={params_procesamiento['sigma1']}, σ2={params_procesamiento['sigma2']})", 
+            use_container_width=True,
+            clamp=True
+        )
+        
+        st.info(f"""
+        💡 **Cómo funciona el filtro DoG:**
+        - Resalta bordes y estructuras de tamaño específico
+        - Rango de detección: ~{int((params_procesamiento['sigma2']-params_procesamiento['sigma1'])*3)} píxeles
+        - Ajusta σ1 y σ2 para optimizar detección
+        """)
+        
+        # Mostrar componentes del DoG
+        with st.expander("🔍 Ver componentes del DoG (G1, G2)"):
+            componentes = visualizar_filtros_gauss(imagen_gris, params_procesamiento['sigma1'], params_procesamiento['sigma2'])
+            col_g1, col_g2 = st.columns(2)
+            with col_g1:
+                st.image(componentes['g1'], caption="G1 - Gaussiano σ1 (Detalle fino)", use_container_width=True)
+            with col_g2:
+                st.image(componentes['g2'], caption="G2 - Gaussiano σ2 (Estructura general)", use_container_width=True)
+    
+    with tab3:
+        st.image(
+            imagen_gris, 
+            caption=f"Escala de Grises {'+ CLAHE' if params_procesamiento['usar_clahe'] else ''} {'+ Reducción de Ruido' if params_procesamiento['reducir_ruido'] else ''}", 
+            use_container_width=True
+        )
+        
+        status_prep = []
+        if params_procesamiento['usar_clahe']:
+            status_prep.append("✅ Contraste mejorado (CLAHE)")
+        else:
+            status_prep.append("❌ Sin mejora de contraste")
+        
+        if params_procesamiento['reducir_ruido']:
+            status_prep.append("✅ Reducción de ruido activa")
+        else:
+            status_prep.append("❌ Sin reducción de ruido")
+        
+        if params_procesamiento['usar_hsv']:
+            status_prep.append(f"✅ Segmentación HSV ({params_procesamiento['metodo_hsv']}, umbral={params_procesamiento['umbral_hsv']})")
+        
+        st.write("\n".join(status_prep))
+    
+    with tab4:
+        st.image(
+            imagen_original, 
+            channels="BGR", 
+            caption="Imagen Original sin Procesar", 
+            use_container_width=True
+        )
+        
+        # Información de la imagen
+        alto, ancho = imagen_original.shape[:2]
+        st.info(f"📐 Dimensiones: {ancho} × {alto} píxeles")
+    
+    with tab5:
+        if params_procesamiento['usar_hsv']:
+            # Mostrar máscara HSV
+            mask_hsv = segmentar_por_hsv(imagen_original, umbral_sat=params_procesamiento['umbral_hsv'], umbral_val=params_procesamiento['umbral_hsv'], metodo=params_procesamiento['metodo_hsv'])
+            st.image(mask_hsv, caption=f"Máscara HSV ({params_procesamiento['metodo_hsv']}, umbral={params_procesamiento['umbral_hsv']})", use_container_width=True)
+            
+            # Imagen con máscara aplicada
+            imagen_hsv_aplicada = cv2.bitwise_and(imagen_original, imagen_original, mask=mask_hsv)
+            st.image(imagen_hsv_aplicada, channels="BGR", caption="Imagen con máscara HSV aplicada", use_container_width=True)
+        else:
+            st.info("Activa 'Segmentación HSV' en la barra lateral para ver esta pestaña")
+        
+        if params_procesamiento['metodo_separacion'] != "none":
+            st.markdown("---")
+            st.markdown("#### Separación de Núcleos")
+            if params_procesamiento['metodo_separacion'] == "watershed":
+                st.info("Método: Watershed (Transformada de distancia)")
+            elif params_procesamiento['metodo_separacion'] == "maximos_locales":
+                st.info("Método: Máximos locales (picos DoG)")
+            
+            # Mostrar imagen con contornos de separación
+            if resultados['total_celulas'] > 0:
+                st.image(
+                    img_deteccion, 
+                    channels="BGR", 
+                    caption=f"Detección con {params_procesamiento['metodo_separacion']}", 
+                    use_container_width=True
+                )
+        else:
+            if not params_procesamiento['usar_hsv']:
+                st.info("Activa 'Segmentación HSV' o 'Separación de Núcleos' en la barra lateral para ver esta pestaña")
+    
+    with tab6:
+        st.markdown("#### Reglas de Clasificación Activas")
+        
+        reglas = obtener_reglas_clasificacion(params_procesamiento['polaridad'])
+        
+        col_r1, col_r2 = st.columns(2)
+        with col_r1:
+            st.metric("Área Mínima", f"{reglas['area_minima_nucleo']} px²")
+            st.metric("Área Promedio Normal", f"{reglas['area_promedio_nucleo_normal']} px²")
+            st.metric("Factor de Riesgo", f"{reglas['factor_riesgo']}x")
+        with col_r2:
+            st.metric("Área Máxima", f"{reglas['area_maxima_nucleo']} px²")
+            st.metric("Umbral Sospechoso", f"{reglas['umbral_sospechoso']:.1f} px²")
+            st.metric("Margen Frontera", f"±{int(MARGEN_FRONTERA*100)}%")
+        
+        st.markdown(f"""
+        **Zona Frontera:** {reglas['limite_frontera_inferior']:.1f} - {reglas['limite_frontera_superior']:.1f} px²
+        
+        **Regla:** Núcleos con área ≥ {reglas['umbral_sospechoso']:.1f} px² → **Sospechosos**
+        
+        **Polaridad:** {params_procesamiento['polaridad']}
+        """)
+        
+        # Mostrar criterios de clasificación por célula
+        if resultados.get('criterios_clasificacion'):
+            st.markdown("#### Detalle por Célula")
+            criterios_df = []
+            for i, c in enumerate(resultados['criterios_clasificacion']):
+                criterios_df.append({
+                    "Célula": i + 1,
+                    "Área (px²)": f"{c.get('area', 0):.1f}",
+                    "Clasificación": c.get('clasificacion', 'N/A'),
+                    "Frontera": "⚠️ Sí" if c.get('es_frontera', False) else "No",
+                    "Motivo": c.get('motivo', 'N/A')
+                })
+            
+            if criterios_df:
+                st.dataframe(criterios_df, use_container_width=True, hide_index=True)
+            else:
+                st.info("No hay criterios de clasificación disponibles")
+        else:
+            st.info("No hay criterios de clasificación disponibles para esta ejecución")
+    
+    # ====================================================================
+    # SECCIÓN DE DATOS DETALLADOS
+    # ====================================================================
+    with st.expander("📊 Ver Estadísticas Detalladas"):
+        if resultados['areas']:
+            st.markdown("#### Distribución de Áreas Celulares")
+            
+            areas_np = np.array(resultados['areas'])
+            
+            col_stat1, col_stat2, col_stat3 = st.columns(3)
+            with col_stat1:
+                st.metric("Área Mínima", f"{np.min(areas_np):.1f} px²")
+            with col_stat2:
+                st.metric("Área Promedio", f"{np.mean(areas_np):.1f} px²")
+            with col_stat3:
+                st.metric("Área Máxima", f"{np.max(areas_np):.1f} px²")
+            
+            # Gráfico de distribución
+            st.bar_chart(areas_np)
+            
+            # Umbral de clasificación
+            from src.analysis import AREA_PROMEDIO_NUCLEO_NORMAL, FACTOR_RIESGO
+            umbral = AREA_PROMEDIO_NUCLEO_NORMAL * FACTOR_RIESGO
+            
+            st.markdown(f"""
+            **Parámetros de Clasificación:**
+            - Área promedio normal: {AREA_PROMEDIO_NUCLEO_NORMAL} px²
+            - Factor de riesgo: {FACTOR_RIESGO}x
+            - **Umbral de sospecha: {umbral:.1f} px²**
+            """)
+        else:
+            st.info("No se detectaron células para mostrar estadísticas.")
+    
+    # ====================================================================
+    # SECCIÓN DE DESCARGA
+    # ====================================================================
+    with st.expander("💾 Descargar Resultados", expanded=(seccion == "exportar")):
+        st.markdown("#### Exportar Imagen Procesada")
+        
+        # Convertir a bytes para descarga
+        import io
+        _, buffer = cv2.imencode('.png', img_resultado)
+        bytes_data = buffer.tobytes()
+        
+        st.download_button(
+            label="📥 Descargar Panel de Análisis (PNG)",
+            data=bytes_data,
+            file_name=f"citocounter_resultado_{ruta_imagen.name}",
+            mime="image/png"
+        )
+        
+        st.markdown("#### Exportar Datos")
+        
+        # CSV
+        csv_data = generar_csv_resultados(
+            resultados,
+            params_procesamiento['sigma1'],
+            params_procesamiento['sigma2'],
+            params_procesamiento['usar_clahe'],
+            params_procesamiento['reducir_ruido'],
+        )
+        st.download_button(
+            label="📥 Descargar Datos (CSV)",
+            data=csv_data,
+            file_name=f"citocounter_datos_{ruta_imagen.name.split('.')[0]}.csv",
+            mime="text/csv"
+        )
+        
+        # JSON completo con todos los metadatos
+        json_data = {
+            "metadata": {
+                "timestamp": datetime.now().isoformat(),
+                "version": "1.1",
+                "archivo_original": ruta_imagen.name,
+                "id_anonimizado": obtener_id_sin_identificar(ruta_imagen.name)
+            },
+            "parametros": {
+                "sigma1": params_procesamiento['sigma1'],
+                "sigma2": params_procesamiento['sigma2'],
+                "polaridad": params_procesamiento['polaridad'],
+                "usar_clahe": params_procesamiento['usar_clahe'],
+                "modo_clahe": params_procesamiento['modo_clahe'],
+                "reducir_ruido": params_procesamiento['reducir_ruido'],
+                "nivel_ruido": params_procesamiento['nivel_ruido'],
+                "usar_hsv": params_procesamiento['usar_hsv'],
+                "metodo_hsv": params_procesamiento['metodo_hsv'],
+                "umbral_hsv": params_procesamiento['umbral_hsv'],
+                "metodo_separacion": params_procesamiento['metodo_separacion'],
+                "mostrar_contornos": params_procesamiento['mostrar_contornos'],
+                "mostrar_areas": params_procesamiento['mostrar_areas']
+            },
+            "reglas_clasificacion": obtener_reglas_clasificacion(params_procesamiento['polaridad']),
+            "metricas_calidad_imagen": metricas_calidad,
+            "resultados": {
+                "total_celulas": resultados['total_celulas'],
+                "normales": resultados['normales'],
+                "sospechosas": resultados['sospechosas'],
+                "frontera": resultados.get('frontera', 0),
+                "porcentaje_riesgo": resultados['porcentaje_riesgo'],
+                "areas": resultados.get('areas', []),
+                "criterios_clasificacion": resultados.get('criterios_clasificacion', [])
+            }
+        }
+        
+        st.download_button(
+            label="📥 Descargar Datos Completos (JSON)",
+            data=json.dumps(json_data, indent=2, ensure_ascii=False),
+            file_name=f"citocounter_completo_{ruta_imagen.name.split('.')[0]}.json",
+            mime="application/json"
+        )
+    
+    # Detener aquí para no caer en el procesamiento en lote
+    st.stop()
+
 else:
     # PROCESAMIENTO EN LOTE
     st.markdown("## 📦 Resultados del Procesamiento en Lote")
@@ -1060,7 +2188,7 @@ else:
             st.download_button(
                 label="📥 Descargar Panel de Análisis (PNG)",
                 data=bytes_data,
-                file_name=f"citocounter_resultado_{uploaded_file.name}",
+                file_name=f"citocounter_resultado_{ruta_imagen.name}",
                 mime="image/png"
             )
             
@@ -1069,15 +2197,15 @@ else:
             # CSV
             csv_data = generar_csv_resultados(
                 resultados,
-                sigma1,
-                sigma2,
-                usar_clahe,
-                reducir_ruido,
+                params_procesamiento['sigma1'],
+                params_procesamiento['sigma2'],
+                params_procesamiento['usar_clahe'],
+                params_procesamiento['reducir_ruido'],
             )
             st.download_button(
                 label="📥 Descargar Datos (CSV)",
                 data=csv_data,
-                file_name=f"citocounter_datos_{uploaded_file.name.split('.')[0]}.csv",
+                file_name=f"citocounter_datos_{ruta_imagen.name.split('.')[0]}.csv",
                 mime="text/csv"
             )
             
@@ -1086,19 +2214,19 @@ else:
                 "metadata": {
                     "timestamp": datetime.now().isoformat(),
                     "version": "1.1",
-                    "archivo_original": uploaded_file.name,
-                    "id_anonimizado": obtener_id_sin_identificar(uploaded_file.name)
+                    "archivo_original": ruta_imagen.name,
+                    "id_anonimizado": obtener_id_sin_identificar(ruta_imagen.name)
                 },
                 "parametros": {
-                    "sigma1": sigma1,
-                    "sigma2": sigma2,
-                    "polaridad": polaridad,
-                    "usar_clahe": usar_clahe,
-                    "modo_clahe": modo_clahe,
-                    "reducir_ruido": reducir_ruido,
-                    "nivel_ruido": nivel_ruido,
-                    "usar_hsv": usar_hsv,
-                    "metodo_hsv": metodo_hsv,
+                    "sigma1": params_procesamiento['sigma1'],
+                    "sigma2": params_procesamiento['sigma2'],
+                    "polaridad": params_procesamiento['polaridad'],
+                    "usar_clahe": params_procesamiento['usar_clahe'],
+                    "modo_clahe": params_procesamiento['modo_clahe'],
+                    "reducir_ruido": params_procesamiento['reducir_ruido'],
+                    "nivel_ruido": params_procesamiento['nivel_ruido'],
+                    "usar_hsv": params_procesamiento['usar_hsv'],
+                    "metodo_hsv": params_procesamiento['metodo_hsv'],
                     "umbral_hsv": umbral_hsv,
                     "metodo_separacion": metodo_separacion,
                     "mostrar_contornos": mostrar_contornos
@@ -1119,7 +2247,7 @@ else:
             st.download_button(
                 label="📥 Descargar Datos Completos (JSON)",
                 data=json.dumps(json_data, indent=2, ensure_ascii=False),
-                file_name=f"citocounter_completo_{uploaded_file.name.split('.')[0]}.json",
+                file_name=f"citocounter_completo_{ruta_imagen.name.split('.')[0]}.json",
                 mime="application/json"
             )
 
