@@ -69,7 +69,9 @@ def crear_mascara_borde(forma, ancho_borde=50):
     
     Args:
         forma: Tupla (height, width) de la imagen
-        ancho_borde: Píxeles a ignorar en cada borde (default: 50)
+        ancho_borde: Píxeles a ignorar en cada borde (default: 50).
+                     Para imágenes pequeñas (< 500px), se usa un porcentaje
+                     del tamaño de la imagen para evitar enmascarar toda la imagen.
     
     Returns:
         numpy.ndarray: Máscara binaria (255=válido, 0=ignorar)
@@ -77,8 +79,16 @@ def crear_mascara_borde(forma, ancho_borde=50):
     h, w = forma[:2]
     mascara = np.ones((h, w), dtype=np.uint8) * 255
     
+    # Calcular ancho de borde adaptativo
+    # Para imágenes pequeñas, usar porcentaje; para grandes, usar valor fijo
+    if h < 500 or w < 500:
+        # Imágenes pequeñas: 5% del tamaño (mínimo 2px, máximo ancho_borde)
+        b = min(max(int(min(h, w) * 0.05), 2), ancho_borde)
+    else:
+        # Imágenes grandes: valor fijo, pero no más de 1/8 de la imagen
+        b = min(ancho_borde, h // 8, w // 8)
+    
     # Ignorar bordes
-    b = min(ancho_borde, h // 4, w // 4)  # No más de 1/4 de la imagen
     mascara[:b, :] = 0          # Superior
     mascara[-b:, :] = 0         # Inferior
     mascara[:, :b] = 0          # Izquierdo
@@ -468,6 +478,7 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
     
     else:
         # Sin separación: comportamiento original (contornos detectados directamente)
+        # 4. CLASSIFICATION
         for contorno in contornos:
             area = cv2.contourArea(contorno)
             
@@ -501,104 +512,72 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
             decision = clasificar_nucleo_por_area(area, polaridad)
             if not decision["es_valida"]:
                 continue
-    
-    # 4. CLASSIFICATION (continuación del comportamiento original)
-    for contorno in contornos:
-        area = cv2.contourArea(contorno)
-        
-        decision = clasificar_nucleo_por_area(area, polaridad)
-        if not decision["es_valida"]:
-            continue
-        
-        # Es un núcleo válido
-        resultados["total_celulas"] += 1
-        resultados["areas"].append(area)
-        
-        if decision["clasificacion"] == "sospechosa":
-            # --- CÉLULA SOSPECHOSA ---
-            color = (0, 0, 255)  # ROJO en BGR
-            etiqueta = "RIESGO"
-            resultados["sospechosas"] += 1
-            resultados["contornos_sospechosos"].append(contorno)
             
-        else:
-            # --- CÉLULA NORMAL ---
-            color = (0, 255, 0)  # VERDE en BGR
-            etiqueta = "NORMAL"
-            resultados["normales"] += 1
-            resultados["contornos_normales"].append(contorno)
-        
-        resultados["criterios_clasificacion"].append({
-            "area": area,
-            "es_frontera": decision["es_frontera"],
-            "motivo": decision["motivo"],
-        })
-        
-        # Es un núcleo válido
-        resultados["total_celulas"] += 1
-        resultados["areas"].append(area)
-        
-        # Obtener caja delimitadora (bounding box)
-        x, y, w, h = cv2.boundingRect(contorno)
-        
-        if decision["es_frontera"]:
-            resultados["frontera"] += 1
-
-        if decision["clasificacion"] == "sospechosa":
-            # --- CÉLULA SOSPECHOSA ---
-            color = (0, 0, 255)  # ROJO en BGR
-            etiqueta = "RIESGO"
-            resultados["sospechosas"] += 1
-            resultados["contornos_sospechosos"].append(contorno)
+            # Es un núcleo válido
+            resultados["total_celulas"] += 1
+            resultados["areas"].append(area)
             
-        else:
-            # --- CÉLULA NORMAL ---
-            color = (0, 255, 0)  # VERDE en BGR
-            etiqueta = "NORMAL"
-            resultados["normales"] += 1
-            resultados["contornos_normales"].append(contorno)
+            # Obtener caja delimitadora (bounding box)
+            x, y, w, h = cv2.boundingRect(contorno)
+            
+            if decision["es_frontera"]:
+                resultados["frontera"] += 1
 
-        resultados["criterios_clasificacion"].append({
-            "area": float(area),
-            "clasificacion": decision["clasificacion"],
-            "es_frontera": decision["es_frontera"],
-            "umbral_sospechoso": decision["umbral_sospechoso"],
-            "motivo": decision["motivo"],
-        })
-        
-        # 4. ANOTACIÓN VISUAL
-        # Dibujar rectángulo alrededor del núcleo
-        cv2.rectangle(
-            resultados["imagen_procesada"], 
-            (x, y), 
-            (x + w, y + h), 
-            color, 
-            2
-        )
-        
-        # Agregar etiqueta de texto
-        cv2.putText(
-            resultados["imagen_procesada"], 
-            etiqueta, 
-            (x, y - 5),
-            cv2.FONT_HERSHEY_SIMPLEX, 
-            0.4, 
-            color, 
-            1
-        )
-        
-        # Información adicional de depuración (opcional)
-        if mostrar_debug:
-            texto_area = f"{int(area)}px"
+            if decision["clasificacion"] == "sospechosa":
+                # --- CÉLULA SOSPECHOSA ---
+                color = (0, 0, 255)  # ROJO en BGR
+                etiqueta = "RIESGO"
+                resultados["sospechosas"] += 1
+                resultados["contornos_sospechosos"].append(contorno)
+                
+            else:
+                # --- CÉLULA NORMAL ---
+                color = (0, 255, 0)  # VERDE en BGR
+                etiqueta = "NORMAL"
+                resultados["normales"] += 1
+                resultados["contornos_normales"].append(contorno)
+
+            resultados["criterios_clasificacion"].append({
+                "area": float(area),
+                "clasificacion": decision["clasificacion"],
+                "es_frontera": decision["es_frontera"],
+                "umbral_sospechoso": decision["umbral_sospechoso"],
+                "motivo": decision["motivo"],
+            })
+            
+            # 4. ANOTACIÓN VISUAL
+            # Dibujar rectángulo alrededor del núcleo
+            cv2.rectangle(
+                resultados["imagen_procesada"], 
+                (x, y), 
+                (x + w, y + h), 
+                color, 
+                2
+            )
+            
+            # Agregar etiqueta de texto
             cv2.putText(
                 resultados["imagen_procesada"], 
-                texto_area, 
-                (x, y + h + 15),
+                etiqueta, 
+                (x, y - 5),
                 cv2.FONT_HERSHEY_SIMPLEX, 
-                0.3, 
+                0.4, 
                 color, 
                 1
             )
+            
+            # Información adicional de depuración (opcional)
+            if mostrar_debug:
+                texto_area = f"{int(area)}px"
+                cv2.putText(
+                    resultados["imagen_procesada"], 
+                    texto_area, 
+                    (x, y + h + 15),
+                    cv2.FONT_HERSHEY_SIMPLEX, 
+                    0.3, 
+                    color, 
+                    1
+                )
     
     # 5. CALCULAR PORCENTAJE DE RIESGO
     if resultados["total_celulas"] > 0:
