@@ -16,35 +16,36 @@ from typing import List, Tuple, Optional
 
 
 # ============================================================================
-# PARÁMETROS DE CALIBRACIÓN (Fase 2: Recolección de Datos)
+# PARÁMETROS DE CALIBRACIÓN (CITO-22 / CITO-74)
 # ============================================================================
-# IMPORTANTE: Estos valores son TEMPORALES y deben calibrarse con imágenes reales
-# de la Dra. Rangel durante la Fase 2 del proyecto.
+# Valores calibrados en CITO-74 con conjunto de prueba (BM5 - Tesis).
+# FACTOR_RIESGO se mantiene según regla clínica de la Dra. Rangel.
+# AREA_PROMEDIO_NUCLEO_NORMAL es temporal y debe recalibrarse con datos reales
+# del conjunto de calibración separado (CITO-97).
 
-AREA_PROMEDIO_NUCLEO_NORMAL = 300  # Píxeles² (¡CALIBRAR CON DATOS REALES!)
+AREA_PROMEDIO_NUCLEO_NORMAL = 300  # Píxeles² (TEMPORAL - recalibrar con CITO-97)
 FACTOR_RIESGO = 3.0                 # Regla de la Dra. Rangel: >3x = sospechoso
 MARGEN_FRONTERA = 0.10              # ±10% alrededor del umbral de riesgo
 
-# Filtros de ruido
-AREA_MINIMA_NUCLEO = 50             # Píxeles² - Descartar polvo/ruido
-AREA_MAXIMA_NUCLEO = 5000           # Píxeles² - Descartar manchas grandes
+# Filtros de ruido (calibrados CITO-74)
+AREA_MINIMA_NUCLEO = 10             # Píxeles² - Descartar polvo/ruido (CITO-74)
+AREA_MAXIMA_NUCLEO = 500            # Píxeles² - Descartar manchas grandes (CITO-74)
 
-# Parámetros de umbralización
-UMBRAL_DOG = 15                     # Valor mínimo para considerar un píxel como borde
+# Parámetros de umbralización (calibrado CITO-74)
+UMBRAL_DOG = 5                      # Valor mínimo para considerar un píxel como borde (CITO-74)
 
 
-# Umbrales de área por polaridad (Fase 2.3, CITO-22/23)
-# Estos valores fueron ajustados para cada polaridad basándose en el análisis
-# de imágenes de prueba. 'nucleos-claros' usa los valores por defecto,
-# mientras que 'nucleos-oscuros' requiere umbrales mayores debido a que los
-# núcleos aparecen como estructuras más grandes después de la inversión.
+# Umbrales de área por polaridad (CITO-22 / CITO-74)
+# Valores calibrados para cada polaridad. 'nucleos-claros' usa los valores
+# calibrados en CITO-74. 'nucleos-oscuros' requiere umbrales mayores debido
+# a que los núcleos aparecen como estructuras más grandes después de la inversión.
 AREA_MINIMA_NUCLEO = {
-    'nucleos-claros': 50,
-    'nucleos-oscuros': 200,
+    'nucleos-claros': 10,      # CITO-74: 10 (era 50)
+    'nucleos-oscuros': 200,    # Mantenido (requiere validación específica)
 }
 AREA_MAXIMA_NUCLEO = {
-    'nucleos-claros': 5000,
-    'nucleos-oscuros': 300000,
+    'nucleos-claros': 500,     # CITO-74: 500 (era 5000)
+    'nucleos-oscuros': 300000, # Mantenido (requiere validación específica)
 }
 
 

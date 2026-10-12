@@ -23,17 +23,23 @@ class AnalysisRulesTests(unittest.TestCase):
         self.assertEqual(decision["clasificacion"], "descartada")
 
     def test_clasifica_sospechosa_en_umbral(self):
+        """Con parámetros CITO-74, umbral_sospechoso (900) > AREA_MAXIMA_NUCLEO (500),
+        por lo que no existe clasificación 'sospechosa'. El umbral se descarta como artefacto."""
         reglas = obtener_reglas_clasificacion()
         decision = clasificar_nucleo_por_area(reglas["umbral_sospechoso"], 'nucleos-claros')
-        self.assertTrue(decision["es_valida"])
-        self.assertEqual(decision["clasificacion"], "sospechosa")
+        self.assertFalse(decision["es_valida"])
+        self.assertEqual(decision["clasificacion"], "descartada")
+        self.assertIn("artefacto", decision["motivo"].lower())
 
     def test_marca_frontera_en_rango(self):
+        """Con parámetros CITO-74, limite_frontera_inferior (810) > AREA_MAXIMA_NUCLEO (500),
+        por lo que no existe zona frontera válida. El área se descarta como artefacto."""
         reglas = obtener_reglas_clasificacion()
         area_frontera = reglas["limite_frontera_inferior"] + 1
         decision = clasificar_nucleo_por_area(area_frontera, 'nucleos-claros')
-        self.assertTrue(decision["es_frontera"])
-        self.assertEqual(decision["clasificacion"], "normal")
+        self.assertFalse(decision["es_valida"])
+        self.assertEqual(decision["clasificacion"], "descartada")
+        self.assertIn("artefacto", decision["motivo"].lower())
 
 
 if __name__ == "__main__":

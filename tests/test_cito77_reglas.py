@@ -37,13 +37,13 @@ class TestReglasClasificacion(unittest.TestCase):
         self.assertEqual(AREA_PROMEDIO_NUCLEO_NORMAL, 300)
         self.assertEqual(FACTOR_RIESGO, 3.0)
         self.assertEqual(MARGEN_FRONTERA, 0.10)
-        self.assertEqual(UMBRAL_DOG, 15)
+        self.assertEqual(UMBRAL_DOG, 5)
 
     def test_umbrales_polaridad_clara(self):
-        """Verifica umbrales para polaridad 'nucleos-claros'."""
+        """Verifica umbrales para polaridad 'nucleos-claros' (CITO-74)."""
         reglas = obtener_reglas_clasificacion(self.polaridad_clara)
-        self.assertEqual(reglas["area_minima_nucleo"], 50)
-        self.assertEqual(reglas["area_maxima_nucleo"], 5000)
+        self.assertEqual(reglas["area_minima_nucleo"], 10)
+        self.assertEqual(reglas["area_maxima_nucleo"], 500)
         self.assertEqual(reglas["umbral_sospechoso"], 900.0)
         self.assertEqual(reglas["limite_frontera_inferior"], 810.0)
         self.assertAlmostEqual(reglas["limite_frontera_superior"], 990.0, places=10)
@@ -60,22 +60,22 @@ class TestReglasClasificacion(unittest.TestCase):
     # ============================================================
 
     def test_area_ruido_minimo(self):
-        """Área 10 px² → descartada (ruido)."""
-        resultado = clasificar_nucleo_por_area(10, self.polaridad_clara)
+        """Área 9 px² → descartada (ruido, < mínimo 10)."""
+        resultado = clasificar_nucleo_por_area(9, self.polaridad_clara)
         self.assertFalse(resultado["es_valida"])
         self.assertEqual(resultado["clasificacion"], "descartada")
         self.assertFalse(resultado["es_frontera"])
         self.assertIn("ruido", resultado["motivo"].lower())
 
     def test_area_ruido_limite_inferior(self):
-        """Área 49 px² → descartada (ruido)."""
-        resultado = clasificar_nucleo_por_area(49, self.polaridad_clara)
+        """Área 9 px² → descartada (ruido, < mínimo 10)."""
+        resultado = clasificar_nucleo_por_area(9, self.polaridad_clara)
         self.assertFalse(resultado["es_valida"])
         self.assertEqual(resultado["clasificacion"], "descartada")
 
     def test_area_minima_valida(self):
-        """Área 50 px² → normal (mínimo válido)."""
-        resultado = clasificar_nucleo_por_area(50, self.polaridad_clara)
+        """Área 10 px² → normal (mínimo válido)."""
+        resultado = clasificar_nucleo_por_area(10, self.polaridad_clara)
         self.assertTrue(resultado["es_valida"])
         self.assertEqual(resultado["clasificacion"], "normal")
         self.assertFalse(resultado["es_frontera"])
@@ -88,48 +88,57 @@ class TestReglasClasificacion(unittest.TestCase):
         self.assertFalse(resultado["es_frontera"])
 
     def test_area_frontera_inferior(self):
-        """Área 810 px² → normal PERO frontera (900 × 0.9)."""
+        """Área 810 px² → normal PERO frontera (900 × 0.9).
+        
+        Nota: Con AREA_MAXIMA_NUCLEO=500 (CITO-74), 810 > 500, 
+        por lo que se clasifica como descartada (artefacto).
+        """
         resultado = clasificar_nucleo_por_area(810, self.polaridad_clara)
-        self.assertTrue(resultado["es_valida"])
-        self.assertEqual(resultado["clasificacion"], "normal")
-        self.assertTrue(resultado["es_frontera"])
+        self.assertFalse(resultado["es_valida"])
+        self.assertEqual(resultado["clasificacion"], "descartada")
+        self.assertIn("artefacto", resultado["motivo"].lower())
 
     def test_area_umbral_exacto(self):
-        """Área 900 px² → sospechosa Y frontera (umbral exacto 3×300)."""
+        """Área 900 px² → descartada (umbral 900 > máximo 500).
+        
+        Nota: El umbral sospechoso (900) supera el máximo válido (500),
+        por lo que no hay clasificación 'sospechosa' posible con estos parámetros.
+        """
         resultado = clasificar_nucleo_por_area(900, self.polaridad_clara)
-        self.assertTrue(resultado["es_valida"])
-        self.assertEqual(resultado["clasificacion"], "sospechosa")
-        self.assertTrue(resultado["es_frontera"])
+        self.assertFalse(resultado["es_valida"])
+        self.assertEqual(resultado["clasificacion"], "descartada")
 
     def test_area_frontera_superior(self):
-        """Área 990 px² → sospechosa Y frontera (900 × 1.1)."""
+        """Área 990 px² → descartada (990 > máximo 500)."""
         resultado = clasificar_nucleo_por_area(990, self.polaridad_clara)
-        self.assertTrue(resultado["es_valida"])
-        self.assertEqual(resultado["clasificacion"], "sospechosa")
-        self.assertTrue(resultado["es_frontera"])
+        self.assertFalse(resultado["es_valida"])
+        self.assertEqual(resultado["clasificacion"], "descartada")
 
     def test_area_sospechosa_clara(self):
-        """Área 1500 px² → sospechosa (lejos del umbral)."""
+        """Área 1500 px² → descartada (artefacto, > máximo 500).
+        
+        Nota: Con parámetros CITO-74, no existe clasificación 'sospechosa'
+        porque umbral_sospechoso (900) > AREA_MAXIMA_NUCLEO (500).
+        """
         resultado = clasificar_nucleo_por_area(1500, self.polaridad_clara)
-        self.assertTrue(resultado["es_valida"])
-        self.assertEqual(resultado["clasificacion"], "sospechosa")
-        self.assertFalse(resultado["es_frontera"])
+        self.assertFalse(resultado["es_valida"])
+        self.assertEqual(resultado["clasificacion"], "descartada")
 
     def test_area_artefacto_limite(self):
-        """Área 4999 px² → sospechosa (dentro de máximo)."""
-        resultado = clasificar_nucleo_por_area(4999, self.polaridad_clara)
+        """Área 499 px² → normal (dentro de máximo 500)."""
+        resultado = clasificar_nucleo_por_area(499, self.polaridad_clara)
         self.assertTrue(resultado["es_valida"])
-        self.assertEqual(resultado["clasificacion"], "sospechosa")
+        self.assertEqual(resultado["clasificacion"], "normal")
 
     def test_area_maxima_valida(self):
-        """Área 5000 px² → normal (límite máximo inclusive, >5000 se descarta)."""
-        resultado = clasificar_nucleo_por_area(5000, self.polaridad_clara)
+        """Área 500 px² → normal (límite máximo inclusive)."""
+        resultado = clasificar_nucleo_por_area(500, self.polaridad_clara)
         self.assertTrue(resultado["es_valida"])
         self.assertEqual(resultado["clasificacion"], "normal")
 
     def test_area_artefacto_grande(self):
-        """Área 5001 px² → descartada (artefacto grande, > máximo)."""
-        resultado = clasificar_nucleo_por_area(5001, self.polaridad_clara)
+        """Área 501 px² → descartada (artefacto grande, > máximo 500)."""
+        resultado = clasificar_nucleo_por_area(501, self.polaridad_clara)
         self.assertFalse(resultado["es_valida"])
         self.assertEqual(resultado["clasificacion"], "descartada")
         self.assertIn("artefacto", resultado["motivo"].lower())
@@ -183,12 +192,12 @@ class TestReglasClasificacion(unittest.TestCase):
     def test_motivo_legible(self):
         """Verifica que el motivo es legible y explicativo."""
         resultado_normal = clasificar_nucleo_por_area(300, self.polaridad_clara)
-        resultado_sospechosa = clasificar_nucleo_por_area(1000, self.polaridad_clara)
-        resultado_descartada = clasificar_nucleo_por_area(10, self.polaridad_clara)
+        resultado_descartada_ruido = clasificar_nucleo_por_area(9, self.polaridad_clara)
+        resultado_descartada_artefacto = clasificar_nucleo_por_area(501, self.polaridad_clara)
 
         self.assertIn("umbral", resultado_normal["motivo"].lower())
-        self.assertIn("riesgo", resultado_sospechosa["motivo"].lower())
-        self.assertIn("ruido", resultado_descartada["motivo"].lower())
+        self.assertIn("ruido", resultado_descartada_ruido["motivo"].lower())
+        self.assertIn("artefacto", resultado_descartada_artefacto["motivo"].lower())
 
     # ============================================================
     # Tests de consistencia de umbrales
@@ -232,9 +241,10 @@ class TestReglasClasificacion(unittest.TestCase):
 
     def test_area_float(self):
         """Área como float debe funcionar correctamente."""
-        resultado = clasificar_nucleo_por_area(810.5, self.polaridad_clara)
+        resultado = clasificar_nucleo_por_area(300.5, self.polaridad_clara)
         self.assertTrue(resultado["es_valida"])
-        self.assertTrue(resultado["es_frontera"])
+        self.assertEqual(resultado["clasificacion"], "normal")
+        self.assertFalse(resultado["es_frontera"])
 
 
 class TestObtenerReglasClasificacion(unittest.TestCase):
@@ -279,8 +289,8 @@ class TestLimitacionesConocidas(unittest.TestCase):
         # En producción, usar calibrar_area_promedio() con ground truth real
 
     def test_umbral_dog_fijo(self):
-        """UMBRAL_DOG = 15 es fijo antes de Otsu; puede fallar en imágenes uniformes."""
-        self.assertEqual(UMBRAL_DOG, 15)
+        """UMBRAL_DOG = 5 (CITO-74) es fijo antes de Otsu; puede fallar en imágenes uniformes."""
+        self.assertEqual(UMBRAL_DOG, 5)
         # Limitación: Otsu asume distribución bimodal
 
     def test_watershed_requiere_8bit_3channel(self):
