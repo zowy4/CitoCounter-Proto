@@ -55,6 +55,38 @@ AREA_MAXIMA_NUCLEO = {
 # y watershed. Útil para imágenes con núcleos en contacto o superposición.
 # ============================================================================
 
+# ============================================================================
+# MÁSCARA DE BORDE (CITO-23) - Reduce artefactos en bordes de imagen
+# ============================================================================
+
+def crear_mascara_borde(forma, ancho_borde=50):
+    """
+    Crea una máscara binaria que ignora los bordes de la imagen.
+    
+    Los filtros DoG generan fuertes artefactos en los bordes debido a la
+    convolución con kernels gaussianos. Esta máscara evita que esos
+    artefactos se detecten como núcleos.
+    
+    Args:
+        forma: Tupla (height, width) de la imagen
+        ancho_borde: Píxeles a ignorar en cada borde (default: 50)
+    
+    Returns:
+        numpy.ndarray: Máscara binaria (255=válido, 0=ignorar)
+    """
+    h, w = forma[:2]
+    mascara = np.ones((h, w), dtype=np.uint8) * 255
+    
+    # Ignorar bordes
+    b = min(ancho_borde, h // 4, w // 4)  # No más de 1/4 de la imagen
+    mascara[:b, :] = 0          # Superior
+    mascara[-b:, :] = 0         # Inferior
+    mascara[:, :b] = 0          # Izquierdo
+    mascara[:, -b:] = 0         # Derecho
+    
+    return mascara
+
+
 def _maximos_locales(imagen: np.ndarray, umbral: int = UMBRAL_DOG,
                      distancia_minima: int = 10) -> List[Tuple[int, int]]:
     """
@@ -271,7 +303,7 @@ def clasificar_nucleo_por_area(area, polaridad: str = 'nucleos-claros'):
     }
 
 
-def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad='nucleos-claros', metodo_separacion: str = None):
+def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad='nucleos-claros', metodo_separacion: str = None, usar_mascara_borde=True, ancho_borde=50):
     """
     Analiza una imagen DoG para detectar y clasificar núcleos celulares.
     
@@ -292,6 +324,8 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
             - None: Sin separación (comportamiento original)
             - 'watershed': Separación usando watershed (transformada de distancia)
             - 'maximos_locales': Detección de máximos locales
+        usar_mascara_borde (bool): Si True, ignora bordes de imagen para evitar artefactos DoG (default: True)
+        ancho_borde (int): Píxeles a ignorar en cada borde (default: 50)
     
     Returns:
         dict: Resultados del análisis con las siguientes claves:
@@ -308,8 +342,16 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
     # 1. BINARIZACIÓN
     # Método de Otsu: calcula automáticamente el umbral óptimo
     # THRESH_BINARY: píxeles > umbral = 255 (blanco), resto = 0 (negro)
+    
+    # Aplicar máscara de borde para evitar artefactos DoG en bordes (CITO-23)
+    if usar_mascara_borde:
+        mascara_borde = crear_mascara_borde(imagen_dog.shape, ancho_borde)
+        imagen_dog_enmascarada = cv2.bitwise_and(imagen_dog, imagen_dog, mask=mascara_borde)
+    else:
+        imagen_dog_enmascarada = imagen_dog
+    
     _, thresh = cv2.threshold(
-        imagen_dog, 
+        imagen_dog_enmascarada, 
         UMBRAL_DOG, 
         255, 
         cv2.THRESH_BINARY + cv2.THRESH_OTSU
@@ -340,7 +382,14 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
     
     # 3. SEPARACIÓN DE NÚCLEOS SUPERPUestos (opcional)
     if metodo_separacion == 'watershed':
-        contornos, areas = watershed_separar_nucleos(imagen_dog, metodo='distancia')
+        # Aplicar máscara de borde antes de watershed
+        if usar_mascara_borde:
+            mascara_borde = crear_mascara_borde(imagen_dog.shape, ancho_borde)
+            imagen_dog_enmascarada = cv2.bitwise_and(imagen_dog, imagen_dog, mask=mascara_borde)
+        else:
+            imagen_dog_enmascarada = imagen_dog
+        
+        contornos, areas = watershed_separar_nucleos(imagen_dog_enmascarada, metodo='distancia')
         # Reconstruir resultados a partir de la separación watershed
         for i, (contorno, area) in enumerate(zip(contornos, areas)):
             decision = clasificar_nucleo_por_area(area, polaridad)
@@ -370,15 +419,21 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
             })
     
     elif metodo_separacion == 'maximos_locales':
-        # Usar detección de máximos locales
-        maximos = _maximos_locales(imagen_dog, umbral=UMBRAL_DOG)
+        # Usar detección de máximos locales con máscara de borde
+        if usar_mascara_borde:
+            mascara_borde = crear_mascara_borde(imagen_dog.shape, ancho_borde)
+            imagen_dog_enmascarada = cv2.bitwise_and(imagen_dog, imagen_dog, mask=mascara_borde)
+        else:
+            imagen_dog_enmascarada = imagen_dog
+        
+        maximos = _maximos_locales(imagen_dog_enmascarada, umbral=UMBRAL_DOG)
         
         # Para cada máximo, obtener el área usando contour area del área alrededor
         for (cx, cy) in maximos:
             # Crear una máscara pequeña alrededor del máximo
             mask = np.zeros(imagen_dog.shape, dtype=np.uint8)
             cv2.circle(mask, (cx, cy), 15, 255, -1)
-            masked_dog = cv2.bitwise_and(imagen_dog, imagen_dog, mask=mask)
+            masked_dog = cv2.bitwise_and(imagen_dog_enmascarada, imagen_dog_enmascarada, mask=mask)
             _, thresh = cv2.threshold(masked_dog, UMBRAL_DOG, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
             contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             if contours:

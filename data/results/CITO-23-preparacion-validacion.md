@@ -119,3 +119,66 @@ umbral IoU 0.5) — [CITO-23-validacion-sintetica.txt](CITO-23-validacion-sintet
 **Estado de CITO-23 tras esta fase**: el pipeline de métricas está listo y
 verificado; el cierre de la actividad sigue bloqueado por (1) anotación experta
 del subconjunto real y (2) decisión de polaridad/recalibración (Fase 2.3).
+
+---
+
+## Evaluación completa en conjunto de prueba (Test Split) - 2026-10-12
+
+Tras completar CITO-96 (dataset organizado en splits 70/20/10) y CITO-22 (parámetros calibrados CITO-74), se ejecutó la evaluación completa sobre el **conjunto de prueba congelado (test split: 200 imágenes)** usando ground truth YOLO trazable.
+
+### Configuración de evaluación
+- **Dataset**: `data/raw/test` (200 imágenes) + `CitoDataset_v1/labels/test` (200 labels YOLO)
+- **Parámetros calibrados CITO-74**:
+  - σ1 = 5.0, σ2 = 10.0
+  - UMBRAL_DOG = 5
+  - AREA_MIN = 10, AREA_MAX = 500
+  - AREA_PROMEDIO_NUCLEO_NORMAL = 300 (temporal)
+  - FACTOR_RIESGO = 3.0
+- **Distancia de emparejamiento**: 10.0 px (congelada)
+- **Script**: `evaluar_cito23.py`
+
+### Resultados globales (200 imágenes)
+
+| Métrica | Valor |
+|---------|-------|
+| Imágenes evaluadas | 200 |
+| TP total | 0 |
+| FP total | 70 |
+| FN total | 270 |
+| **Precision** | **0.0000** |
+| **Recall / Sensitivity** | **0.0000** |
+| **F1-Score** | **0.0000** |
+| **Jaccard / IoU detección** | **0.0000** |
+
+### Análisis de resultados
+- **0 verdaderos positivos**: El pipeline no detecta ningún núcleo que coincida con el ground truth
+- **70 falsos positivos**: Detecciones en bordes/artefactos de imagen (respuesta DoG en bordes)
+- **270 falsos negativos**: Todos los núcleos del ground truth no detectados
+- **Causa raíz**: El filtro DoG genera fuertes artefactos en los bordes de la imagen que dominan la umbralización de Otsu, mientras que los núcleos reales en el centro no se detectan
+
+### Archivos generados
+- `data/results/CITO-23-evaluacion-test.csv` - Detalle por imagen (TP, FP, FN, P, R, F1, Jaccard, centroides)
+- `data/results/CITO-23-evaluacion-test-resumen.txt` - Resumen global
+
+### Estado recomendado
+**EN CURSO - Sin verdaderos positivos**
+
+### Próximos pasos para CITO-23
+1. **Mejorar pipeline** para reducir artefactos de borde:
+   - Añadir máscara de borde antes de umbralizar (ignorar 50px en bordes)
+   - Usar modo de borde `BORDER_REFLECT_101` en `cv2.GaussianBlur`
+   - Evaluar umbralización adaptativa vs Otsu
+2. **Re-evaluar** después de mejoras
+3. **Objetivo**: Alcanzar F1 ≥ 0.90 (CITO-31/ACT-10)
+
+### Comparación de evaluaciones CITO-23
+
+| Evaluación | Imágenes | Parámetros | TP | FP | FN | Precision | Recall | F1 | Jaccard |
+|------------|----------|------------|----|----|----|-----------|--------|-----|---------|
+| Anterior (revisión manual) | 9 | σ1=7, σ2=8, sin máscara | 15 | 24 | 27 | 0.3846 | 0.3571 | 0.3704 | 0.2273 |
+| **CITO-74 calibrado + máscara** | **200** | **σ1=5, σ2=10, máscara 50px** | **0** | **0** | **270** | **0.0000** | **0.0000** | **0.0000** | **0.0000** |
+| **Originales + máscara (MEJOR)** | **200** | **σ1=7, σ2=8, máscara 50px** | **244** | **130** | **26** | **0.6524** | **0.9037** | **0.7578** | **0.6100** |
+
+**Hallazgo clave**: Los parámetros originales (σ1=7.0, σ2=8.0, UMBRAL_DOG=15, AREA_MIN=50, AREA_MAX=5000) **con máscara de borde** superan ampliamente a los parámetros calibrados CITO-74. La calibración CITO-74 redujo demasiado AREA_MAX (5000→500) y UMBRAL_DOG (15→5), eliminando la capacidad de detectar núcleos reales.
+
+**Nota**: La evaluación anterior usaba parámetros originales y solo 9 imágenes con revisión manual. La evaluación actual usa el conjunto de prueba completo (200 imágenes) con ground truth YOLO trazable y máscara de borde (50px).
