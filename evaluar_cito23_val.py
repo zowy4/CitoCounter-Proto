@@ -133,6 +133,17 @@ def calcular_jaccard(tp, fp, fn):
     return tp / total
 
 
+def detectar_tipo_imagen(image_path):
+    """Detecta si la imagen es real (2048x1536) o sintética (100x100)."""
+    imagen = cv2.imread(str(image_path))
+    if imagen is None:
+        return 'sintetica'
+    h, w = imagen.shape[:2]
+    if w > 1000:
+        return 'real'
+    return 'sintetica'
+
+
 def evaluar_imagen(image_path, label_path, match_distance):
     imagen = cv2.imread(str(image_path))
     if imagen is None:
@@ -141,13 +152,17 @@ def evaluar_imagen(image_path, label_path, match_distance):
     h, w = imagen.shape[:2]
     gt_centroids = yolo_to_centroids(label_path, (h, w))
     
+    # Detectar tipo de imagen y elegir polaridad
+    tipo = detectar_tipo_imagen(image_path)
+    polaridad = 'nucleos-oscuros' if tipo == 'real' else 'nucleos-claros'
+    
     try:
         imagen_gris, imagen_original = preprocesar_imagen(
             str(image_path),
             mejorar_contraste_flag=True,
             reducir_ruido_flag=False,
             metodo_contraste='clahe',
-            polaridad='nucleos-claros'
+            polaridad=polaridad
         )
         
         imagen_dog = aplicar_filtro_dog(
@@ -168,7 +183,7 @@ def evaluar_imagen(image_path, label_path, match_distance):
         resultados = analizar_nucleos(
             imagen_dog, 
             imagen_original, 
-            polaridad='nucleos-claros',
+            polaridad=polaridad,
             usar_mascara_borde=True,
             ancho_borde=50
         )
@@ -190,6 +205,8 @@ def evaluar_imagen(image_path, label_path, match_distance):
         
         return {
             'image_id': image_path.name,
+            'tipo': tipo,
+            'polaridad': polaridad,
             'tp': tp,
             'fp': fp,
             'fn': fn,
@@ -226,10 +243,13 @@ def main():
     print(f"   Imágenes a evaluar: {len(val_images)}")
     print(f"   Parámetros originales: σ1=7.0, σ2=8.0, UMBRAL_DOG=15, AREA_MIN=50, AREA_MAX=5000")
     print(f"   Distancia de emparejamiento: {args.match_distance} px")
+    print(f"   Polaridad: nucleos-claros (sintéticas), nucleos-oscuros (reales)")
     print()
     
     results = []
     total_tp = total_fp = total_fn = 0
+    synth_tp = synth_fp = synth_fn = 0
+    real_tp = real_fp = real_fn = 0
     
     for i, image_path in enumerate(val_images, 1):
         label_path = VAL_LABELS_DIR / f"{image_path.stem}.txt"
@@ -251,6 +271,15 @@ def main():
         total_fp += result['fp']
         total_fn += result['fn']
         
+        if result['tipo'] == 'sintetica':
+            synth_tp += result['tp']
+            synth_fp += result['fp']
+            synth_fn += result['fn']
+        else:
+            real_tp += result['tp']
+            real_fp += result['fp']
+            real_fn += result['fn']
+        
         print(f"TP={result['tp']} FP={result['fp']} FN={result['fn']} "
               f"P={result['precision']:.3f} R={result['recall']:.3f} F1={result['f1']:.3f} J={result['jaccard']:.3f}")
     
@@ -258,6 +287,17 @@ def main():
     recall_global = calcular_recall(total_tp, total_fn)
     f1_global = calcular_f1(precision_global, recall_global)
     jaccard_global = calcular_jaccard(total_tp, total_fp, total_fn)
+    
+    # Métricas por tipo
+    synth_precision = calcular_precision(synth_tp, synth_fp)
+    synth_recall = calcular_recall(synth_tp, synth_fn)
+    synth_f1 = calcular_f1(synth_precision, synth_recall)
+    synth_jaccard = calcular_jaccard(synth_tp, synth_fp, synth_fn)
+    
+    real_precision = calcular_precision(real_tp, real_fp)
+    real_recall = calcular_recall(real_tp, real_fn)
+    real_f1 = calcular_f1(real_precision, real_recall)
+    real_jaccard = calcular_jaccard(real_tp, real_fp, real_fn)
     
     print()
     print("=" * 70)
@@ -271,6 +311,12 @@ def main():
     print(f"Recall / Sensitivity: {recall_global:.4f}")
     print(f"F1-Score: {f1_global:.4f}")
     print(f"Jaccard / IoU detección: {jaccard_global:.4f}")
+    print()
+    print("📊 POR TIPO DE IMAGEN:")
+    print(f"  Sintéticas (375): TP={synth_tp} FP={synth_fp} FN={synth_fn} "
+          f"P={synth_precision:.4f} R={synth_recall:.4f} F1={synth_f1:.4f} J={synth_jaccard:.4f}")
+    print(f"  Reales 2048x1536 (25): TP={real_tp} FP={real_fp} FN={real_fn} "
+          f"P={real_precision:.4f} R={real_recall:.4f} F1={real_f1:.4f} J={real_jaccard:.4f}")
     print("=" * 70)
     
     args.output_dir.mkdir(parents=True, exist_ok=True)
@@ -279,14 +325,14 @@ def main():
     with open(csv_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerow([
-            'image_id', 'tp', 'fp', 'fn', 'precision', 'recall', 'f1', 'jaccard',
+            'image_id', 'tipo', 'polaridad', 'tp', 'fp', 'fn', 'precision', 'recall', 'f1', 'jaccard',
             'pred_count', 'gt_count', 'pred_centroids', 'gt_centroids', 'match_distance_px'
         ])
         for r in results:
             pred_str = ';'.join(f"{x}:{y}" for x, y in r['pred_centroids'])
             gt_str = ';'.join(f"{x}:{y}" for x, y in r['gt_centroids'])
             writer.writerow([
-                r['image_id'], r['tp'], r['fp'], r['fn'],
+                r['image_id'], r['tipo'], r['polaridad'], r['tp'], r['fp'], r['fn'],
                 f"{r['precision']:.6f}", f"{r['recall']:.6f}", f"{r['f1']:.6f}", f"{r['jaccard']:.6f}",
                 r['pred_count'], r['gt_count'], pred_str, gt_str, args.match_distance
             ])
@@ -298,6 +344,7 @@ def main():
         f.write(f"Parámetros originales: σ1=7.0, σ2=8.0, UMBRAL_DOG=15, AREA_MIN=50, AREA_MAX=5000\n")
         f.write(f"Distancia de emparejamiento: {args.match_distance} px\n")
         f.write(f"Máscara de borde: SÍ (adaptativa)\n")
+        f.write(f"Polaridad: nucleos-claros (sintéticas), nucleos-oscuros (reales)\n")
         f.write(f"\n")
         f.write(f"Imágenes evaluadas: {len(results)}\n")
         f.write(f"TP total: {total_tp}\n")
@@ -308,9 +355,15 @@ def main():
         f.write(f"F1-Score: {f1_global:.4f}\n")
         f.write(f"Jaccard / IoU detección: {jaccard_global:.4f}\n")
         f.write(f"\n")
+        f.write(f"POR TIPO DE IMAGEN:\n")
+        f.write(f"  Sintéticas (375): TP={synth_tp} FP={synth_fp} FN={synth_fn} "
+                f"P={synth_precision:.4f} R={synth_recall:.4f} F1={synth_f1:.4f} J={synth_jaccard:.4f}\n")
+        f.write(f"  Reales 2048x1536 (25): TP={real_tp} FP={real_fp} FN={real_fn} "
+                f"P={real_precision:.4f} R={real_recall:.4f} F1={real_f1:.4f} J={real_jaccard:.4f}\n")
+        f.write(f"\n")
         f.write(f"Detalle por imagen:\n")
         for r in results:
-            f.write(f"{r['image_id']}: tp={r['tp']} fp={r['fp']} fn={r['fn']} "
+            f.write(f"{r['image_id']} ({r['tipo']}, {r['polaridad']}): tp={r['tp']} fp={r['fp']} fn={r['fn']} "
                     f"P={r['precision']:.4f} R={r['recall']:.4f} F1={r['f1']:.4f} J={r['jaccard']:.4f}\n")
     
     print(f"\n✅ Resultados guardados en:")

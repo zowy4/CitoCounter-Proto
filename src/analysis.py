@@ -351,21 +351,63 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
     
     # 1. BINARIZACIÓN
     # Método de Otsu: calcula automáticamente el umbral óptimo
-    # THRESH_BINARY: píxeles > umbral = 255 (blanco), resto = 0 (negro)
+    # Para evitar que los artefactos de borde afecten el umbral de Otsu,
+    # calculamos el umbral en una versión recortada de la imagen (sin bordes)
+    # y luego aplicamos ese umbral a la imagen completa.
     
-    # Aplicar máscara de borde para evitar artefactos DoG en bordes (CITO-23)
     if usar_mascara_borde:
-        mascara_borde = crear_mascara_borde(imagen_dog.shape, ancho_borde)
-        imagen_dog_enmascarada = cv2.bitwise_and(imagen_dog, imagen_dog, mask=mascara_borde)
+        # Crear máscara de borde para el cálculo del umbral
+        mascara_umbral = crear_mascara_borde(imagen_dog.shape, ancho_borde)
+        # Calcular Otsu solo en la región central (sin bordes)
+        imagen_central = cv2.bitwise_and(imagen_dog, imagen_dog, mask=mascara_umbral)
+        # Obtener píxeles no-cero de la región central
+        pixeles_centrales = imagen_central[mascara_umbral > 0]
+        if len(pixeles_centrales) > 0:
+            # Calcular Otsu manualmente sobre los píxeles centrales
+            # Esto evita problemas con el parámetro mask en cv2.threshold
+            hist = cv2.calcHist([pixeles_centrales], [0], None, [256], [0, 256])
+            # Algoritmo de Otsu manual
+            total = len(pixeles_centrales)
+            sum_total = np.sum(pixeles_centrales)
+            sum_b = 0
+            w_b = 0
+            max_var = 0
+            umbral_otsu = 0
+            for t in range(256):
+                w_b += hist[t]
+                if w_b == 0:
+                    continue
+                w_f = total - w_b
+                if w_f == 0:
+                    break
+                sum_b += t * hist[t]
+                m_b = sum_b / w_b
+                m_f = (sum_total - sum_b) / w_f
+                var_between = w_b * w_f * (m_b - m_f) ** 2
+                if var_between > max_var:
+                    max_var = var_between
+                    umbral_otsu = t
+        else:
+            umbral_otsu = UMBRAL_DOG
     else:
-        imagen_dog_enmascarada = imagen_dog
+        umbral_otsu = UMBRAL_DOG
     
+    # Aplicar el umbral calculado a la imagen completa
     _, thresh = cv2.threshold(
-        imagen_dog_enmascarada, 
-        UMBRAL_DOG, 
+        imagen_dog, 
+        umbral_otsu, 
         255, 
-        cv2.THRESH_BINARY + cv2.THRESH_OTSU
+        cv2.THRESH_BINARY
     )
+    
+    # Aplicar máscara de borde para limpiar artefactos residuales
+    if usar_mascara_borde:
+        mascara_borde = crear_mascara_borde(thresh.shape, ancho_borde)
+        thresh = cv2.bitwise_and(thresh, thresh, mask=mascara_borde)
+    
+    # Limpieza morfológica ligera: eliminar ruido pequeño
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+    thresh = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
     
     # 2. DETECCIÓN DE CONTORNOS
     # RETR_EXTERNAL: solo contornos externos (ignora huecos internos)
@@ -392,7 +434,7 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
     
     # 3. SEPARACIÓN DE NÚCLEOS SUPERPUestos (opcional)
     if metodo_separacion == 'watershed':
-        # Aplicar máscara de borde antes de watershed
+        # Para watershed, aplicar máscara de borde a la imagen DoG original
         if usar_mascara_borde:
             mascara_borde = crear_mascara_borde(imagen_dog.shape, ancho_borde)
             imagen_dog_enmascarada = cv2.bitwise_and(imagen_dog, imagen_dog, mask=mascara_borde)
@@ -488,7 +530,9 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
                 perimetro = cv2.arcLength(contorno, True)
                 if perimetro > 0:
                     circularidad = 4 * np.pi * area / (perimetro ** 2)
-                    if circularidad < 0.3:  # Filtrar formas muy irregulares (ruido)
+                    # Umbral reducido a 0.15 para núcleos reales de citología (Papanicolaou/EDF)
+                    # que no son perfectamente circulares por superposición y variaciones de tinción
+                    if circularidad < 0.15:  # Filtrar formas muy irregulares (ruido)
                         continue
                 
                 # Filtrar por aspecto (relación ancho/alto)
