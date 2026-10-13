@@ -35,16 +35,17 @@ AREA_MAXIMA_NUCLEO = 500            # Píxeles² - Descartar manchas grandes (CI
 UMBRAL_DOG = 5                      # Valor mínimo para considerar un píxel como borde (CITO-74)
 
 
-# Umbrales de área por polaridad (CITO-22 / CITO-74)
+# Umbrales de área por polaridad (CITO-22 / CITO-74 / CITO-97)
 # Valores calibrados para cada polaridad. 'nucleos-claros' usa los valores
-# calibrados en CITO-74. 'nucleos-oscuros' requiere umbrales mayores debido
-# a que los núcleos aparecen como estructuras más grandes después de la inversión.
+# calibrados en CITO-74. 'nucleos-oscuros' requiere umbrales ajustados para
+# imágenes reales de citología (Papanicolaou/EDF) donde los núcleos pueden ser
+# más pequeños que en imágenes sintéticas.
 AREA_MINIMA_NUCLEO = {
     'nucleos-claros': 10,      # CITO-74: 10 (era 50)
-    'nucleos-oscuros': 200,    # Mantenido (requiere validación específica)
+    'nucleos-oscuros': 100,    # CITO-97: 100 (era 200, reducido para detectar núcleos pequeños en imágenes reales)
 }
 AREA_MAXIMA_NUCLEO = {
-    'nucleos-claros': 500,     # CITO-74: 500 (era 5000)
+    'nucleos-claros': 1000,    # CITO-97: 1000 (era 500, aumentado para detectar núcleos sintéticos más grandes)
     'nucleos-oscuros': 300000, # Mantenido (requiere validación específica)
 }
 
@@ -393,11 +394,17 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
         umbral_otsu = UMBRAL_DOG
     
     # Aplicar el umbral calculado a la imagen completa
+    # Para nucleos-claros (núcleos claros sobre fondo oscuro, fluorescencia),
+    # los núcleos tienen valores DoG ALTOS -> usar THRESH_BINARY para detectar valores altos.
+    # Para nucleos-oscuros (núcleos oscuros sobre fondo claro, campo claro),
+    # la imagen se invierte en preprocesamiento, haciendo que los núcleos sean claros
+    # y tengan valores DoG ALTOS -> también usar THRESH_BINARY.
+    tipo_umbral = cv2.THRESH_BINARY
     _, thresh = cv2.threshold(
         imagen_dog, 
         umbral_otsu, 
         255, 
-        cv2.THRESH_BINARY
+        tipo_umbral
     )
     
     # Aplicar máscara de borde para limpiar artefactos residuales

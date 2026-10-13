@@ -23,12 +23,21 @@ VAL_IMAGES_DIR = Path('data/raw/val')
 VAL_LABELS_DIR = Path('CitoDataset_v1/labels/val')
 DEFAULT_MATCH_DISTANCE = 10.0
 
-# Parámetros ORIGINALES
-ORIGINAL_SIGMA1 = 7.0
-ORIGINAL_SIGMA2 = 8.0
-ORIGINAL_UMBRAL_DOG = 15
-ORIGINAL_AREA_MIN = 50
-ORIGINAL_AREA_MAX = 5000
+# Parámetros calibrados CITO-74 (mejores para imágenes sintéticas)
+# Para imágenes reales se usa polaridad 'nucleos-oscuros' con parámetros específicos
+from src.analysis import (
+    AREA_MINIMA_NUCLEO, AREA_MAXIMA_NUCLEO, UMBRAL_DOG,
+    AREA_PROMEDIO_NUCLEO_NORMAL, FACTOR_RIESGO
+)
+
+# Parámetros calibrados CITO-74
+CALIBRATED_SIGMA1 = 7.0
+CALIBRATED_SIGMA2 = 8.0
+CALIBRATED_UMBRAL_DOG = UMBRAL_DOG  # 5
+CALIBRATED_AREA_MIN_CLAROS = AREA_MINIMA_NUCLEO['nucleos-claros']  # 10
+CALIBRATED_AREA_MAX_CLAROS = AREA_MAXIMA_NUCLEO['nucleos-claros']  # 500
+CALIBRATED_AREA_MIN_OSCUROS = AREA_MINIMA_NUCLEO['nucleos-oscuros']  # 100
+CALIBRATED_AREA_MAX_OSCUROS = AREA_MAXIMA_NUCLEO['nucleos-oscuros']  # 300000
 
 
 def yolo_to_centroids(label_path, image_shape):
@@ -167,8 +176,8 @@ def evaluar_imagen(image_path, label_path, match_distance):
         
         imagen_dog = aplicar_filtro_dog(
             imagen_gris,
-            sigma1=ORIGINAL_SIGMA1,
-            sigma2=ORIGINAL_SIGMA2
+            sigma1=CALIBRATED_SIGMA1,
+            sigma2=CALIBRATED_SIGMA2
         )
         
         import src.analysis as analysis_module
@@ -176,9 +185,9 @@ def evaluar_imagen(image_path, label_path, match_distance):
         old_area_min = analysis_module.AREA_MINIMA_NUCLEO
         old_area_max = analysis_module.AREA_MAXIMA_NUCLEO
         
-        analysis_module.UMBRAL_DOG = ORIGINAL_UMBRAL_DOG
-        analysis_module.AREA_MINIMA_NUCLEO = {'nucleos-claros': ORIGINAL_AREA_MIN, 'nucleos-oscuros': 200}
-        analysis_module.AREA_MAXIMA_NUCLEO = {'nucleos-claros': ORIGINAL_AREA_MAX, 'nucleos-oscuros': 300000}
+        analysis_module.UMBRAL_DOG = CALIBRATED_UMBRAL_DOG
+        analysis_module.AREA_MINIMA_NUCLEO = {'nucleos-claros': CALIBRATED_AREA_MIN_CLAROS, 'nucleos-oscuros': CALIBRATED_AREA_MIN_OSCUROS}
+        analysis_module.AREA_MAXIMA_NUCLEO = {'nucleos-claros': CALIBRATED_AREA_MAX_CLAROS, 'nucleos-oscuros': CALIBRATED_AREA_MAX_OSCUROS}
         
         resultados = analizar_nucleos(
             imagen_dog, 

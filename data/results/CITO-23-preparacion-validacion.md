@@ -182,3 +182,53 @@ Tras completar CITO-96 (dataset organizado en splits 70/20/10) y CITO-22 (parám
 **Hallazgo clave**: Los parámetros originales (σ1=7.0, σ2=8.0, UMBRAL_DOG=15, AREA_MIN=50, AREA_MAX=5000) **con máscara de borde** superan ampliamente a los parámetros calibrados CITO-74. La calibración CITO-74 redujo demasiado AREA_MAX (5000→500) y UMBRAL_DOG (15→5), eliminando la capacidad de detectar núcleos reales.
 
 **Nota**: La evaluación anterior usaba parámetros originales y solo 9 imágenes con revisión manual. La evaluación actual usa el conjunto de prueba completo (200 imágenes) con ground truth YOLO trazable y máscara de borde (50px).
+
+---
+
+## Limitación conocida: Imágenes reales (2048x1536) - 2026-10-13
+
+### Estado actual
+La evaluación completa en test split (200 imágenes: 187 sintéticas + 13 reales) y validation split (400 imágenes: 375 sintéticas + 25 reales) revela una **limitación estructural** del pipeline actual para imágenes reales de citología cervical (2048x1536, EDF/MUESTRA, núcleos oscuros sobre fondo claro).
+
+### Resultados por tipo de imagen
+
+| Split | Tipo | Imágenes | TP | FP | FN | Precision | Recall | F1-Score |
+|-------|------|----------|----|----|----|-----------|--------|----------|
+| **Test** | Sintéticas (100x100) | 187 | 187 | 0 | 0 | 1.0000 | 1.0000 | **1.0000** |
+| **Test** | Reales (2048x1536) | 13 | 1 | 3253 | 23 | 0.0003 | 0.0417 | 0.0006 |
+| **Val** | Sintéticas (100x100) | 375 | 375 | 0 | 0 | 1.0000 | 1.0000 | **1.0000** |
+| **Val** | Reales (2048x1536) | 25 | 2 | 6584 | 70 | 0.0003 | 0.0278 | 0.0006 |
+
+### Análisis de la limitación
+
+1. **Polaridad incorrecta**: Las imágenes reales de citología (EDF/MUESTRA, Papanicolaou) tienen núcleos **oscuros** sobre fondo **claro**. El pipeline actual está optimizado para polaridad `nucleos-claros` (núcleos claros sobre fondo oscuro, típico de fluorescencia).
+
+2. **Parámetros no calibrados para reales**: Los parámetros originales (σ1=7.0, σ2=8.0, UMBRAL_DOG=15, AREA_MIN=50, AREA_MAX=5000) fueron calibrados para imágenes sintéticas de fluorescencia (polaridad `nucleos-claros`). Para imágenes reales con polaridad `nucleos-oscuros`, se requieren parámetros completamente diferentes.
+
+3. **Falsos positivos masivos**: En imágenes reales, el pipeline genera miles de FP (3253 en test, 6584 en val) debido a:
+   - Umbralización Otsu inadecuada para la distribución de intensidades de imágenes reales
+   - Artefactos de borde no eliminados completamente por la máscara
+   - Ruido de tinción y fondo detectado como núcleos
+
+4. **Recall extremadamente bajo**: Solo 1-2 TP de 23-70 núcleos reales (recall 2-4%).
+
+### Conclusión para CITO-23
+
+**CITO-23 se considera COMPLETADO para imágenes sintéticas** (F1=1.0000, objetivo ≥0.90 superado).
+
+**Para imágenes reales, CITO-23 queda BLOQUEADO** hasta completar **CITO-97** (calibración separada de parámetros para imágenes reales con polaridad `nucleos-oscuros`).
+
+### Próximos pasos requeridos (CITO-97)
+
+1. **Crear conjunto de calibración real**: Seleccionar 20-30 imágenes reales anotadas por experto
+2. **Calibrar parámetros para polaridad `nucleos-oscuros`**:
+   - σ1, σ2 óptimos para imágenes reales 2048x1536
+   - UMBRAL_DOG, AREA_MIN, AREA_MAX específicos para reales
+   - Evaluar polaridad `nucleos-oscuros` vs inversión + `nucleos-claros`
+3. **Validar en conjunto independiente**: Probar en imágenes reales no usadas en calibración
+4. **Objetivo**: Recall ≥ 90%, F1 ≥ 0.90 en imágenes reales
+
+### Archivos de evidencia
+- `data/results/CITO-23-evaluacion-test-original.csv/.txt` - Test split (200 imágenes)
+- `data/results/CITO-23-evaluacion-val-original.csv/.txt` - Validation split (400 imágenes)
+- Scripts: `evaluar_cito23_original.py`, `evaluar_cito23_val.py`
