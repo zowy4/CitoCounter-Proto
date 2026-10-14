@@ -39,6 +39,11 @@ CALIBRATED_AREA_MAX_CLAROS = AREA_MAXIMA_NUCLEO['nucleos-claros']  # 500
 CALIBRATED_AREA_MIN_OSCUROS = AREA_MINIMA_NUCLEO['nucleos-oscuros']  # 100
 CALIBRATED_AREA_MAX_OSCUROS = AREA_MAXIMA_NUCLEO['nucleos-oscuros']  # 300000
 
+# Parámetros optimizados para imágenes reales (CITO-97)
+REAL_UMBRAL_DOG = 50  # Umbral más alto para imágenes reales
+REAL_AREA_MIN_OSCUROS = 100  # Mismo mínimo
+REAL_AREA_MAX_OSCUROS = 300000  # Mismo máximo
+
 
 def yolo_to_centroids(label_path, image_shape):
     h, w = image_shape[:2]
@@ -185,9 +190,15 @@ def evaluar_imagen(image_path, label_path, match_distance):
         old_area_min = analysis_module.AREA_MINIMA_NUCLEO
         old_area_max = analysis_module.AREA_MAXIMA_NUCLEO
         
-        analysis_module.UMBRAL_DOG = CALIBRATED_UMBRAL_DOG
-        analysis_module.AREA_MINIMA_NUCLEO = {'nucleos-claros': CALIBRATED_AREA_MIN_CLAROS, 'nucleos-oscuros': CALIBRATED_AREA_MIN_OSCUROS}
-        analysis_module.AREA_MAXIMA_NUCLEO = {'nucleos-claros': CALIBRATED_AREA_MAX_CLAROS, 'nucleos-oscuros': CALIBRATED_AREA_MAX_OSCUROS}
+        # Usar parámetros específicos según el tipo de imagen
+        if tipo == 'real':
+            analysis_module.UMBRAL_DOG = REAL_UMBRAL_DOG
+            analysis_module.AREA_MINIMA_NUCLEO = {'nucleos-claros': CALIBRATED_AREA_MIN_CLAROS, 'nucleos-oscuros': REAL_AREA_MIN_OSCUROS}
+            analysis_module.AREA_MAXIMA_NUCLEO = {'nucleos-claros': CALIBRATED_AREA_MAX_CLAROS, 'nucleos-oscuros': REAL_AREA_MAX_OSCUROS}
+        else:
+            analysis_module.UMBRAL_DOG = CALIBRATED_UMBRAL_DOG
+            analysis_module.AREA_MINIMA_NUCLEO = {'nucleos-claros': CALIBRATED_AREA_MIN_CLAROS, 'nucleos-oscuros': CALIBRATED_AREA_MIN_OSCUROS}
+            analysis_module.AREA_MAXIMA_NUCLEO = {'nucleos-claros': CALIBRATED_AREA_MAX_CLAROS, 'nucleos-oscuros': CALIBRATED_AREA_MAX_OSCUROS}
         
         resultados = analizar_nucleos(
             imagen_dog, 
@@ -250,7 +261,7 @@ def main():
     
     print(f"🔬 EVALUACIÓN CITO-23 - Validation Split (400 imágenes)")
     print(f"   Imágenes a evaluar: {len(val_images)}")
-    print(f"   Parámetros originales: σ1=7.0, σ2=8.0, UMBRAL_DOG=15, AREA_MIN=50, AREA_MAX=5000")
+    print(f"   Parámetros: σ1=7.0, σ2=8.0, UMBRAL_DOG={CALIBRATED_UMBRAL_DOG} (sintéticas) / {REAL_UMBRAL_DOG} (reales), AREA_MIN={CALIBRATED_AREA_MIN_CLAROS}/{REAL_AREA_MIN_OSCUROS}, AREA_MAX={CALIBRATED_AREA_MAX_CLAROS}/{REAL_AREA_MAX_OSCUROS}")
     print(f"   Distancia de emparejamiento: {args.match_distance} px")
     print(f"   Polaridad: nucleos-claros (sintéticas), nucleos-oscuros (reales)")
     print()
@@ -350,7 +361,7 @@ def main():
     with open(txt_path, 'w', encoding='utf-8') as f:
         f.write(f"CITO-23 - Evaluación en validation split (400 imágenes)\n")
         f.write(f"========================================================\n")
-        f.write(f"Parámetros originales: σ1=7.0, σ2=8.0, UMBRAL_DOG=15, AREA_MIN=50, AREA_MAX=5000\n")
+        f.write(f"Parámetros: σ1=7.0, σ2=8.0, UMBRAL_DOG={CALIBRATED_UMBRAL_DOG} (sintéticas) / {REAL_UMBRAL_DOG} (reales), AREA_MIN={CALIBRATED_AREA_MIN_CLAROS}/{REAL_AREA_MIN_OSCUROS}, AREA_MAX={CALIBRATED_AREA_MAX_CLAROS}/{REAL_AREA_MAX_OSCUROS}\n")
         f.write(f"Distancia de emparejamiento: {args.match_distance} px\n")
         f.write(f"Máscara de borde: SÍ (adaptativa)\n")
         f.write(f"Polaridad: nucleos-claros (sintéticas), nucleos-oscuros (reales)\n")

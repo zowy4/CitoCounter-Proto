@@ -441,14 +441,11 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
     
     # 3. SEPARACIÓN DE NÚCLEOS SUPERPUestos (opcional)
     if metodo_separacion == 'watershed':
-        # Para watershed, aplicar máscara de borde a la imagen DoG original
-        if usar_mascara_borde:
-            mascara_borde = crear_mascara_borde(imagen_dog.shape, ancho_borde)
-            imagen_dog_enmascarada = cv2.bitwise_and(imagen_dog, imagen_dog, mask=mascara_borde)
-        else:
-            imagen_dog_enmascarada = imagen_dog
-        
-        contornos, areas = watershed_separar_nucleos(imagen_dog_enmascarada, metodo='distancia')
+        # Para watershed, usar la imagen DoG original (sin máscara de borde)
+        # para evitar artefactos en la transformada de distancia
+        # La máscara de borde se aplicará después para filtrar resultados
+        # Usar el umbral Otsu calculado anteriormente para el watershed
+        contornos, areas = watershed_separar_nucleos(imagen_dog, metodo='distancia', umbral=umbral_otsu)
         # Reconstruir resultados a partir de la separación watershed
         for i, (contorno, area) in enumerate(zip(contornos, areas)):
             decision = clasificar_nucleo_por_area(area, polaridad)

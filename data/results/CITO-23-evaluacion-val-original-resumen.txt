@@ -1,6 +1,6 @@
 CITO-23 - Evaluación en validation split (400 imágenes)
 ========================================================
-Parámetros originales: σ1=7.0, σ2=8.0, UMBRAL_DOG=15, AREA_MIN=50, AREA_MAX=5000
+Parámetros: σ1=7.0, σ2=8.0, UMBRAL_DOG=5 (sintéticas) / 50 (reales), AREA_MIN=10/100, AREA_MAX=1000/300000
 Distancia de emparejamiento: 10.0 px
 Máscara de borde: SÍ (adaptativa)
 Polaridad: nucleos-claros (sintéticas), nucleos-oscuros (reales)
