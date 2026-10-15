@@ -398,23 +398,44 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
     # los núcleos tienen valores DoG ALTOS -> usar THRESH_BINARY para detectar valores altos.
     # Para nucleos-oscuros (núcleos oscuros sobre fondo claro, campo claro),
     # la imagen se invierte en preprocesamiento, haciendo que los núcleos sean claros
-    # y tengan valores DoG ALTOS -> también usar THRESH_BINARY.
-    tipo_umbral = cv2.THRESH_BINARY
-    _, thresh = cv2.threshold(
-        imagen_dog, 
-        umbral_otsu, 
-        255, 
-        tipo_umbral
-    )
+    # y tengan valores DoG ALTOS. Sin embargo, el contraste es bajo en imágenes reales,
+    # por lo que usamos un umbral fijo optimizado para imágenes reales con THRESH_BINARY.
+    if polaridad == 'nucleos-oscuros':
+        # Para imágenes reales, usar umbral fijo optimizado con THRESH_BINARY
+        # Los núcleos tienen valores ~117-162, fondo ~106, umbral óptimo ~110
+        umbral_fijo = 110
+        _, thresh = cv2.threshold(
+            imagen_dog, 
+            umbral_fijo, 
+            255, 
+            cv2.THRESH_BINARY
+        )
+    else:
+        # nucleos-claros: usar Otsu con THRESH_BINARY
+        _, thresh = cv2.threshold(
+            imagen_dog, 
+            umbral_otsu, 
+            255, 
+            cv2.THRESH_BINARY
+        )
     
     # Aplicar máscara de borde para limpiar artefactos residuales
     if usar_mascara_borde:
         mascara_borde = crear_mascara_borde(thresh.shape, ancho_borde)
         thresh = cv2.bitwise_and(thresh, thresh, mask=mascara_borde)
     
-    # Limpieza morfológica ligera: eliminar ruido pequeño
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-    thresh = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
+    # Limpieza morfológica mejorada: eliminar ruido y rellenar huecos
+    # 1. Apertura morfológica: eliminar ruido pequeño
+    kernel_open = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+    thresh = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel_open)
+    
+    # 2. Cierre morfológico: rellenar huecos en núcleos
+    kernel_close = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+    thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel_close)
+    
+    # 3. Apertura adicional con kernel mayor para eliminar ruido residual
+    kernel_open2 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+    thresh = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel_open2)
     
     # 2. DETECCIÓN DE CONTORNOS
     # RETR_EXTERNAL: solo contornos externos (ignora huecos internos)

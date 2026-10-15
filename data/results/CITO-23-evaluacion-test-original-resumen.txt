@@ -1,36 +1,37 @@
-CITO-23 - Evaluación con parámetros ORIGINALES (σ1=7.0, σ2=8.0)
+CITO-23 - Evaluación con parámetros CALIBRADOS CITO-74/97
 ========================================================
-Parámetros originales:
-  σ1=7.0, σ2=8.0
-  UMBRAL_DOG=15
-  AREA_MIN=50, AREA_MAX=5000
+Parámetros calibrados:
+  σ1=5.0, σ2=10.0
+  UMBRAL_DOG=5 (sintéticas) / 120 (reales)
+  AREA_MIN_CLAROS=10, AREA_MAX_CLAROS=1000
+  AREA_MIN_OSCUROS=100, AREA_MAX_OSCUROS=300000
 Distancia de emparejamiento: 10.0 px
 Máscara de borde: SÍ (50px)
 Polaridad: nucleos-claros (sintéticas), nucleos-oscuros (reales)
 
 Imágenes evaluadas: 200
-TP total: 188
-FP total: 3253
-FN total: 23
-Precision: 0.0546
-Recall / Sensitivity: 0.8910
-F1-Score: 0.1030
-Jaccard / IoU detección: 0.0543
+TP total: 187
+FP total: 4426
+FN total: 24
+Precision: 0.0405
+Recall / Sensitivity: 0.8863
+F1-Score: 0.0775
+Jaccard / IoU detección: 0.0403
 
 POR TIPO DE IMAGEN:
   Sintéticas: TP=187 FP=0 FN=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
-  Reales 2048x1536: TP=1 FP=3253 FN=23 P=0.0003 R=0.0417 F1=0.0006 J=0.0003
+  Reales 2048x1536: TP=0 FP=4426 FN=24 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
 
 Detalle por imagen:
-MUESTRA_014.jpg (real, nucleos-oscuros): tp=0 fp=298 fn=3 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
-MUESTRA_024.jpg (real, nucleos-oscuros): tp=0 fp=203 fn=3 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
-MUESTRA_052.jpg (real, nucleos-oscuros): tp=0 fp=150 fn=1 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
-MUESTRA_055.jpg (real, nucleos-oscuros): tp=0 fp=454 fn=1 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
-MUESTRA_062.jpg (real, nucleos-oscuros): tp=0 fp=91 fn=2 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
+MUESTRA_014.jpg (real, nucleos-oscuros): tp=0 fp=350 fn=3 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
+MUESTRA_024.jpg (real, nucleos-oscuros): tp=0 fp=5 fn=3 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
+MUESTRA_052.jpg (real, nucleos-oscuros): tp=0 fp=168 fn=1 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
+MUESTRA_055.jpg (real, nucleos-oscuros): tp=0 fp=812 fn=1 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
+MUESTRA_062.jpg (real, nucleos-oscuros): tp=0 fp=71 fn=2 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
 MUESTRA_066.jpg (real, nucleos-oscuros): tp=0 fp=590 fn=3 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
-MUESTRA_089.jpg (real, nucleos-oscuros): tp=1 fp=77 fn=2 P=0.0128 R=0.3333 F1=0.0247 J=0.0125
-MUESTRA_094.jpg (real, nucleos-oscuros): tp=0 fp=243 fn=1 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
-MUESTRA_097.jpg (real, nucleos-oscuros): tp=0 fp=361 fn=3 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
+MUESTRA_089.jpg (real, nucleos-oscuros): tp=0 fp=0 fn=3 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
+MUESTRA_094.jpg (real, nucleos-oscuros): tp=0 fp=312 fn=1 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
+MUESTRA_097.jpg (real, nucleos-oscuros): tp=0 fp=470 fn=3 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
 MUESTRA_1013.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
 MUESTRA_1028.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
 MUESTRA_1032.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
@@ -91,7 +92,7 @@ MUESTRA_1497.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F
 MUESTRA_1513.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
 MUESTRA_1536.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
 MUESTRA_1542.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
-MUESTRA_155.jpg (real, nucleos-oscuros): tp=0 fp=61 fn=1 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
+MUESTRA_155.jpg (real, nucleos-oscuros): tp=0 fp=898 fn=1 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
 MUESTRA_1570.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
 MUESTRA_1578.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
 MUESTRA_1582.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
@@ -101,7 +102,7 @@ MUESTRA_1599.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F
 MUESTRA_1614.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
 MUESTRA_1616.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
 MUESTRA_1617.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
-MUESTRA_162.jpg (real, nucleos-oscuros): tp=0 fp=150 fn=1 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
+MUESTRA_162.jpg (real, nucleos-oscuros): tp=0 fp=168 fn=1 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
 MUESTRA_1626.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
 MUESTRA_1646.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
 MUESTRA_1652.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
@@ -115,11 +116,11 @@ MUESTRA_1745.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F
 MUESTRA_1753.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
 MUESTRA_1763.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
 MUESTRA_1764.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
-MUESTRA_177.jpg (real, nucleos-oscuros): tp=0 fp=108 fn=1 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
+MUESTRA_177.jpg (real, nucleos-oscuros): tp=0 fp=131 fn=1 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
 MUESTRA_1780.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
 MUESTRA_1828.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
 MUESTRA_1839.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
-MUESTRA_185.jpg (real, nucleos-oscuros): tp=0 fp=467 fn=1 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
+MUESTRA_185.jpg (real, nucleos-oscuros): tp=0 fp=451 fn=1 P=0.0000 R=0.0000 F1=0.0000 J=0.0000
 MUESTRA_1858.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
 MUESTRA_1894.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000
 MUESTRA_1903.jpg (sintetica, nucleos-claros): tp=1 fp=0 fn=0 P=1.0000 R=1.0000 F1=1.0000 J=1.0000

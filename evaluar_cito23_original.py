@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Evaluación CITO-23 con parámetros ORIGINALES (σ1=7.0, σ2=8.0) para comparación.
+Evaluación CITO-23 con parámetros CALIBRADOS CITO-74/97 para comparación.
 """
 
 import argparse
@@ -16,19 +16,23 @@ from src.analysis import analizar_nucleos
 
 
 # ============================================================================
-# CONFIGURACIÓN - PARÁMETROS ORIGINALES
+# CONFIGURACIÓN - PARÁMETROS CALIBRADOS CITO-74/97
 # ============================================================================
 
 TEST_IMAGES_DIR = Path('data/raw/test')
 TEST_LABELS_DIR = Path('CitoDataset_v1/labels/test')
 DEFAULT_MATCH_DISTANCE = 10.0
 
-# Parámetros ORIGINALES (antes de CITO-74)
-ORIGINAL_SIGMA1 = 7.0
-ORIGINAL_SIGMA2 = 8.0
-ORIGINAL_UMBRAL_DOG = 15
-ORIGINAL_AREA_MIN = 50
-ORIGINAL_AREA_MAX = 5000
+# Parámetros CALIBRADOS CITO-74/97
+# Para imágenes sintéticas (nucleos-claros): sigma1=5.0, sigma2=10.0, umbral=5, area_min=10, area_max=1000
+# Para imágenes reales (nucleos-oscuros): sigma1=5.0, sigma2=10.0, umbral=120, area_min=100, area_max=300000
+CALIBRATED_SIGMA1 = 5.0
+CALIBRATED_SIGMA2 = 10.0
+CALIBRATED_UMBRAL_DOG = 5
+CALIBRATED_AREA_MIN_CLAROS = 10
+CALIBRATED_AREA_MAX_CLAROS = 1000
+CALIBRATED_AREA_MIN_OSCUROS = 100
+CALIBRATED_AREA_MAX_OSCUROS = 300000
 
 
 def detectar_tipo_imagen(image_path):
@@ -152,9 +156,22 @@ def evaluar_imagen(image_path, label_path, match_distance):
     h, w = imagen.shape[:2]
     gt_centroids = yolo_to_centroids(label_path, (h, w))
     
-    # Detectar tipo de imagen y elegir polaridad
+    # Detectar tipo de imagen y elegir polaridad y parámetros
     tipo = detectar_tipo_imagen(image_path)
-    polaridad = 'nucleos-oscuros' if tipo == 'real' else 'nucleos-claros'
+    if tipo == 'real':
+        polaridad = 'nucleos-oscuros'
+        sigma1 = CALIBRATED_SIGMA1
+        sigma2 = CALIBRATED_SIGMA2
+        umbral = 120  # Umbral fijo para imágenes reales
+        area_min = CALIBRATED_AREA_MIN_OSCUROS
+        area_max = CALIBRATED_AREA_MAX_OSCUROS
+    else:
+        polaridad = 'nucleos-claros'
+        sigma1 = CALIBRATED_SIGMA1
+        sigma2 = CALIBRATED_SIGMA2
+        umbral = CALIBRATED_UMBRAL_DOG
+        area_min = CALIBRATED_AREA_MIN_CLAROS
+        area_max = CALIBRATED_AREA_MAX_CLAROS
     
     try:
         imagen_gris, imagen_original = preprocesar_imagen(
@@ -167,26 +184,25 @@ def evaluar_imagen(image_path, label_path, match_distance):
         
         imagen_dog = aplicar_filtro_dog(
             imagen_gris,
-            sigma1=ORIGINAL_SIGMA1,
-            sigma2=ORIGINAL_SIGMA2
+            sigma1=sigma1,
+            sigma2=sigma2
         )
         
-        # Usar parámetros originales en análisis
-        # Temporalmente sobrescribir constantes globales
+        # Usar parámetros calibrados en análisis
         import src.analysis as analysis_module
         old_umbral = analysis_module.UMBRAL_DOG
         old_area_min = analysis_module.AREA_MINIMA_NUCLEO
         old_area_max = analysis_module.AREA_MAXIMA_NUCLEO
         
-        analysis_module.UMBRAL_DOG = ORIGINAL_UMBRAL_DOG
-        analysis_module.AREA_MINIMA_NUCLEO = {'nucleos-claros': ORIGINAL_AREA_MIN, 'nucleos-oscuros': 200}
-        analysis_module.AREA_MAXIMA_NUCLEO = {'nucleos-claros': ORIGINAL_AREA_MAX, 'nucleos-oscuros': 300000}
+        analysis_module.UMBRAL_DOG = 120 if tipo == 'real' else CALIBRATED_UMBRAL_DOG
+        analysis_module.AREA_MINIMA_NUCLEO = {'nucleos-claros': CALIBRATED_AREA_MIN_CLAROS, 'nucleos-oscuros': CALIBRATED_AREA_MIN_OSCUROS}
+        analysis_module.AREA_MAXIMA_NUCLEO = {'nucleos-claros': CALIBRATED_AREA_MAX_CLAROS, 'nucleos-oscuros': CALIBRATED_AREA_MAX_OSCUROS}
         
         resultados = analizar_nucleos(
             imagen_dog, 
             imagen_original, 
             polaridad=polaridad,
-            usar_mascara_borde=True,  # Usar máscara de borde
+            usar_mascara_borde=True,
             ancho_borde=50
         )
         
@@ -229,7 +245,7 @@ def evaluar_imagen(image_path, label_path, match_distance):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Evaluación CITO-23 con parámetros originales')
+    parser = argparse.ArgumentParser(description='Evaluación CITO-23 con parámetros calibrados CITO-74/97')
     parser.add_argument('--match-distance', type=float, default=DEFAULT_MATCH_DISTANCE)
     parser.add_argument('--output-dir', type=Path, default=Path('data/results'))
     parser.add_argument('--limit', type=int, default=None)
@@ -242,12 +258,13 @@ def main():
     if args.limit:
         test_images = test_images[:args.limit]
     
-    print(f"🔬 EVALUACIÓN CITO-23 - Parámetros ORIGINALES (σ1=7.0, σ2=8.0)")
+    print(f"🔬 EVALUACIÓN CITO-23 - Parámetros CALIBRADOS CITO-74/97")
     print(f"   Imágenes a evaluar: {len(test_images)}")
-    print(f"   Parámetros originales:")
-    print(f"     σ1={ORIGINAL_SIGMA1}, σ2={ORIGINAL_SIGMA2}")
-    print(f"     UMBRAL_DOG={ORIGINAL_UMBRAL_DOG}")
-    print(f"     AREA_MIN={ORIGINAL_AREA_MIN}, AREA_MAX={ORIGINAL_AREA_MAX}")
+    print(f"   Parámetros calibrados:")
+    print(f"     σ1={CALIBRATED_SIGMA1}, σ2={CALIBRATED_SIGMA2}")
+    print(f"     UMBRAL_DOG={CALIBRATED_UMBRAL_DOG} (sintéticas) / 120 (reales)")
+    print(f"     AREA_MIN_CLAROS={CALIBRATED_AREA_MIN_CLAROS}, AREA_MAX_CLAROS={CALIBRATED_AREA_MAX_CLAROS}")
+    print(f"     AREA_MIN_OSCUROS={CALIBRATED_AREA_MIN_OSCUROS}, AREA_MAX_OSCUROS={CALIBRATED_AREA_MAX_OSCUROS}")
     print(f"   Distancia de emparejamiento: {args.match_distance} px")
     print(f"   Máscara de borde: SÍ (50px)")
     print()
@@ -307,7 +324,7 @@ def main():
     
     print()
     print("=" * 70)
-    print("📊 RESUMEN GLOBAL CITO-23 (PARÁMETROS ORIGINALES)")
+    print("📊 RESUMEN GLOBAL CITO-23 (PARÁMETROS CALIBRADOS CITO-74/97)")
     print("=" * 70)
     print(f"Imágenes evaluadas: {len(results)}")
     print(f"TP total: {total_tp}")
@@ -345,12 +362,13 @@ def main():
     
     txt_path = args.output_dir / 'CITO-23-evaluacion-test-original-resumen.txt'
     with open(txt_path, 'w', encoding='utf-8') as f:
-        f.write(f"CITO-23 - Evaluación con parámetros ORIGINALES (σ1=7.0, σ2=8.0)\n")
+        f.write(f"CITO-23 - Evaluación con parámetros CALIBRADOS CITO-74/97\n")
         f.write(f"========================================================\n")
-        f.write(f"Parámetros originales:\n")
-        f.write(f"  σ1={ORIGINAL_SIGMA1}, σ2={ORIGINAL_SIGMA2}\n")
-        f.write(f"  UMBRAL_DOG={ORIGINAL_UMBRAL_DOG}\n")
-        f.write(f"  AREA_MIN={ORIGINAL_AREA_MIN}, AREA_MAX={ORIGINAL_AREA_MAX}\n")
+        f.write(f"Parámetros calibrados:\n")
+        f.write(f"  σ1={CALIBRATED_SIGMA1}, σ2={CALIBRATED_SIGMA2}\n")
+        f.write(f"  UMBRAL_DOG={CALIBRATED_UMBRAL_DOG} (sintéticas) / 120 (reales)\n")
+        f.write(f"  AREA_MIN_CLAROS={CALIBRATED_AREA_MIN_CLAROS}, AREA_MAX_CLAROS={CALIBRATED_AREA_MAX_CLAROS}\n")
+        f.write(f"  AREA_MIN_OSCUROS={CALIBRATED_AREA_MIN_OSCUROS}, AREA_MAX_OSCUROS={CALIBRATED_AREA_MAX_OSCUROS}\n")
         f.write(f"Distancia de emparejamiento: {args.match_distance} px\n")
         f.write(f"Máscara de borde: SÍ (50px)\n")
         f.write(f"Polaridad: nucleos-claros (sintéticas), nucleos-oscuros (reales)\n")
