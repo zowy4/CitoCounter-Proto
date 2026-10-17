@@ -259,6 +259,30 @@ def procesar_una_imagen(ruta_imagen, args):
 # FUNCIÓN PRINCIPAL
 # ============================================================================
 
+def seleccionar_archivos_lote(ruta_entrada, max_imagenes):
+    """Devuelve imágenes compatibles ordenadas y limitadas para un lote.
+
+    Args:
+        ruta_entrada: Carpeta de entrada.
+        max_imagenes: Máximo de imágenes a procesar.
+
+    Returns:
+        list[Path]: Archivos de imagen ordenados.
+
+    Raises:
+        ValueError: Si el límite no es positivo.
+    """
+    if max_imagenes < 1:
+        raise ValueError("max_imagenes debe ser mayor que cero")
+
+    extensiones = {".jpg", ".jpeg", ".png", ".tif", ".tiff"}
+    archivos = sorted(
+        archivo for archivo in ruta_entrada.iterdir()
+        if archivo.is_file() and archivo.suffix.lower() in extensiones
+    )
+    return archivos[:max_imagenes]
+
+
 def main():
     """
     Función principal que maneja argumentos CLI y ejecuta el pipeline.
@@ -302,6 +326,13 @@ Para más información, consulta README.md
         "--lote",
         action="store_true",
         help="Procesar todas las imágenes de la carpeta especificada"
+    )
+
+    parser.add_argument(
+        "--max-imagenes",
+        type=int,
+        default=100,
+        help="Máximo de imágenes por lote para controlar recursos (default: 100)",
     )
     
     parser.add_argument(
@@ -407,18 +438,14 @@ Para más información, consulta README.md
             print("   2. Usa --lote solo para carpetas con imágenes")
             return
         
-        # Buscar todas las imágenes
-        extensiones = ['*.jpg', '*.jpeg', '*.png', '*.tif', '*.tiff']
-        archivos = []
-        for ext in extensiones:
-            archivos.extend(list(ruta_entrada.glob(ext)))
+        archivos = seleccionar_archivos_lote(ruta_entrada, args.max_imagenes)
         
         if not archivos:
             print(f"\n⚠️  No se encontraron imágenes en {ruta_entrada}")
-            print(f"   Extensiones buscadas: {', '.join(extensiones)}")
+            print("   Extensiones buscadas: jpg, jpeg, png, tif, tiff")
             return
         
-        print(f"\n📁 Encontradas {len(archivos)} imágenes en {ruta_entrada}")
+        print(f"\n📁 Procesando hasta {args.max_imagenes} imágenes; se seleccionaron {len(archivos)} en {ruta_entrada}")
         
         # Procesar cada imagen
         resultados_totales = []
