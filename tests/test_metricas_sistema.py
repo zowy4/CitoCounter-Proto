@@ -25,6 +25,20 @@ class MetricasSistemaTests(unittest.TestCase):
         self.assertIn("riesgo_elevado", metricas)
         self.assertIn("consistencia", metricas)
 
+    def test_kpi_conteo_y_porcentaje_sospechosas(self):
+        metricas = calcular_metricas_imagen(
+            total_celulas=20,
+            normales=15,
+            sospechosas=4,
+            frontera=2,
+            porcentaje_riesgo=20.0,
+        )
+
+        self.assertEqual(metricas["celulas_detectadas"], 20)
+        self.assertEqual(metricas["celulas_sospechosas"], 4)
+        self.assertEqual(metricas["porcentaje_sospechosas"], 20.0)
+        self.assertEqual(metricas["porcentaje_frontera"], 10.0)
+
     def test_metricas_imagen_con_cero_celulas(self):
         metricas = calcular_metricas_imagen(
             total_celulas=0,
@@ -38,6 +52,8 @@ class MetricasSistemaTests(unittest.TestCase):
         self.assertEqual(metricas["recall"], 1.0)  # sin normales vs total = 1.0 por definición
         self.assertEqual(metricas["f1"], 0.0)
         self.assertEqual(metricas["consistencia"], 1.0)
+        self.assertEqual(metricas["porcentaje_sospechosas"], 0.0)
+        self.assertEqual(metricas["porcentaje_frontera"], 0.0)
 
     def test_metricas_conjunto_vacio(self):
         m = metricas_conjunto(historial=[])

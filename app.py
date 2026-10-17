@@ -669,7 +669,7 @@ def mostrar_detalle(r, params, seccion_actual, expandir_calidad_por_defecto=Fals
     # ---------------- MÉTRICAS ----------------
     st.markdown("### 📊 Resultados del Análisis")
 
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4, col5 = st.columns(5)
 
     with col1:
         st.metric(
@@ -1207,6 +1207,8 @@ def mostrar_dashboard_resultados(seccion_actual):
         st.metric("Promedio de células", f"{metricas['total_celulas_promedio']:.1f}")
     with col4:
         st.metric("Riesgo experimental", f"{metricas['riesgo_promedio']:.1f}%")
+    with col5:
+        st.metric("Sospechosas promedio", f"{metricas['sospechosas_promedio']:.1f}")
 
     if metricas["tasa_riesgo_alto"] > 0:
         st.warning(

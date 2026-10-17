@@ -61,6 +61,16 @@ def calcular_metricas_imagen(
         consistencia = 1.0 if frontera == 0 else 0.5
 
     return {
+        "celulas_detectadas": max(total_celulas, 0),
+        "celulas_sospechosas": max(sospechosas, 0),
+        "porcentaje_sospechosas": round(
+            max(sospechosas, 0) / max(total_celulas, 1) * 100,
+            2,
+        ),
+        "porcentaje_frontera": round(
+            max(frontera, 0) / max(total_celulas, 1) * 100,
+            2,
+        ),
         "precision": round(precision, 4),
         "recall": round(recall, 4),
         "f1": round(f1, 4),
