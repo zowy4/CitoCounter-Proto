@@ -4,7 +4,11 @@
 
 - `python -m pip check`: sin requisitos rotos.
 - La API escucha en `127.0.0.1` por defecto.
-- CITO-92 agrega clave de API opcional, rate limiting y auditoría de accesos.
+- CITO-92 agrega clave de API opcional, rate limiting, JWT HS256 y control
+  de acceso por roles.
+- `registrar_acceso` registra eventos de auditoría como JSON estructurado, sin
+  incluir claves, contraseñas ni tokens. La prueba focalizada comprueba el
+  formato del evento.
 
 ## HTTPS y despliegue
 

@@ -16,10 +16,21 @@ from api_v1 import (
     analyze_from_payload,
     validate_payload,
     permitir_solicitud,
+    registrar_acceso,
 )
 
 
 class ApiV1Tests(unittest.TestCase):
+    def test_registrar_acceso_emite_evento_json(self):
+        with self.assertLogs("cito-api", level="INFO") as logs:
+            registrar_acceso("/api/v1/analyze", "POST", True, "usuario=analista")
+
+        event = json.loads(logs.output[0].split(":", 2)[2])
+        self.assertEqual(event["endpoint"], "/api/v1/analyze")
+        self.assertEqual(event["metodo"], "POST")
+        self.assertTrue(event["exito"])
+        self.assertEqual(event["detalles"], "usuario=analista")
+
     def test_rate_limit_rechaza_solicitud_excedente(self):
         import api_v1
 

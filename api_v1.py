@@ -460,14 +460,6 @@ def run_api(host="127.0.0.1", port=8000):
     server.serve_forever()
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="API REST v1 de CitoCounter Proto.")
-    parser.add_argument("--host", default="127.0.0.1")
-    parser.add_argument("--port", type=int, default=8000)
-    args = parser.parse_args()
-    run_api(host=args.host, port=args.port)
-
-
 # CITO-79: Security validation functions
 def validar_extension(image_name):
     """Validate file extension is allowed (CITO-79)."""
@@ -540,10 +532,17 @@ def registrar_acceso(endpoint, metodo, exito, detalles=None):
         )
         handler.setFormatter(formatter)
         logger.addHandler(handler)
-    mensaje = f"endpoint={endpoint}, metodo={metodo}, exito={exito}"
-    if detalles:
-        mensaje += f", detalles={detalles}"
-    logger.info(mensaje)
+    logger.info(
+        json.dumps(
+            {
+                "endpoint": endpoint,
+                "metodo": metodo,
+                "exito": exito,
+                "detalles": detalles,
+            },
+            ensure_ascii=False,
+        )
+    )
 
 
 def exito_response(data, mensaje="Operación exitosa"):
@@ -554,3 +553,11 @@ def exito_response(data, mensaje="Operación exitosa"):
         "mensaje": mensaje,
         "data": data,
     }, 200
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="API REST v1 de CitoCounter Proto.")
+    parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--port", type=int, default=8000)
+    args = parser.parse_args()
+    run_api(host=args.host, port=args.port)
