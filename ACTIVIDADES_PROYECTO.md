@@ -2,10 +2,10 @@
 
 ## Resumen General
 - **Total de actividades:** 33 actividades (CITO-22 a CITO-97)
-- **Actividades completadas:** 29
-- **Actividades por hacer:** 9
+- **Actividades completadas:** 30
+- **Actividades por hacer:** 8
 - **Actividades en revisión:** 1
-- **Estado general:** 87.9% completado, 12.1% pendiente
+- **Estado general:** 90.9% completado, 9.1% pendiente
 
 ## Mapa de Actividades CITO
 
@@ -41,7 +41,7 @@
 | CITO-87 | Documentación técnica completa del sistema | High | Finalizado | 09/sep/26 1:52 PM | 17/oct/26 3:20 PM | -- |
 | CITO-88 | Pruebas de la plataforma con usuarios potenciales | High | Por hacer | 09/sep/26 1:52 PM | 09/sep/26 2:34 PM | J-13 |
 | CITO-89 | Buscar mas datasets | Medium | Por hacer | 29/sep/26 12:02 PM | 29/sep/26 12:02 PM | -- |
-| CITO-90 | SEGMENTACION OPEN HSV | Medium | Por hacer | 29/sep/26 12:07 PM | 29/sep/26 12:07 PM | -- |
+| CITO-90 | SEGMENTACION OPEN HSV | Medium | Finalizado | 29/sep/26 12:07 PM | 17/oct/26 3:35 PM | -- |
 | CITO-91 | TOMAR EN CUENTA QUE SE ESCANEAN MUCHAS IMAGENES AL MISMO TIEMPO | Medium | Por hacer | 29/sep/26 12:14 PM | 29/sep/26 12:14 PM | -- |
 | CITO-92 | Implementar autenticación básica y rate limiting en API REST | Medium | Por hacer | 07/oct/26 12:14 PM | 07/oct/26 12:14 PM | J-12 |
 | CITO-93 | Endurecer seguridad: logs auditoría, HTTPS, revisión dependencias | Medium | Por hacer | 07/oct/26 12:14 PM | 07/oct/26 12:14 PM | J-12 |
