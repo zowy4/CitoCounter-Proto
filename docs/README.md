@@ -10,6 +10,7 @@ La documentación está organizada por tarea para evitar repetir el mismo flujo 
 - [Experimentación y bitácora](guide/experimentos.md)
 - [Etiquetado YOLO con LabelImg](guide/etiquetado.md)
 - [Desarrollo, contribución y GitHub](guide/desarrollo.md)
+- [Desarrollo de plataforma médica](guia-desarrollo-plataforma-medica.md)
 
 ## Planificación y Seguimiento en Jira
 

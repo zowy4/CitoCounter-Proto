@@ -29,6 +29,7 @@ streamlit run app.py
 | Etiquetar imágenes en formato YOLO | [Guía de etiquetado](docs/guide/etiquetado.md) |
 | Contribuir o preparar GitHub | [Guía de desarrollo](docs/guide/desarrollo.md) |
 | Ejecutar la guía maestra y dar seguimiento en Jira | [Guía maestra de desarrollo](docs/guia-maestra-desarrollo.md) |
+| Evolucionar hacia una plataforma formal de uso médico | [Guía de desarrollo para plataforma médica](docs/guia-desarrollo-plataforma-medica.md) |
 | Riesgos, normativa y plan Jira | [Plan del proyecto](docs/plan-proyecto.md) |
 | Índice de carpetas y scripts | [Mapa del proyecto](docs/README.md) |
 | Arquitectura y referencias técnicas | [Manual técnico](docs/evidencia-cito87-documentacion-tecnica.md) |
