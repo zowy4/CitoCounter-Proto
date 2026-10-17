@@ -141,6 +141,9 @@ class ApiV1Tests(unittest.TestCase):
 
 class ApiV1HttpTests(unittest.TestCase):
     def setUp(self):
+        import api_v1
+
+        api_v1.REQUEST_TIMESTAMPS.clear()
         self.server = HTTPServer(("127.0.0.1", 0), CitoCounterApiHandler)
         self.thread = threading.Thread(target=self.server.serve_forever)
         self.thread.start()
@@ -205,6 +208,69 @@ class ApiV1HttpTests(unittest.TestCase):
         )
         self.assertEqual(status, 413)
         self.assertEqual(payload["error"]["code"], 413)
+
+    def test_rechaza_solicitud_sin_clave_cuando_esta_configurada(self):
+        with patch.dict("os.environ", {"CITO_API_KEY": "clave-prueba"}):
+            status, payload = self.request(
+                "POST",
+                "/api/v1/analyze",
+                body="{}",
+                headers={"Content-Type": "application/json"},
+            )
+
+        self.assertEqual(status, 401)
+        self.assertEqual(payload["error"]["code"], 401)
+
+    def test_rechaza_solicitud_con_clave_incorrecta(self):
+        with patch.dict("os.environ", {"CITO_API_KEY": "clave-prueba"}):
+            status, payload = self.request(
+                "POST",
+                "/api/v1/analyze",
+                body="{}",
+                headers={
+                    "Content-Type": "application/json",
+                    "X-API-Key": "clave-incorrecta",
+                },
+            )
+
+        self.assertEqual(status, 401)
+        self.assertEqual(payload["error"]["code"], 401)
+
+    def test_acepta_clave_valida_antes_de_validar_payload(self):
+        with patch.dict("os.environ", {"CITO_API_KEY": "clave-prueba"}):
+            status, payload = self.request(
+                "POST",
+                "/api/v1/analyze",
+                body="{}",
+                headers={
+                    "Content-Type": "application/json",
+                    "X-API-Key": "clave-prueba",
+                },
+            )
+
+        self.assertEqual(status, 400)
+        self.assertIn("image_name", payload["error"]["message"])
+
+    def test_rechaza_por_limite_de_solicitudes_http(self):
+        headers = {"Content-Type": "application/json"}
+        for _ in range(30):
+            status, _ = self.request(
+                "POST",
+                "/api/v1/analyze",
+                body="{}",
+                headers=headers,
+            )
+            self.assertEqual(status, 400)
+
+        status, payload = self.request(
+            "POST",
+            "/api/v1/analyze",
+            body="{}",
+            headers=headers,
+        )
+
+        self.assertEqual(status, 429)
+        self.assertEqual(payload["error"]["code"], 429)
 
 
 if __name__ == "__main__":
