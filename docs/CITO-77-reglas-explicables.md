@@ -1,9 +1,13 @@
-# CITO-77: Documentación de Reglas Explicables, Umbrales, Casos Frontera y Limitaciones
+# CITO-24/CITO-77: Documentación de Reglas Explicables, Umbrales, Casos Frontera y Limitaciones
 
 **Proyecto:** CitoCounter-Proto  
 **Fecha:** 2026-10-06  
-**Dependencia:** J-07 (Calibración CITO-74)  
+**Dependencia:** J-07 (Calibración CITO-74) y CITO-97 (calibración con imágenes reales)
 **Evidencia:** Este documento + casos de prueba en `tests/test_cito77_reglas.py`
+
+> Esta documentación constituye la evidencia técnica de CITO-24. Los umbrales son
+> provisionales, dependen de la polaridad y no equivalen a criterios diagnósticos.
+> Toda clasificación sospechosa o frontera requiere revisión experta.
 
 ---
 
@@ -35,7 +39,7 @@ Para núcleos de ~30px diámetro → σ1=5.0, σ2=10.0 ✓
 
 | Variable | Valor | Descripción |
 |----------|-------|-------------|
-| `UMBRAL_DOG` | **15** | Valor mínimo para considerar píxel como borde (antes de Otsu) |
+| `UMBRAL_DOG` | **5** | Valor mínimo para considerar píxel como borde (antes de Otsu) |
 
 ### 2.3 Parámetros de Clasificación (`src/analysis.py`)
 
@@ -44,8 +48,8 @@ Para núcleos de ~30px diámetro → σ1=5.0, σ2=10.0 ✓
 | `AREA_PROMEDIO_NUCLEO_NORMAL` | **300 px²** | Área promedio de referencia (calibrar con datos reales) |
 | `FACTOR_RIESGO` | **3.0** | Regla Dra. Rangel: >3x área normal = sospechoso |
 | `MARGEN_FRONTERA` | **0.10 (±10%)** | Zona de incertidumbre alrededor del umbral |
-| `AREA_MINIMA_NUCLEO` | **50 px²** (claro) / **200 px²** (oscuro) | Filtro ruido/artefactos pequeños |
-| `AREA_MAXIMA_NUCLEO` | **5000 px²** (claro) / **300000 px²** (oscuro) | Filtro artefactos grandes |
+| `AREA_MINIMA_NUCLEO` | **10 px²** (claro) / **100 px²** (oscuro) | Filtro ruido/artefactos pequeños |
+| `AREA_MAXIMA_NUCLEO` | **1000 px²** (claro) / **300000 px²** (oscuro) | Filtro artefactos grandes |
 
 ### 2.4 Parámetros de Preprocesamiento (`src/preprocessing.py`)
 
@@ -115,9 +119,9 @@ Para núcleos de ~30px diámetro → σ1=5.0, σ2=10.0 ✓
 
 | Código | Significado | Color Visual | Acción Recomendada |
 |--------|-------------|--------------|-------------------|
-| `normal` | Área < 900 px² | 🟢 Verde | Seguimiento rutinario |
-| `sospechosa` | Área ≥ 900 px² | 🔴 Rojo | **Revisión experta obligatoria** |
-| `descartada` | Área < 50 o > 5000 | ⚪ Gris | Ignorar (ruido/artefacto) |
+| `normal` | Área válida < 900 px² o igual al máximo | 🟢 Verde | Seguimiento rutinario |
+| `sospechosa` | Área ≥ 900 px² y menor al máximo de su polaridad | 🔴 Rojo | **Revisión experta obligatoria** |
+| `descartada` | Área < mínimo o > máximo de su polaridad | ⚪ Gris | Excluir por ruido/artefacto |
 | `frontera` | 810 ≤ Área ≤ 990 | 🟡 Amarillo | **Revisión experta prioritaria** |
 
 ### 3.3 Mensaje de Revisión Experta (Obligatorio)
@@ -140,24 +144,22 @@ Para núcleos de ~30px diámetro → σ1=5.0, σ2=10.0 ✓
 
 | Caso | Área (px²) | Clasificación | es_frontera | Comentario |
 |------|------------|---------------|-------------|------------|
-| Ruido mínimo | 10 | `descartada` | False | < 50 |
-| Ruido límite | 49 | `descartada` | False | < 50 |
-| Núcleo mínimo válido | 50 | `normal` | False | = mínimo |
+| Ruido mínimo | 9 | `descartada` | False | < 10, polaridad clara |
+| Límite mínimo válido | 10 | `normal` | False | = mínimo, polaridad clara |
+| Núcleo mínimo oscuro | 100 | `normal` | False | = mínimo, polaridad oscura |
 | Núcleo típico | 300 | `normal` | False | = promedio |
 | Frontera inferior | 810 | `normal` | **True** | 900 × 0.9 |
 | Umbral exacto | 900 | `sospechosa` | **True** | = 3×300 |
 | Frontera superior | 990 | `sospechosa` | **True** | 900 × 1.1 |
-| Núcleo grande | 1500 | `sospechosa` | False | > 990 |
-| Artefacto límite | 4999 | `sospechosa` | False | < 5000 |
-| Artefacto máximo | 5000 | `descartada` | False | = máximo |
-| Artefacto grande | 5001 | `descartada` | False | > 5000 |
+| Máximo claro | 1000 | `normal` | False | Límite inclusivo |
+| Artefacto claro | 1001 | `descartada` | False | > máximo |
 
 ### 4.2 Casos de Polaridad
 
 | Polaridad | Área Mín | Área Máx | Comportamiento |
 |-----------|----------|----------|----------------|
-| `nucleos-claros` | 50 | 5000 | Fluorescencia, núcleos brillantes |
-| `nucleos-oscuros` | 200 | 300000 | Campo claro/Papanicolaou, inversión previa |
+| `nucleos-claros` | 10 | 1000 | Núcleos brillantes; valores calibrados provisionalmente |
+| `nucleos-oscuros` | 100 | 300000 | Campo claro/Papanicolaou, inversión previa; requiere validación real |
 
 ### 4.3 Casos de Separación Watershed
 
@@ -230,9 +232,9 @@ def preprocesar_imagen(ruta_imagen,
 AREA_PROMEDIO_NUCLEO_NORMAL = 300
 FACTOR_RIESGO = 3.0
 MARGEN_FRONTERA = 0.10
-UMBRAL_DOG = 15
-AREA_MINIMA_NUCLEO = {'nucleos-claros': 50, 'nucleos-oscuros': 200}
-AREA_MAXIMA_NUCLEO = {'nucleos-claros': 5000, 'nucleos-oscuros': 300000}
+UMBRAL_DOG = 5
+AREA_MINIMA_NUCLEO = {'nucleos-claros': 10, 'nucleos-oscuros': 100}
+AREA_MAXIMA_NUCLEO = {'nucleos-claros': 1000, 'nucleos-oscuros': 300000}
 
 def obtener_reglas_clasificacion(polaridad) -> dict
 def clasificar_nucleo_por_area(area, polaridad) -> dict
