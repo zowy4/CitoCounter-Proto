@@ -272,6 +272,95 @@ class ApiV1HttpTests(unittest.TestCase):
         self.assertEqual(status, 429)
         self.assertEqual(payload["error"]["code"], 429)
 
+    def test_login_jwt_permite_analisis_al_rol_analista(self):
+        users = json.dumps(
+            {"analista-prueba": {"password": "secreto-prueba", "role": "analista"}}
+        )
+        with patch.dict(
+            "os.environ",
+            {
+                "CITO_API_KEY": "",
+                "CITO_JWT_SECRET": "jwt-secreto-prueba",
+                "CITO_API_USERS": users,
+            },
+        ):
+            status, login = self.request(
+                "POST",
+                "/api/v1/auth/login",
+                body=json.dumps(
+                    {"username": "analista-prueba", "password": "secreto-prueba"}
+                ),
+                headers={"Content-Type": "application/json"},
+            )
+            self.assertEqual(status, 200)
+
+            status, payload = self.request(
+                "POST",
+                "/api/v1/analyze",
+                body="{}",
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {login['access_token']}",
+                },
+            )
+
+        self.assertEqual(status, 400)
+        self.assertIn("image_name", payload["error"]["message"])
+
+    def test_jwt_rechaza_rol_sin_permiso_de_analisis(self):
+        users = json.dumps(
+            {"lector-prueba": {"password": "secreto-prueba", "role": "lector"}}
+        )
+        with patch.dict(
+            "os.environ",
+            {
+                "CITO_API_KEY": "",
+                "CITO_JWT_SECRET": "jwt-secreto-prueba",
+                "CITO_API_USERS": users,
+            },
+        ):
+            _, login = self.request(
+                "POST",
+                "/api/v1/auth/login",
+                body=json.dumps(
+                    {"username": "lector-prueba", "password": "secreto-prueba"}
+                ),
+                headers={"Content-Type": "application/json"},
+            )
+            status, payload = self.request(
+                "POST",
+                "/api/v1/analyze",
+                body="{}",
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {login['access_token']}",
+                },
+            )
+
+        self.assertEqual(status, 403)
+        self.assertEqual(payload["error"]["code"], 403)
+
+    def test_jwt_rechaza_token_invalido(self):
+        with patch.dict(
+            "os.environ",
+            {
+                "CITO_API_KEY": "",
+                "CITO_JWT_SECRET": "jwt-secreto-prueba",
+            },
+        ):
+            status, payload = self.request(
+                "POST",
+                "/api/v1/analyze",
+                body="{}",
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer token.invalido.firmado",
+                },
+            )
+
+        self.assertEqual(status, 401)
+        self.assertEqual(payload["error"]["code"], 401)
+
 
 if __name__ == "__main__":
     unittest.main()

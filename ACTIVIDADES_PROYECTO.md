@@ -43,7 +43,7 @@
 | CITO-89 | Buscar mas datasets | Medium | Finalizado | 29/sep/26 12:02 PM | 17/oct/26 3:55 PM | -- |
 | CITO-90 | SEGMENTACION OPEN HSV | Medium | Finalizado | 29/sep/26 12:07 PM | 17/oct/26 3:35 PM | -- |
 | CITO-91 | TOMAR EN CUENTA QUE SE ESCANEAN MUCHAS IMAGENES AL MISMO TIEMPO | Medium | Finalizado | 29/sep/26 12:14 PM | 17/oct/26 3:42 PM | -- |
-| CITO-92 | Implementar autenticación básica y rate limiting en API REST | Medium | En revisión | 07/oct/26 12:14 PM | 17/oct/26 3:56 PM | J-12 |
+| CITO-92 | Implementar autenticación básica y rate limiting en API REST | Medium | Finalizado | 07/oct/26 12:14 PM | 17/oct/26 4:01 PM | J-12 |
 | CITO-93 | Endurecer seguridad: logs auditoría, HTTPS, revisión dependencias | Medium | Por hacer | 07/oct/26 12:14 PM | 07/oct/26 12:14 PM | J-12 |
 | CITO-94 | Casos especiales: superposición celular, artefactos e iluminación | Medium | Finalizado | 07/oct/26 12:14 PM | 17/oct/26 3:48 PM | J-19 |
 | CITO-95 | Validar F1-Score >= 90% en detección y segmentación con dataset congelado | Highest | Finalizado | 07/oct/26 12:14 PM | 17/oct/26 3:56 PM | J-18 |

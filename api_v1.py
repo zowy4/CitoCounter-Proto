@@ -4,6 +4,9 @@ API REST v1 para CitoCounter Proto (CITO-25 / J-11).
 """
 
 import argparse
+import base64
+import binascii
+import hashlib
 import hmac
 import json
 import os
@@ -11,6 +14,7 @@ import time
 from collections import defaultdict, deque
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
+from typing import Any, Mapping
 
 from src.analysis import analizar_nucleos
 from src.dog_filter import aplicar_filtro_dog
@@ -36,17 +40,167 @@ ERROR_CODES = {
 RATE_LIMIT_REQUESTS = 30
 RATE_LIMIT_WINDOW_SECONDS = 60
 REQUEST_TIMESTAMPS = defaultdict(deque)
+JWT_EXPIRATION_SECONDS = 3600
+ROLES_ANALISIS = {"analista", "administrador"}
 
 
-def validar_autenticacion(headers):
-    """Valida la clave de API configurada mediante CITO_API_KEY."""
-    expected_key = os.environ.get("CITO_API_KEY")
-    if not expected_key:
+def _base64url_codificar(data: bytes) -> str:
+    """Codifica bytes para una sección JWT sin relleno.
+
+    :param data: Datos a codificar.
+    :type data: bytes
+    :return: Texto codificado en base64 URL-safe.
+    :rtype: str
+    """
+    return base64.urlsafe_b64encode(data).rstrip(b"=").decode("ascii")
+
+
+def _base64url_decodificar(data: str) -> bytes:
+    """Decodifica una sección JWT codificada en base64 URL-safe.
+
+    :param data: Sección JWT sin relleno.
+    :type data: str
+    :return: Datos decodificados.
+    :rtype: bytes
+    :raises ValueError: Si la sección no tiene codificación válida.
+    """
+    return base64.urlsafe_b64decode(data + "=" * (-len(data) % 4))
+
+
+def crear_token_jwt(usuario: str, rol: str, now: float | None = None) -> str:
+    """Crea un JWT HS256 de duración limitada para un usuario configurado.
+
+    :param usuario: Identificador del usuario autenticado.
+    :type usuario: str
+    :param rol: Rol autorizado para el usuario.
+    :type rol: str
+    :param now: Tiempo UNIX opcional para pruebas deterministas.
+    :type now: float | None
+    :return: JWT firmado con el secreto configurado.
+    :rtype: str
+    :raises RuntimeError: Si falta el secreto JWT de entorno.
+    """
+    secreto = os.environ.get("CITO_JWT_SECRET")
+    if not secreto:
+        raise RuntimeError("CITO_JWT_SECRET no está configurado.")
+    issued_at = int(time.time() if now is None else now)
+    encabezado = _base64url_codificar(
+        json.dumps({"alg": "HS256", "typ": "JWT"}, separators=(",", ":")).encode("utf-8")
+    )
+    carga = _base64url_codificar(
+        json.dumps(
+            {"sub": usuario, "role": rol, "iat": issued_at, "exp": issued_at + JWT_EXPIRATION_SECONDS},
+            separators=(",", ":"),
+        ).encode("utf-8")
+    )
+    firma = hmac.new(
+        secreto.encode("utf-8"), f"{encabezado}.{carga}".encode("ascii"), hashlib.sha256
+    ).digest()
+    return f"{encabezado}.{carga}.{_base64url_codificar(firma)}"
+
+
+def validar_token_jwt(token: str, now: float | None = None) -> dict[str, str] | None:
+    """Valida firma, algoritmo, caducidad y reclamos mínimos de un JWT HS256.
+
+    :param token: JWT proporcionado en la cabecera Authorization.
+    :type token: str
+    :param now: Tiempo UNIX opcional para pruebas deterministas.
+    :type now: float | None
+    :return: Reclamos seguros del token o None cuando es inválido.
+    :rtype: dict[str, str] | None
+    """
+    secreto = os.environ.get("CITO_JWT_SECRET")
+    if not secreto:
         return None
+    try:
+        encabezado, carga, firma = token.split(".")
+        header = json.loads(_base64url_decodificar(encabezado).decode("utf-8"))
+        if header != {"alg": "HS256", "typ": "JWT"}:
+            return None
+        expected_signature = hmac.new(
+            secreto.encode("utf-8"), f"{encabezado}.{carga}".encode("ascii"), hashlib.sha256
+        ).digest()
+        if not hmac.compare_digest(_base64url_decodificar(firma), expected_signature):
+            return None
+        claims = json.loads(_base64url_decodificar(carga).decode("utf-8"))
+        if not isinstance(claims, dict) or not isinstance(claims.get("sub"), str):
+            return None
+        if not isinstance(claims.get("role"), str) or not isinstance(claims.get("exp"), int):
+            return None
+        if claims["exp"] <= int(time.time() if now is None else now):
+            return None
+    except (binascii.Error, UnicodeDecodeError, ValueError, json.JSONDecodeError):
+        return None
+    return {"sub": claims["sub"], "role": claims["role"]}
+
+
+def validar_autenticacion(headers: Mapping[str, str]) -> tuple[dict[str, str] | None, tuple[dict[str, Any], int] | None]:
+    """Valida la clave API opcional o un JWT Bearer configurado.
+
+    :param headers: Cabeceras HTTP entrantes.
+    :type headers: Mapping[str, str]
+    :return: Identidad autenticada y, en caso de error, la respuesta HTTP.
+    :rtype: tuple[dict[str, str] | None, tuple[dict[str, Any], int] | None]
+    """
+    expected_key = os.environ.get("CITO_API_KEY")
     supplied_key = headers.get("X-API-Key", "")
-    if not hmac.compare_digest(supplied_key, expected_key):
-        return error_response("Clave de API ausente o inválida.", 401)
-    return None
+    if expected_key and supplied_key:
+        if hmac.compare_digest(supplied_key, expected_key):
+            return {"sub": "api-key", "role": "administrador"}, None
+        return None, error_response("Clave de API ausente o inválida.", 401)
+
+    secreto_jwt = os.environ.get("CITO_JWT_SECRET")
+    if secreto_jwt:
+        authorization = headers.get("Authorization", "")
+        scheme, _, token = authorization.partition(" ")
+        claims = validar_token_jwt(token) if scheme == "Bearer" and token else None
+        if claims:
+            return claims, None
+        return None, error_response("Token de acceso ausente o inválido.", 401)
+
+    if expected_key:
+        return None, error_response("Clave de API ausente o inválida.", 401)
+    return {"sub": "local", "role": "administrador"}, None
+
+
+def autenticar_usuario(payload: object) -> tuple[dict[str, Any], int]:
+    """Autentica credenciales de entorno y devuelve un JWT temporal.
+
+    :param payload: Cuerpo JSON con username y password.
+    :type payload: object
+    :return: Respuesta de autenticación y código HTTP.
+    :rtype: tuple[dict[str, Any], int]
+    """
+    if not isinstance(payload, dict):
+        return error_response("El cuerpo JSON debe ser un objeto.")
+    username = payload.get("username")
+    password = payload.get("password")
+    if not isinstance(username, str) or not isinstance(password, str):
+        return error_response("`username` y `password` son obligatorios.", 400)
+    try:
+        usuarios = json.loads(os.environ.get("CITO_API_USERS", ""))
+    except json.JSONDecodeError:
+        return error_response("Configuración de usuarios inválida.", 503)
+    if not isinstance(usuarios, dict) or not os.environ.get("CITO_JWT_SECRET"):
+        return error_response("Autenticación JWT no configurada.", 503)
+    usuario = usuarios.get(username)
+    if not isinstance(usuario, dict):
+        return error_response("Credenciales inválidas.", 401)
+    password_configurada = usuario.get("password")
+    rol = usuario.get("role")
+    if (
+        not isinstance(password_configurada, str)
+        or not isinstance(rol, str)
+        or not hmac.compare_digest(password, password_configurada)
+    ):
+        return error_response("Credenciales inválidas.", 401)
+    return {
+        "ok": True,
+        "token_type": "Bearer",
+        "access_token": crear_token_jwt(username, rol),
+        "expires_in": JWT_EXPIRATION_SECONDS,
+        "role": rol,
+    }, 200
 
 
 def permitir_solicitud(cliente, now=None):
@@ -200,18 +354,25 @@ class CitoCounterApiHandler(BaseHTTPRequestHandler):
         )
 
     def do_POST(self):
-        if self.path != "/api/v1/analyze":
+        if self.path not in {"/api/v1/analyze", "/api/v1/auth/login"}:
             self._send_json(
                 {"ok": False, "error": {"code": 404, "message": "Endpoint no encontrado"}},
                 404,
             )
             return
 
-        authentication_error = validar_autenticacion(self.headers)
-        if authentication_error:
-            payload, status = authentication_error
-            self._send_json(payload, status)
-            return
+        if self.path == "/api/v1/analyze":
+            identidad, authentication_error = validar_autenticacion(self.headers)
+            if authentication_error:
+                response, status = authentication_error
+                self._send_json(response, status)
+                return
+            if identidad is None or identidad["role"] not in ROLES_ANALISIS:
+                self._send_json(
+                    {"ok": False, "error": {"code": 403, "message": "Rol sin acceso al análisis."}},
+                    403,
+                )
+                return
         if not permitir_solicitud(self.client_address[0]):
             self._send_json(
                 {"ok": False, "error": {"code": 429, "message": "Demasiadas solicitudes."}},
@@ -248,6 +409,11 @@ class CitoCounterApiHandler(BaseHTTPRequestHandler):
                 {"ok": False, "error": {"code": 400, "message": "JSON inválido"}},
                 400,
             )
+            return
+
+        if self.path == "/api/v1/auth/login":
+            response, status = autenticar_usuario(payload)
+            self._send_json(response, status)
             return
 
         validated, validation_status = validate_payload(payload)
@@ -287,7 +453,10 @@ class CitoCounterApiHandler(BaseHTTPRequestHandler):
 def run_api(host="127.0.0.1", port=8000):
     server = HTTPServer((host, port), CitoCounterApiHandler)
     print(f"API CitoCounter v1 escuchando en http://{host}:{port}")
-    print("Endpoints: GET /api/v1/health, POST /api/v1/analyze")
+    print(
+        "Endpoints: GET /api/v1/health, POST /api/v1/auth/login, "
+        "POST /api/v1/analyze"
+    )
     server.serve_forever()
 
 
