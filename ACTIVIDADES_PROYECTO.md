@@ -2,10 +2,10 @@
 
 ## Resumen General
 - **Total de actividades:** 33 actividades (CITO-22 a CITO-97)
-- **Actividades completadas:** 23
+- **Actividades completadas:** 24
 - **Actividades por hacer:** 13
-- **Actividades en revisión:** 2
-- **Estado general:** 69.7% completado, 30.3% pendiente
+- **Actividades en revisión:** 1
+- **Estado general:** 72.7% completado, 27.3% pendiente
 
 ## Mapa de Actividades CITO
 
@@ -16,7 +16,7 @@
 | CITO-24 | Definir reglas para clasificar células normales o sospechosas | High | Finalizado | 09/sep/26 12:44 PM | 17/oct/26 1:59 PM | J-10 |
 | CITO-25 | Desarrollar API REST para procesar imágenes y devolver análisis | High | Finalizado | 09/sep/26 12:44 PM | 17/oct/26 2:04 PM | J-11 |
 | CITO-26 | Implementar interfaz para visualizar conteo y clasificación | Medium | Finalizado | 09/sep/26 12:44 PM | 17/oct/26 2:09 PM | J-13 |
-| CITO-27 | Integrar el sistema con un dashboard de resultados y métricas | Medium | En revisión | 09/sep/26 12:44 PM | 14/sep/26 11:55 AM | J-15 |
+| CITO-27 | Integrar el sistema con un dashboard de resultados y métricas | Medium | Finalizado | 09/sep/26 12:44 PM | 17/oct/26 2:19 PM | J-15 |
 | CITO-28 | Diseñar indicadores clave del rendimiento del sistema | Medium | En revisión | 09/sep/26 12:44 PM | 17/sep/26 3:57 PM | J-15 |
 | CITO-29 | Construir flujo ETL para resultados y reportes históricos | Medium | Finalizado | 09/sep/26 12:44 PM | 18/sep/26 12:05 PM | J-15 |
 | CITO-30 | Diseñar almacenamiento para resultados de experimentación | Medium | Finalizado | 09/sep/26 12:44 PM | 18/sep/26 12:25 PM | J-14 |
@@ -72,8 +72,8 @@
 ## Estado de las Actividades por Categoría
 
 ### Pipeline y Algoritmos (CITO-22 a CITO-29): 7 actividades
-- Finalizadas: 6 (CITO-24, CITO-25, CITO-26, CITO-29, CITO-30 y CITO-31)
-- En revisión: 3 (CITO-22, CITO-27, CITO-28)
+- Finalizadas: 7 (CITO-24, CITO-25, CITO-26, CITO-27, CITO-29, CITO-30 y CITO-31)
+- En revisión: 2 (CITO-22, CITO-28)
 
 ### Seguridad y Autenticación (CITO-37 a CITO-39): 3 actividades
 - Finalizadas: 3 (CITO-37, CITO-38, CITO-39)

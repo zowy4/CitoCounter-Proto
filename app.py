@@ -369,6 +369,7 @@ st.warning(AVISO_USO_EXPERIMENTAL, icon="⚠️")
 # QUICK ACTIONS BAR
 # ============================================================================
 acciones = [
+    ("📊 Dashboard", "dashboard"),
     ("⚙️ Configuración", "config"),
     ("📤 Subir Imagen", "upload"),
     ("📁 Dataset", "dataset"),
@@ -1183,9 +1184,79 @@ def panel_ajustes():
 
 
 # ============================================================================
+# DASHBOARD DE RESULTADOS HISTÓRICOS
+# ============================================================================
+def mostrar_dashboard_resultados(seccion_actual):
+    """Muestra ejecuciones históricas y métricas agregadas por muestra."""
+    historial = cargar_historial()
+    if not historial:
+        st.info("Aún no hay ejecuciones registradas para mostrar en el dashboard.")
+        st.caption("Procesa una imagen y guarda el resultado en la bitácora para habilitar esta vista.")
+        return
+
+    metricas = metricas_conjunto(historial)
+    st.markdown("## 📊 Dashboard de Resultados y Métricas")
+    st.caption("Consulta histórica por muestra. Los indicadores son experimentales y requieren revisión experta.")
+
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("Ejecuciones", metricas["total_ejecuciones"])
+    with col2:
+        st.metric("Imágenes únicas", metricas["imagenes_unicas"])
+    with col3:
+        st.metric("Promedio de células", f"{metricas['total_celulas_promedio']:.1f}")
+    with col4:
+        st.metric("Riesgo experimental", f"{metricas['riesgo_promedio']:.1f}%")
+
+    if metricas["tasa_riesgo_alto"] > 0:
+        st.warning(
+            f"{metricas['tasa_riesgo_alto']:.1f}% de las ejecuciones superan el 10% de riesgo experimental.",
+            icon="⚠️",
+        )
+    else:
+        st.info("Ninguna ejecución supera el 10% de riesgo experimental.", icon="ℹ️")
+
+    if seccion_actual == "metricas":
+        st.markdown("### 📈 Evolución del riesgo por ejecución")
+        evolucion = metricas.get("evolucion", [])
+        if evolucion:
+            st.line_chart({
+                "Riesgo experimental (%)": [
+                    entrada["porcentaje_riesgo"] for entrada in evolucion
+                ],
+                "Células detectadas": [
+                    entrada["total_celulas"] for entrada in evolucion
+                ],
+            })
+        else:
+            st.info("No hay suficientes datos para construir la evolución.")
+
+        st.markdown("### 🧾 Reporte reproducible")
+        st.download_button(
+            "📥 Descargar reporte de métricas",
+            data=reporte_resumen(historial),
+            file_name="citocounter_reporte_metricas.txt",
+            mime="text/plain",
+        )
+
+    st.markdown("### 📋 Resultados por muestra")
+    filas = filas_para_tabla(historial)
+    st.dataframe(filas, use_container_width=True, hide_index=True)
+    st.warning(
+        "Estos resultados no constituyen diagnóstico médico. Las muestras sospechosas "
+        "o fronterizas requieren revisión experta.",
+        icon="🔎",
+    )
+
+
+# ============================================================================
 # ÁREA PRINCIPAL (selección de imágenes + procesamiento)
 # ============================================================================
 def pantalla_principal(cfg, seccion_actual):
+    if seccion_actual in ("historial", "metricas"):
+        mostrar_dashboard_resultados(seccion_actual)
+        return
+
     params_procesamiento = {k: v for k, v in cfg.items() if k != "fuente_imagenes"}
 
     mostrar_progreso = True

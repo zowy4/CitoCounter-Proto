@@ -48,7 +48,7 @@ Para evitar mezclar el identificador académico con la clave real de Jira, se us
 | ACT-03 | CITO-24 | Definir reglas para clasificar células normales o sospechosas | J-10 | Finalizado |
 | ACT-04 | CITO-25 | Desarrollar API REST para procesar imágenes y devolver análisis | J-11 | Finalizado |
 | ACT-05 | CITO-26 | Implementar interfaz para visualizar conteo y clasificación | J-13 | Finalizado |
-| ACT-06 | CITO-27 | Integrar el sistema con un dashboard de resultados y métricas | J-15 | Por hacer |
+| ACT-06 | CITO-27 | Integrar el sistema con un dashboard de resultados y métricas | J-15 | Finalizado |
 | ACT-07 | CITO-28 | Diseñar indicadores clave del rendimiento del sistema | J-15 | Por hacer |
 | ACT-08 | CITO-29 | Construir flujo ETL para resultados y reportes históricos | J-15 | Por hacer |
 | ACT-09 | CITO-30 | Diseñar almacenamiento para resultados de experimentación | J-14 | Por hacer |
@@ -95,7 +95,7 @@ Antes de iniciar las actividades, confirmar manualmente en la extensión de Jira
 | CITO-24 | ACT-03 | Reglas de clasificación formalizadas por área y frontera | Confirmado en plan | Actividad/subtarea con reglas explicables implementadas | Finalizado | 2026-10-17 |
 | CITO-25 | ACT-04 | API REST v1 validada localmente con pruebas unitarias e integración HTTP | Confirmado en plan | Actividad/subtarea con endpoint versionado, controles de entrada y evidencia reproducible | Finalizado | 2026-10-17 |
 | CITO-26 | ACT-05 | Interfaz local actualizada con incertidumbre y exportación reproducible | Confirmado en plan | Actividad/subtarea con dashboard Streamlit, manejo de errores y pruebas de exportación | Finalizado | 2026-10-17 |
-| CITO-27 | ACT-06 | Dashboard consolidado de ejecuciones y métricas implementado | Confirmado en plan | Actividad/subtarea con historial normalizado y agregados en Streamlit | En revisión recomendado | 2026-09-14 |
+| CITO-27 | ACT-06 | Dashboard consolidado de ejecuciones y métricas implementado | Confirmado en plan | Actividad/subtarea con historial normalizado, consulta por muestra y agregados en Streamlit | Finalizado | 2026-10-17 |
 | CITO-28 | ACT-07 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | CITO-29 | ACT-08 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | CITO-30 | ACT-09 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
@@ -195,7 +195,7 @@ La clave Jira debe aparecer en el commit o PR cuando sea posible. Si una activid
 | `J-10` / `ACT-03` / `CITO-24` | `Finalizado` | `src/analysis.py`, `tests/test_cito77_reglas.py`, `docs/CITO-77-reglas-explicables.md`; reglas normal/sospechosa y límites de frontera implementados; 34 pruebas pasan |
 | `J-11` / `ACT-04` / `CITO-25` | `Finalizado` | `api_v1.py`, `tests/test_api_v1.py`, `docs/evidencia-cito25-api-rest.md`; API v1 validada con `/health`, `/analyze`, esquema de entrada/salida, rechazo de entradas inválidas y límite de 64 KiB; 12 pruebas pasan |
 | `J-13` / `ACT-05` / `CITO-26` | `Finalizado` | `app.py`, `src/interfaz_resultados.py`, `tests/test_interfaz_resultados.py`, `docs/evidencia-cito26-interfaz.md`; interfaz local con carga limitada, incertidumbre, manejo de errores y exportaciones reproducibles; 2 pruebas pasan |
-| `J-15` / `ACT-06` / `CITO-27` | `En revisión` | `app.py`, `src/historial_resultados.py`, `tests/test_historial_resultados.py`, `docs/evidencia-cito27-dashboard.md`; historial normalizado y métricas consolidadas |
+| `J-15` / `ACT-06` / `CITO-27` | `Finalizado` | `app.py`, `src/historial_resultados.py`, `src/metricas_sistema.py`, `tests/test_historial_resultados.py`, `tests/test_metricas_sistema.py`, `docs/evidencia-cito27-dashboard.md`; dashboard por muestra, métricas consolidadas y estados vacíos implementados; 10 pruebas pasan |
 
 La corrección convierte los gaussianos a `float32` antes de restarlos, evitando que `uint8` recorte las diferencias negativas. La suite actual pasa y `git diff --check` no reporta errores. La incidencia no debe pasar a `Hecha` hasta que se revisen los criterios de aceptación en Jira y se adjunte esta evidencia.
 
@@ -400,7 +400,7 @@ Cada informe debe indicar fórmula, denominador, conjunto evaluado, versión y f
 - `docs/evidencia-cito24.md` - Reglas de clasificación
 - `docs/evidencia-cito25.md` - API REST
 - `docs/evidencia-cito26-interfaz.md` - Interfaz de resultados
-- `docs/evidencia-cito27.md` - Dashboard de métricas
+- `docs/evidencia-cito27-dashboard.md` - Dashboard de métricas
 
 ### Código fuente y pruebas:
 - `src/analysis.py` - Pipeline de análisis de núcleos (corregido CITO-32)
@@ -439,7 +439,7 @@ Antes de iniciar las actividades, confirmar manualmente en la extensión de Jira
 | CITO-24 | ACT-03 | Reglas de clasificación formalizadas por área y frontera | Confirmado en plan | Actividad/subtarea con reglas explicables implementadas | Finalizado | 2026-10-17 |
 | CITO-25 | ACT-04 | API REST v1 validada localmente con pruebas unitarias e integración HTTP | Confirmado en plan | Actividad/subtarea con endpoint versionado, controles de entrada y evidencia reproducible | Finalizado | 2026-10-17 |
 | CITO-26 | ACT-05 | Interfaz local actualizada con incertidumbre y exportación reproducible | Confirmado en plan | Actividad/subtarea con dashboard Streamlit, manejo de errores y pruebas de exportación | Finalizado | 2026-10-17 |
-| CITO-27 | ACT-06 | Dashboard consolidado de ejecuciones y métricas implementado | Confirmado en plan | Actividad/subtarea con historial normalizado y agregados en Streamlit | En revisión recomendado | 2026-09-14 |
+| CITO-27 | ACT-06 | Dashboard consolidado de ejecuciones y métricas implementado | Confirmado en plan | Actividad/subtarea con historial normalizado, consulta por muestra y agregados en Streamlit | Finalizado | 2026-10-17 |
 | CITO-28 | ACT-07 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | CITO-29 | ACT-08 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | CITO-30 | ACT-09 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
@@ -539,7 +539,7 @@ La clave Jira debe aparecer en el commit o PR cuando sea posible. Si una activid
 | `J-10` / `ACT-03` / `CITO-24` | `Finalizado` | `src/analysis.py`, `tests/test_cito77_reglas.py`, `docs/CITO-77-reglas-explicables.md`; reglas normal/sospechosa y límites de frontera implementados; 34 pruebas pasan |
 | `J-11` / `ACT-04` / `CITO-25` | `Finalizado` | `api_v1.py`, `tests/test_api_v1.py`, `docs/evidencia-cito25-api-rest.md`; API v1 validada con `/health`, `/analyze`, esquema de entrada/salida, rechazo de entradas inválidas y límite de 64 KiB; 12 pruebas pasan |
 | `J-13` / `ACT-05` / `CITO-26` | `Finalizado` | `app.py`, `src/interfaz_resultados.py`, `tests/test_interfaz_resultados.py`, `docs/evidencia-cito26-interfaz.md`; interfaz local con carga limitada, incertidumbre, manejo de errores y exportaciones reproducibles; 2 pruebas pasan |
-| `J-15` / `ACT-06` / `CITO-27` | `En revisión` | `app.py`, `src/historial_resultados.py`, `tests/test_historial_resultados.py`, `docs/evidencia-cito27-dashboard.md`; historial normalizado y métricas consolidadas |
+| `J-15` / `ACT-06` / `CITO-27` | `Finalizado` | `app.py`, `src/historial_resultados.py`, `src/metricas_sistema.py`, `tests/test_historial_resultados.py`, `tests/test_metricas_sistema.py`, `docs/evidencia-cito27-dashboard.md`; dashboard por muestra, métricas consolidadas y estados vacíos implementados; 10 pruebas pasan |
 
 La corrección convierte los gaussianos a `float32` antes de restarlos, evitando que `uint8` recorte las diferencias negativas. La suite actual pasa y `git diff --check` no reporta errores. La incidencia no debe pasar a `Hecha` hasta que se revisen los criterios de aceptación en Jira y se adjunte esta evidencia.
 
@@ -744,7 +744,7 @@ Cada informe debe indicar fórmula, denominador, conjunto evaluado, versión y f
 - `docs/evidencia-cito24.md` - Reglas de clasificación
 - `docs/evidencia-cito25.md` - API REST
 - `docs/evidencia-cito26-interfaz.md` - Interfaz de resultados
-- `docs/evidencia-cito27.md` - Dashboard de métricas
+- `docs/evidencia-cito27-dashboard.md` - Dashboard de métricas
 
 ### Código fuente y pruebas:
 - `src/analysis.py` - Pipeline de análisis de núcleos (corregido CITO-32)
