@@ -440,7 +440,7 @@ def main():
     parser.add_argument('--tamano-apertura-final', type=int, default=5,
                         help='Tamaño impar del kernel de apertura final (default: 5)')
     parser.add_argument('--metodo-separacion',
-                        choices=['watershed', 'maximos_locales'],
+                        choices=['watershed', 'watershed_picos', 'maximos_locales'],
                         help='Método opcional para separar núcleos superpuestos.')
     args = parser.parse_args()
 

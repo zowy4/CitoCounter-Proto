@@ -150,7 +150,8 @@ def _maximos_locales(imagen: np.ndarray, umbral: int = UMBRAL_DOG,
 
 def watershed_separar_nucleos(imagen_dog: np.ndarray, metodo: str = 'distancia',
                               umbral: int = UMBRAL_DOG,
-                              distancia_minima: int = 10) -> Tuple[List[np.ndarray], List[int]]:
+                              distancia_minima: int = 10,
+                              usar_picos_locales: bool = False) -> Tuple[List[np.ndarray], List[int]]:
     """
     Separa núcleos superpuestos usando watershed (transformada de distancia + watershed).
     
@@ -159,6 +160,8 @@ def watershed_separar_nucleos(imagen_dog: np.ndarray, metodo: str = 'distancia',
         metodo: Método de separación ('distancia' o 'gradiente')
         umbral: Umbral de binarización para el watershed
         distancia_minima: Distancia mínima entre núcleos separados
+        usar_picos_locales: Si True, usa máximos locales como marcadores para
+            separar núcleos en contacto.
     
     Returns:
         Tupla con:
@@ -171,12 +174,37 @@ def watershed_separar_nucleos(imagen_dog: np.ndarray, metodo: str = 'distancia',
     if metodo == 'distancia':
         # Usar transformada de distancia + watershed
         dist_transform = cv2.distanceTransform(binaria, cv2.DIST_L2, 5)
-        
-        # Aplicar watershed
-        # Marcadores: píxeles oscuros (fondo) = 0, píxeles blancos = 1, ... 
-        # Los picos de la transformada de distancia serán los centros de los núcleos
-        _, marcadores = cv2.connectedComponents(binaria.astype(np.uint8))
-        marcadores = marcadores.astype(np.int32) + 1  # Fondo = 1
+
+        if dist_transform.max() == 0:
+            return [], []
+
+        if usar_picos_locales:
+            # Los componentes conectados de la máscara binaria no separan
+            # núcleos que se tocan. Los máximos locales se usan como
+            # marcadores independientes solo cuando la estrategia lo solicita.
+            kernel_size = max(3, distancia_minima * 2 + 1)
+            kernel_maximos = cv2.getStructuringElement(
+                cv2.MORPH_ELLIPSE,
+                (kernel_size, kernel_size),
+            )
+            dist_dilatada = cv2.dilate(dist_transform, kernel_maximos)
+            picos = np.logical_and(
+                dist_transform >= 0.4 * dist_transform.max(),
+                dist_transform == dist_dilatada,
+            ).astype(np.uint8) * 255
+            _, marcadores = cv2.connectedComponents(picos)
+            marcadores = marcadores.astype(np.int32) + 1
+
+            fondo_seguro = cv2.dilate(
+                binaria,
+                np.ones((3, 3), np.uint8),
+                iterations=3,
+            )
+            region_desconocida = cv2.subtract(fondo_seguro, picos)
+            marcadores[region_desconocida == 255] = 0
+        else:
+            _, marcadores = cv2.connectedComponents(binaria.astype(np.uint8))
+            marcadores = marcadores.astype(np.int32) + 1
         
         # Aplicar watershed
         # Convertir imagen_dog a 8-bit 3-channel para watershed
@@ -469,12 +497,17 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
     }
     
     # 3. SEPARACIÓN DE NÚCLEOS SUPERPUestos (opcional)
-    if metodo_separacion == 'watershed':
+    if metodo_separacion in ('watershed', 'watershed_picos'):
         # Para watershed, usar la imagen DoG original (sin máscara de borde)
         # para evitar artefactos en la transformada de distancia
         # La máscara de borde se aplicará después para filtrar resultados
         # Usar el umbral Otsu calculado anteriormente para el watershed
-        contornos, areas = watershed_separar_nucleos(imagen_dog, metodo='distancia', umbral=umbral_otsu)
+        contornos, areas = watershed_separar_nucleos(
+            imagen_dog,
+            metodo='distancia',
+            umbral=umbral_otsu,
+            usar_picos_locales=metodo_separacion == 'watershed_picos',
+        )
         # Reconstruir resultados a partir de la separación watershed
         for i, (contorno, area) in enumerate(zip(contornos, areas)):
             decision = clasificar_nucleo_por_area(area, polaridad)

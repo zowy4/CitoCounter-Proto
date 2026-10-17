@@ -116,6 +116,7 @@ Clasifica cada núcleo detectado como normal o sospechoso basándose en su área
 |--------|-------------|-------------|---------------|
 | `None` | Sin separación, contornos detectados directamente | Baja | Para imágenes sin núcleos superpuestos |
 | `'watershed'` | Transformada de distancia + watershed | Media-Alta | Para núcleos en contacto o superposición |
+| `'watershed_picos'` | Watershed con máximos locales como marcadores | Media-Alta | Para núcleos superpuestos; puede sobresegmentar y debe validarse por conjunto |
 | `'maximos_locales'` | Detección de máximos locales en la transformada de distancia | Media | Alternativa al watershed |
 
 **Parámetros por método:**
@@ -123,6 +124,12 @@ Clasifica cada núcleo detectado como normal o sospechoso basándose en su área
 **Watershed:**
 - `metodo='watershed'`: Activa la separación watershed
 - No requiere parámetros adicionales além del método
+
+**Watershed con picos locales (CITO-86):**
+- `metodo='watershed_picos'`: Usa máximos de la transformada de distancia
+  para distinguir núcleos en contacto.
+- No sustituye a `watershed`: puede producir sobresegmentación según el
+  contraste y la morfología de la muestra.
 
 **Máximos locales:**
 - `metodo='maximos_locales'`: Activa la detección de máximos locales
@@ -192,7 +199,7 @@ Genera ground truth sintético para validación cuando no hay anotaciones humana
 | `reduzir_ruido` | boolean | Si aplicar filtro bilateral |
 | `nivel_ruido` | string | 'bajo', 'medio', 'alto' |
 | `polaridad` | string | 'nucleos-claros' o 'nucleos-oscuros' |
-| `metodo_separacion` | string | None, 'watershed', 'maximos_locales' |
+| `metodo_separacion` | string | None, 'watershed', 'watershed_picos', 'maximos_locales' |
 
 ## Guía de Calibración de Parámetros
 
@@ -253,4 +260,3 @@ Genera ground truth sintético para validación cuando no hay anotaciones humana
 - Método Otsu: thresholding automático basado en la histograma
 - CLAHE: Contrast Limited Adaptive Histogram Equalization (OpenCV)
 - Métricas: Precisión, Recall, F1-Score, IoU (estándar en visión por computadora)
-
