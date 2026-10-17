@@ -1198,7 +1198,7 @@ def mostrar_dashboard_resultados(seccion_actual):
     st.markdown("## 📊 Dashboard de Resultados y Métricas")
     st.caption("Consulta histórica por muestra. Los indicadores son experimentales y requieren revisión experta.")
 
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
         st.metric("Ejecuciones", metricas["total_ejecuciones"])
     with col2:
