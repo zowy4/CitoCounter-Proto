@@ -57,6 +57,15 @@ def test_interfaz_no_clasifica_ejemplos_como_riesgo_clinico():
     assert "humana y no debe usarse para una interpretación clínica" in contenido
 
 
+def test_navegacion_conserva_botones_legibles():
+    """S3.2: Las acciones principales no deben comprimirse en una sola fila."""
+    contenido = Path("app.py").read_text(encoding="utf-8")
+
+    assert "cols_acciones = st.columns(len(acciones) + 1)" not in contenido
+    assert "cols_acciones_principales = st.columns(4)" in contenido
+    assert "cols_acciones_secundarias = st.columns(4)" in contenido
+
+
 def test_tamano_imagen_maxim_64k():
     """S4: Tamaño de imagen máximo de 64 KiB (65536 bytes)."""
     # Crear imagen dentro del límite (100x100x3 float32)

@@ -378,8 +378,8 @@ acciones = [
     ("📥 Exportar", "exportar"),
 ]
 
-cols_acciones = st.columns(len(acciones) + 1)
-for col, (etiqueta, destino) in zip(cols_acciones[:-1], acciones):
+cols_acciones_principales = st.columns(4)
+for col, (etiqueta, destino) in zip(cols_acciones_principales, acciones[:4]):
     with col:
         st.button(
             etiqueta,
@@ -389,7 +389,18 @@ for col, (etiqueta, destino) in zip(cols_acciones[:-1], acciones):
             use_container_width=True,
         )
 
-with cols_acciones[-1]:
+cols_acciones_secundarias = st.columns(4)
+for col, (etiqueta, destino) in zip(cols_acciones_secundarias[:3], acciones[4:]):
+    with col:
+        st.button(
+            etiqueta,
+            key=f"nav_{destino}",
+            on_click=_ir_a_seccion,
+            args=(destino,),
+            use_container_width=True,
+        )
+
+with cols_acciones_secundarias[-1]:
     st.button(
         "◀ Ocultar panel" if st.session_state.panel_visible else "▶ Mostrar panel",
         key="toggle_panel",
