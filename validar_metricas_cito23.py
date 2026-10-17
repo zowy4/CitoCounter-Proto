@@ -251,13 +251,21 @@ def obtener_etiquetas_faltantes(image_ids: List[str], labels_dir: Path,
 
 def ejecutar_detector(image_path: Path, sigma1: float = 7.0,
                       sigma2: float = 8.0,
-                      polaridad: str = 'nucleos-claros') -> Tuple[List[Dict], int, int]:
+                      polaridad: str = 'nucleos-claros',
+                      tamano_apertura_final: int = 5,
+                      metodo_separacion: Optional[str] = None) -> Tuple[List[Dict], int, int]:
     """Ejecuta el pipeline y devuelve detecciones con centro y área."""
     imagen_gris, imagen_original = preprocesar_imagen(
         str(image_path), polaridad=polaridad
     )
     imagen_dog = aplicar_filtro_dog(imagen_gris, sigma1=sigma1, sigma2=sigma2)
-    resultados = analizar_nucleos(imagen_dog, imagen_original, polaridad=polaridad)
+    resultados = analizar_nucleos(
+        imagen_dog,
+        imagen_original,
+        polaridad=polaridad,
+        tamano_apertura_final=tamano_apertura_final,
+        metodo_separacion=metodo_separacion,
+    )
 
     detecciones = []
     contornos = (
@@ -429,6 +437,11 @@ def main():
                         help='Polaridad de los núcleos (Fase 2.3, CITO-22/23). '
                              'Usa nucleos-oscuros para citología de campo claro '
                              '(Papanicolaou/EDF). Default: nucleos-claros')
+    parser.add_argument('--tamano-apertura-final', type=int, default=5,
+                        help='Tamaño impar del kernel de apertura final (default: 5)')
+    parser.add_argument('--metodo-separacion',
+                        choices=['watershed', 'maximos_locales'],
+                        help='Método opcional para separar núcleos superpuestos.')
     args = parser.parse_args()
 
     images_dir = Path(args.images_dir)
@@ -515,6 +528,8 @@ def main():
             sigma1=args.sigma1,
             sigma2=args.sigma2,
             polaridad=args.polaridad,
+            tamano_apertura_final=args.tamano_apertura_final,
+            metodo_separacion=args.metodo_separacion,
         )
 
         result = validate_single_image(
@@ -605,10 +620,12 @@ def main():
         json.dump({
             'metadata': {
                 'script': 'validar_metricas_cito23.py',
-                'version': '1.1',
+                'version': '1.2',
                 'iou_threshold': 0.5,
                 'sigma1': args.sigma1,
                 'sigma2': args.sigma2,
+                'tamano_apertura_final': args.tamano_apertura_final,
+                'metodo_separacion': args.metodo_separacion,
                 'images_dir': str(images_dir),
                 'labels_dir': str(labels_dir),
                 'images_evaluated': len(results),

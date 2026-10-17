@@ -2,10 +2,10 @@
 
 ## Resumen General
 - **Total de actividades:** 33 actividades (CITO-22 a CITO-97)
-- **Actividades completadas:** 25
+- **Actividades completadas:** 26
 - **Actividades por hacer:** 12
-- **Actividades en revisión:** 2
-- **Estado general:** 75.8% completado, 24.2% pendiente
+- **Actividades en revisión:** 1
+- **Estado general:** 78.8% completado, 21.2% pendiente
 
 ## Mapa de Actividades CITO
 
@@ -36,7 +36,7 @@
 | CITO-44 | Crear suite de pruebas para validación de dataset | High | Finalizado | 09/sep/26 12:44 PM | 02/oct/26 12:25 PM | J-05 |
 | CITO-83 | Medir rendimiento y reducción de tiempo | High | Finalizado | 09/sep/26 1:51 PM | 07/oct/26 8:19 AM | -- |
 | CITO-84 | Auditar reproducibilidad y preparar entrega | Highest | Finalizado | 09/sep/26 1:51 PM | 07/oct/26 8:19 AM | -- |
-| CITO-85 | Validar F1-Score >= 90% en detección y segmentación | Highest | En revisión | 09/sep/26 1:51 PM | 17/oct/26 2:37 PM | J-18 |
+| CITO-85 | Validar F1-Score >= 90% en detección y segmentación | Highest | Finalizado | 09/sep/26 1:51 PM | 17/oct/26 2:48 PM | J-18 |
 | CITO-86 | Manejo de casos especiales: superposición, artefactos e iluminación | High | Por hacer | 09/sep/26 1:52 PM | 09/sep/26 2:34 PM | J-19 |
 | CITO-87 | Documentación técnica completa del sistema | High | Por hacer | 09/sep/26 1:52 PM | 07/oct/26 8:20 AM | -- |
 | CITO-88 | Pruebas de la plataforma con usuarios potenciales | High | Por hacer | 09/sep/26 1:52 PM | 09/sep/26 2:34 PM | J-13 |

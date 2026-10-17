@@ -314,7 +314,7 @@ def clasificar_nucleo_por_area(area, polaridad: str = 'nucleos-claros'):
     }
 
 
-def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad='nucleos-claros', metodo_separacion: str = None, usar_mascara_borde=True, ancho_borde=50):
+def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad='nucleos-claros', metodo_separacion: str = None, usar_mascara_borde=True, ancho_borde=50, tamano_apertura_final=5):
     """
     Analiza una imagen DoG para detectar y clasificar núcleos celulares.
     
@@ -337,6 +337,8 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
             - 'maximos_locales': Detección de máximos locales
         usar_mascara_borde (bool): Si True, ignora bordes de imagen para evitar artefactos DoG (default: True)
         ancho_borde (int): Píxeles a ignorar en cada borde (default: 50)
+        tamano_apertura_final (int): Tamaño impar del kernel de apertura final
+            (default: 5).
     
     Returns:
         dict: Resultados del análisis con las siguientes claves:
@@ -350,6 +352,9 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
             - 'contornos_sospechosos': Lista de contornos sospechosos
     """
     
+    if tamano_apertura_final < 1 or tamano_apertura_final % 2 == 0:
+        raise ValueError("tamano_apertura_final debe ser un entero impar positivo")
+
     # 1. BINARIZACIÓN
     # Método de Otsu: calcula automáticamente el umbral óptimo
     # Para evitar que los artefactos de borde afecten el umbral de Otsu,
@@ -434,7 +439,10 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
     thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel_close)
     
     # 3. Apertura adicional con kernel mayor para eliminar ruido residual
-    kernel_open2 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+    kernel_open2 = cv2.getStructuringElement(
+        cv2.MORPH_ELLIPSE,
+        (tamano_apertura_final, tamano_apertura_final),
+    )
     thresh = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel_open2)
     
     # 2. DETECCIÓN DE CONTORNOS
