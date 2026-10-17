@@ -2,10 +2,10 @@
 
 ## Resumen General
 - **Total de actividades:** 33 actividades (CITO-22 a CITO-97)
-- **Actividades completadas:** 28
-- **Actividades por hacer:** 10
+- **Actividades completadas:** 29
+- **Actividades por hacer:** 9
 - **Actividades en revisión:** 1
-- **Estado general:** 84.8% completado, 15.2% pendiente
+- **Estado general:** 87.9% completado, 12.1% pendiente
 
 ## Mapa de Actividades CITO
 
@@ -48,7 +48,7 @@
 | CITO-94 | Casos especiales: superposición celular, artefactos e iluminación | Medium | Por hacer | 07/oct/26 12:14 PM | 07/oct/26 12:14 PM | J-19 |
 | CITO-95 | Validar F1-Score >= 90% en detección y segmentación con dataset congelado | Highest | Por hacer | 07/oct/26 12:14 PM | 07/oct/26 12:14 PM | J-18 |
 | CITO-96 | Completar dataset con splits train/val/test y ground truth trazable | Highest | Por hacer | 07/oct/26 12:14 PM | 07/oct/26 12:14 PM | J-03/J-04/J-05 |
-| CITO-97 | Calibrar DoG con conjunto autorizado separado | Highest | Por hacer | 07/oct/26 12:14 PM | 07/oct/26 12:14 PM | J-07 |
+| CITO-97 | Calibrar DoG con conjunto autorizado separado | Highest | Finalizado | 07/oct/26 12:14 PM | 17/oct/26 3:30 PM | J-07 |
 
 ## Prioridades
 
