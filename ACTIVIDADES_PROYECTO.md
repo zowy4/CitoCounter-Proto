@@ -2,10 +2,10 @@
 
 ## Resumen General
 - **Total de actividades:** 33 actividades (CITO-22 a CITO-97)
-- **Actividades completadas:** 22
+- **Actividades completadas:** 23
 - **Actividades por hacer:** 13
-- **Actividades en revisión:** 3
-- **Estado general:** 66.7% completado, 33.3% pendiente
+- **Actividades en revisión:** 2
+- **Estado general:** 69.7% completado, 30.3% pendiente
 
 ## Mapa de Actividades CITO
 
@@ -15,7 +15,7 @@
 | CITO-23 | Evaluar precisión, sensibilidad, F1-Score e IoU | Highest | En revisión | 09/sep/26 12:44 PM | 11/sep/26 2:50 PM | J-08 |
 | CITO-24 | Definir reglas para clasificar células normales o sospechosas | High | Finalizado | 09/sep/26 12:44 PM | 17/oct/26 1:59 PM | J-10 |
 | CITO-25 | Desarrollar API REST para procesar imágenes y devolver análisis | High | Finalizado | 09/sep/26 12:44 PM | 17/oct/26 2:04 PM | J-11 |
-| CITO-26 | Implementar interfaz para visualizar conteo y clasificación | Medium | En revisión | 09/sep/26 12:44 PM | 14/sep/26 10:58 AM | J-13 |
+| CITO-26 | Implementar interfaz para visualizar conteo y clasificación | Medium | Finalizado | 09/sep/26 12:44 PM | 17/oct/26 2:09 PM | J-13 |
 | CITO-27 | Integrar el sistema con un dashboard de resultados y métricas | Medium | En revisión | 09/sep/26 12:44 PM | 14/sep/26 11:55 AM | J-15 |
 | CITO-28 | Diseñar indicadores clave del rendimiento del sistema | Medium | En revisión | 09/sep/26 12:44 PM | 17/sep/26 3:57 PM | J-15 |
 | CITO-29 | Construir flujo ETL para resultados y reportes históricos | Medium | Finalizado | 09/sep/26 12:44 PM | 18/sep/26 12:05 PM | J-15 |
@@ -72,8 +72,8 @@
 ## Estado de las Actividades por Categoría
 
 ### Pipeline y Algoritmos (CITO-22 a CITO-29): 7 actividades
-- Finalizadas: 5 (CITO-24, CITO-29, CITO-30, CITO-31 y CITO-23 en evaluación)
-- En revisión: 4 (CITO-22, CITO-26, CITO-27, CITO-28)
+- Finalizadas: 6 (CITO-24, CITO-25, CITO-26, CITO-29, CITO-30 y CITO-31)
+- En revisión: 3 (CITO-22, CITO-27, CITO-28)
 
 ### Seguridad y Autenticación (CITO-37 a CITO-39): 3 actividades
 - Finalizadas: 3 (CITO-37, CITO-38, CITO-39)
