@@ -42,6 +42,7 @@ RATE_LIMIT_WINDOW_SECONDS = 60
 REQUEST_TIMESTAMPS = defaultdict(deque)
 JWT_EXPIRATION_SECONDS = 3600
 ROLES_ANALISIS = {"analista", "administrador"}
+ALGORITHM_REVISION = "dog-otsu-contours-area-experimental-v1"
 
 
 def _base64url_codificar(data: bytes) -> str:
@@ -233,6 +234,27 @@ def validar_booleano(payload, field_name, default):
     return value, None
 
 
+def crear_identificador_configuracion(parametros: Mapping[str, Any]) -> str:
+    """Crea un identificador estable para la configuración efectiva del análisis.
+
+    :param parametros: Parámetros validados del análisis.
+    :type parametros: Mapping[str, Any]
+    :return: Identificador de revisión y huella corta de configuración.
+    :rtype: str
+    """
+    configuracion = {
+        "algorithm_revision": ALGORITHM_REVISION,
+        "enhance_contrast": parametros["mejorar_contraste"],
+        "noise_reduction": parametros["reducir_ruido"],
+        "polarity": parametros["polaridad"],
+        "sigma1": parametros["sigma1"],
+        "sigma2": parametros["sigma2"],
+    }
+    serializada = json.dumps(configuracion, sort_keys=True, separators=(",", ":"))
+    huella = hashlib.sha256(serializada.encode("utf-8")).hexdigest()[:12]
+    return f"{ALGORITHM_REVISION}:{huella}"
+
+
 def validate_payload(payload):
     if not isinstance(payload, dict):
         return error_response("El cuerpo JSON debe ser un objeto.")
@@ -293,6 +315,7 @@ def analyze_from_payload(payload):
     if status != 200:
         return validated, status
 
+    configuration_id = crear_identificador_configuracion(validated)
     try:
         imagen_gris, imagen_original = preprocesar_imagen(
             str(validated["path"]),
@@ -316,6 +339,8 @@ def analyze_from_payload(payload):
             "Prototipo de investigación. El resultado no equivale a diagnóstico clínico."
         ),
         "input": {
+            "algorithm_revision": ALGORITHM_REVISION,
+            "configuration_id": configuration_id,
             "image_name": validated["path"].name,
             "image_dir": next(k for k, v in ALLOWED_IMAGE_ROOTS.items() if validated["path"].is_relative_to(v)),
             "sigma1": validated["sigma1"],
@@ -486,11 +511,14 @@ class CitoCounterApiHandler(BaseHTTPRequestHandler):
             return
         
         response, status = analyze_from_payload(payload)
+        configuracion = (
+            response["input"]["configuration_id"] if status == 200 else "no_aplica"
+        )
         self._send_audited_response(
             response,
             status,
             status == 200,
-            f"status={status},rol={identidad['role']}",
+            f"status={status},rol={identidad['role']},configuracion={configuracion}",
         )
 
 

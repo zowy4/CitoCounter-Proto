@@ -10,8 +10,13 @@
   incluir claves, contraseñas, tokens, cargas de imagen ni nombres de
   imágenes. Incluye resultados exitosos y rechazos de autenticación,
   autorización, límite de solicitudes y validación.
+- Cada análisis exitoso devuelve y registra una huella de configuración
+  determinista: revisión experimental del pipeline y parámetros efectivos
+  (sigmas, polaridad, contraste y reducción de ruido), sin incluir la ruta ni
+  el nombre de la imagen.
 - La suite focalizada de API verifica el formato, el rechazo `401` auditado y
-  el login sin credenciales en la bitácora (22 pruebas correctas,
+  el login sin credenciales en la bitácora, además de la estabilidad de la
+  huella de configuración (23 pruebas correctas,
   17/oct/26).
 
 ## HTTPS y despliegue

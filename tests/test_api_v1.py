@@ -14,6 +14,7 @@ from api_v1 import (
     MAX_REQUEST_BODY_BYTES,
     PROJECT_ROOT,
     analyze_from_payload,
+    crear_identificador_configuracion,
     validate_payload,
     permitir_solicitud,
     registrar_acceso,
@@ -21,6 +22,24 @@ from api_v1 import (
 
 
 class ApiV1Tests(unittest.TestCase):
+    def test_identificador_configuracion_es_estable_y_sensible_a_parametros(self):
+        parametros = {
+            "mejorar_contraste": True,
+            "reducir_ruido": False,
+            "polaridad": "nucleos-claros",
+            "sigma1": 5.0,
+            "sigma2": 8.0,
+        }
+
+        identificador = crear_identificador_configuracion(parametros)
+        self.assertEqual(identificador, crear_identificador_configuracion(parametros))
+
+        parametros_alternos = {**parametros, "sigma2": 10.0}
+        self.assertNotEqual(
+            identificador,
+            crear_identificador_configuracion(parametros_alternos),
+        )
+
     def test_registrar_acceso_emite_evento_json(self):
         with self.assertLogs("cito-api", level="INFO") as logs:
             registrar_acceso("/api/v1/analyze", "POST", True, "usuario=analista")
@@ -144,6 +163,11 @@ class ApiV1Tests(unittest.TestCase):
 
             self.assertEqual(status, 200)
             self.assertTrue(response["ok"])
+            self.assertTrue(
+                response["input"]["configuration_id"].startswith(
+                    "dog-otsu-contours-area-experimental-v1:"
+                )
+            )
             self.assertEqual(response["result"]["total_cells"], 10)
             self.assertEqual(response["result"]["suspicious_cells"], 3)
             self.assertEqual(response["result"]["borderline_cells"], 2)
