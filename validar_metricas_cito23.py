@@ -17,6 +17,7 @@ import argparse
 import csv
 import cv2
 import json
+import matplotlib.pyplot as plt
 from pathlib import Path
 from typing import List, Tuple, Dict, Optional
 import logging
@@ -338,6 +339,66 @@ def validate_single_image(image_id: str, detections: List[Dict],
     }
 
 
+def generar_grafica_validacion(
+    results: List[Dict],
+    resumen: Dict[str, float],
+    chart_path: Path,
+) -> Path:
+    """Genera una grafica reproducible con metricas globales y por imagen.
+
+    Parameters
+    ----------
+    results : list[dict]
+        Resultados de validacion espacial por imagen.
+    resumen : dict[str, float]
+        Metricas agregadas de precision, sensibilidad, F1 e IoU.
+    chart_path : pathlib.Path
+        Ruta destino para la grafica PNG.
+
+    Returns
+    -------
+    pathlib.Path
+        Ruta de la grafica creada.
+    """
+    chart_path.parent.mkdir(parents=True, exist_ok=True)
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4.5))
+
+    nombres_metricas = ["Precision", "Sensibilidad", "F1", "IoU medio"]
+    valores_metricas = [
+        resumen["precision"],
+        resumen["recall"],
+        resumen["f1"],
+        resumen["mean_iou"],
+    ]
+    axes[0].bar(nombres_metricas, valores_metricas, color="#2b6cb0")
+    axes[0].axhline(0.90, color="#c53030", linestyle="--", label="Objetivo F1 >= 0.90")
+    axes[0].set_ylim(0, 1)
+    axes[0].set_title("Metricas globales")
+    axes[0].set_ylabel("Valor")
+    axes[0].legend(loc="lower right")
+    for index, value in enumerate(valores_metricas):
+        axes[0].text(index, value + 0.02, f"{value:.3f}", ha="center")
+
+    image_ids = [result["image_id"] for result in results]
+    f1_values = [result["f1"] for result in results]
+    iou_values = [result["mean_iou"] for result in results]
+    indices = range(len(image_ids))
+    axes[1].bar([index - 0.2 for index in indices], f1_values, width=0.4, label="F1")
+    axes[1].bar([index + 0.2 for index in indices], iou_values, width=0.4, label="IoU medio")
+    axes[1].axhline(0.90, color="#c53030", linestyle="--", label="Objetivo F1 >= 0.90")
+    axes[1].set_ylim(0, 1)
+    axes[1].set_title("Metricas por imagen")
+    axes[1].set_ylabel("Valor")
+    axes[1].set_xticks(list(indices), image_ids, rotation=30, ha="right")
+    axes[1].legend(loc="lower right")
+
+    fig.suptitle("Validacion espacial CITO-85")
+    fig.tight_layout()
+    fig.savefig(chart_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    return chart_path
+
+
 def main():
     """Script principal de validación."""
     parser = argparse.ArgumentParser(
@@ -354,6 +415,8 @@ def main():
     parser.add_argument('--output-prefix',
                         default='data/results/CITO-23-validacion-mejorada',
                         help='Prefijo de los reportes .txt/.json de salida')
+    parser.add_argument('--chart-path',
+                        help='Ruta de la grafica PNG. Por defecto usa el prefijo de salida.')
     parser.add_argument('--sigma1', type=float, default=7.0,
                         help='Sigma menor del filtro DoG (default: 7.0)')
     parser.add_argument('--sigma2', type=float, default=8.0,
@@ -373,6 +436,9 @@ def main():
     dataset_index_path = Path(args.index)
     output_path = Path(args.output_prefix + '.txt')
     output_json = Path(args.output_prefix + '.json')
+    chart_path = Path(args.chart_path) if args.chart_path else Path(
+        args.output_prefix + '.png'
+    )
 
     # Verificar que existen las rutas
     if not dataset_index_path.exists():
@@ -445,7 +511,10 @@ def main():
             return 1
 
         detections, img_width, img_height = ejecutar_detector(
-            image_path, sigma1=args.sigma1, sigma2=args.sigma2
+            image_path,
+            sigma1=args.sigma1,
+            sigma2=args.sigma2,
+            polaridad=args.polaridad,
         )
 
         result = validate_single_image(
@@ -523,6 +592,14 @@ def main():
             f.write(f"  TP={r['tp']} FP={r['fp']} FN={r['fn']}\n")
             f.write(f"  P={r['precision']:.4f} R={r['recall']:.4f} F1={r['f1']:.4f} IoU={r['mean_iou']:.4f}\n")
 
+    resumen = {
+        'precision': total_precision,
+        'recall': total_recall,
+        'f1': total_f1,
+        'mean_iou': mean_iou,
+    }
+    generar_grafica_validacion(results, resumen, chart_path)
+
     # Guardar JSON para análisis posterior
     with output_json.open('w', encoding='utf-8') as f:
         json.dump({
@@ -540,10 +617,7 @@ def main():
                 'tp': total_tp,
                 'fp': total_fp,
                 'fn': total_fn,
-                'precision': total_precision,
-                'recall': total_recall,
-                'f1': total_f1,
-                'mean_iou': mean_iou,
+                **resumen,
             },
             'results': results
         }, f, indent=2)
@@ -551,6 +625,7 @@ def main():
     logger.info(f"\n✅ Resultados guardados:")
     logger.info(f"   - {output_path}")
     logger.info(f"   - {output_json}")
+    logger.info(f"   - {chart_path}")
     return 0
 
 

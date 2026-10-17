@@ -5,6 +5,7 @@ from pathlib import Path
 from validar_metricas_cito23 import (
     BoundingBox,
     MetricsCalculator,
+    generar_grafica_validacion,
     obtener_etiquetas_faltantes,
 )
 
@@ -26,6 +27,28 @@ class ValidarMetricasCito23Tests(unittest.TestCase):
         self.assertEqual(faltantes, [
             ('MUESTRA_002.jpg', labels_dir / 'faltante.txt'),
         ])
+
+    def test_generar_grafica_validacion_crea_archivo_png(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            chart_path = Path(tmp_dir) / "grafica.png"
+            resultado = generar_grafica_validacion(
+                results=[{
+                    "image_id": "SINTETICA_101.png",
+                    "f1": 0.8,
+                    "mean_iou": 0.7,
+                }],
+                resumen={
+                    "precision": 0.9,
+                    "recall": 0.8,
+                    "f1": 0.85,
+                    "mean_iou": 0.7,
+                },
+                chart_path=chart_path,
+            )
+
+            self.assertEqual(resultado, chart_path)
+            self.assertTrue(chart_path.is_file())
+            self.assertGreater(chart_path.stat().st_size, 0)
 
 
 class BoundingBoxTests(unittest.TestCase):
