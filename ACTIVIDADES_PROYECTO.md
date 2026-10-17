@@ -47,7 +47,7 @@
 | CITO-93 | Endurecer seguridad: logs auditoría, HTTPS, revisión dependencias | Medium | En revisión | 07/oct/26 12:14 PM | 17/oct/26 4:02 PM | J-12 |
 | CITO-94 | Casos especiales: superposición celular, artefactos e iluminación | Medium | Finalizado | 07/oct/26 12:14 PM | 17/oct/26 3:48 PM | J-19 |
 | CITO-95 | Validar F1-Score >= 90% en detección y segmentación con dataset congelado | Highest | Finalizado | 07/oct/26 12:14 PM | 17/oct/26 3:56 PM | J-18 |
-| CITO-96 | Completar dataset con splits train/val/test y ground truth trazable | Highest | Por hacer | 07/oct/26 12:14 PM | 07/oct/26 12:14 PM | J-03/J-04/J-05 |
+| CITO-96 | Completar dataset con splits train/val/test y ground truth trazable | Highest | Bloqueado | 07/oct/26 12:14 PM | 17/oct/26 4:03 PM | J-03/J-04/J-05 |
 | CITO-97 | Calibrar DoG con conjunto autorizado separado | Highest | Finalizado | 07/oct/26 12:14 PM | 17/oct/26 3:30 PM | J-07 |
 
 ## Prioridades

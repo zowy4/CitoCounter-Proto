@@ -8,6 +8,7 @@ Con `PYTHONIOENCODING=utf-8 python validar_consistencia_dataset.py`:
 - Validacion: 400 imagenes y 400 etiquetas (20%).
 - Test: 200 imagenes y 200 etiquetas (10%).
 - El manifiesto CSV contiene 2000 registros, todos presentes como archivos.
+- Las pruebas focalizadas del validador pasan (2 pruebas, 17/oct/26).
 
 ## Bloqueo de cierre
 
