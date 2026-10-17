@@ -421,7 +421,7 @@ if seccion in ("historial", "dashboard"):
                 </div>
                 <div class="metric-card animate-fade-in-up" style="animation-delay: 150ms;">
                     <div class="metric-value">{}%</div>
-                    <div class="metric-label">Riesgo Promedio</div>
+                    <div class="metric-label">Sospechosas promedio (%)</div>
                 </div>
             </div>
             """.format(
@@ -528,7 +528,7 @@ def generar_csv_lote(resultados_lote, params):
 
     writer.writerow([
         "Archivo", "Total_Celulas", "Normales", "Sospechosas",
-        "Frontera", "Porcentaje_Riesgo", "Sigma1", "Sigma2",
+        "Frontera", "Porcentaje_Sospechosas", "Sigma1", "Sigma2",
         "Polaridad", "CLAHE", "Modo_CLAHE", "Reducir_Ruido",
         "Nivel_Ruido", "HSV", "Metodo_HSV", "Umbral_HSV",
         "Separacion", "Contraste", "Brillo", "Saturacion", "Calidad_Aceptable"
@@ -699,12 +699,10 @@ def mostrar_detalle(r, params, seccion_actual, expandir_calidad_por_defecto=Fals
 
     with col4:
         porcentaje = resultados['porcentaje_riesgo']
-        color_riesgo = "🟢" if porcentaje < 5 else "🟡" if porcentaje < 10 else "🔴"
         st.metric(
-            label="% Riesgo",
+            label="% Sospechosas",
             value=f"{porcentaje:.1f}%",
-            delta=f"{color_riesgo}",
-            help="Porcentaje de células sospechosas respecto al total"
+            help="Porcentaje experimental de células clasificadas como sospechosas"
         )
 
     st.info("Resultado experimental: el porcentaje mostrado no constituye una evaluación clínica.")
@@ -864,7 +862,7 @@ def mostrar_detalle(r, params, seccion_actual, expandir_calidad_por_defecto=Fals
         with col_r1:
             st.metric("Área Mínima", f"{reglas['area_minima_nucleo']} px²")
             st.metric("Área Promedio Normal", f"{reglas['area_promedio_nucleo_normal']} px²")
-            st.metric("Factor de Riesgo", f"{reglas['factor_riesgo']}x")
+            st.metric("Factor de Clasificación", f"{reglas['factor_riesgo']}x")
         with col_r2:
             st.metric("Área Máxima", f"{reglas['area_maxima_nucleo']} px²")
             st.metric("Umbral Sospechoso", f"{reglas['umbral_sospechoso']:.1f} px²")
@@ -1163,7 +1161,7 @@ def panel_ajustes():
             3. Segmentación
             4. Clasificación (Normal/Sospechoso)
 
-            **Criterio de Riesgo:**
+            **Criterio de clasificación experimental:**
             Núcleos con área ≥ 3× promedio → Sospechosos
             """)
 
@@ -1215,7 +1213,7 @@ def mostrar_dashboard_resultados(seccion_actual):
     with col3:
         st.metric("Promedio de células", f"{metricas['total_celulas_promedio']:.1f}")
     with col4:
-        st.metric("Riesgo experimental", f"{metricas['riesgo_promedio']:.1f}%")
+        st.metric("Sospechosas promedio", f"{metricas['riesgo_promedio']:.1f}%")
     with col5:
         st.metric("Sospechosas promedio", f"{metricas['sospechosas_promedio']:.1f}")
 
@@ -1232,7 +1230,7 @@ def mostrar_dashboard_resultados(seccion_actual):
         evolucion = metricas.get("evolucion", [])
         if evolucion:
             st.line_chart({
-                "Riesgo experimental (%)": [
+                "Células sospechosas (%)": [
                     entrada["porcentaje_riesgo"] for entrada in evolucion
                 ],
                 "Células detectadas": [
@@ -1434,7 +1432,7 @@ def pantalla_principal(cfg, seccion_actual):
     with col_res5:
         total_sospechosas = sum(r['resultados']['sospechosas'] for r in exitosos)
         pct_riesgo = (total_sospechosas / total_celulas * 100) if total_celulas > 0 else 0
-        st.metric("% Riesgo Global", f"{pct_riesgo:.1f}%")
+        st.metric("% Sospechosas Global", f"{pct_riesgo:.1f}%")
 
     if fallidos:
         with st.expander("❌ Errores en procesamiento", expanded=True):
@@ -1455,16 +1453,19 @@ def pantalla_principal(cfg, seccion_actual):
             "Normales": res['normales'],
             "Sospechosas": res['sospechosas'],
             "Frontera": res.get('frontera', 0),
-            "% Riesgo": f"{res['porcentaje_riesgo']:.1f}%",
+            "% Sospechosas": f"{res['porcentaje_riesgo']:.1f}%",
             "Calidad": "✅" if r['metricas_calidad']['es_aceptable'] else "⚠️"
         })
 
     st.dataframe(datos_tabla, use_container_width=True, hide_index=True)
 
-    st.markdown("### 📈 Distribución de Riesgo por Imagen")
+    st.markdown("### 📈 Distribución de Células Sospechosas por Imagen")
     import pandas as pd
     df_riesgo = pd.DataFrame([
-        {"Imagen": r['archivo'][:20] + "...", "Riesgo %": r['resultados']['porcentaje_riesgo']}
+        {
+            "Imagen": r['archivo'][:20] + "...",
+            "Sospechosas %": r['resultados']['porcentaje_riesgo'],
+        }
         for r in exitosos
     ])
     st.bar_chart(df_riesgo.set_index("Imagen"))
