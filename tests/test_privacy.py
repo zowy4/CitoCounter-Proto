@@ -66,6 +66,14 @@ def test_navegacion_conserva_botones_legibles():
     assert "cols_acciones_secundarias = st.columns(4)" in contenido
 
 
+def test_interfaz_informa_limite_de_carga_aplicado():
+    """S3.3: El límite de carga visible debe coincidir con la validación local."""
+    contenido = Path("app.py").read_text(encoding="utf-8")
+
+    assert "Límite de la aplicación: 10 MiB por archivo" in contenido
+    assert "MAX_UPLOAD_BYTES = 10 * 1024 * 1024" in contenido
+
+
 def test_tamano_imagen_maxim_64k():
     """S4: Tamaño de imagen máximo de 64 KiB (65536 bytes)."""
     # Crear imagen dentro del límite (100x100x3 float32)

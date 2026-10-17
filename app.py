@@ -1353,7 +1353,14 @@ def pantalla_principal(cfg, seccion_actual):
             "📂 Cargar imagen(es) de microscopía cervical",
             type=['jpg', 'png', 'jpeg', 'tif', 'tiff'],
             accept_multiple_files=True,
-            help="Formatos soportados: JPG, PNG, TIF. Puedes seleccionar múltiples archivos."
+            help=(
+                "Formatos soportados: JPG, PNG, TIF. Puedes seleccionar múltiples "
+                "archivos; la aplicación admite hasta 10 MiB por archivo."
+            )
+        )
+        st.caption(
+            "Límite de la aplicación: 10 MiB por archivo. Los archivos mayores "
+            "se rechazan antes del análisis."
         )
 
         if not uploaded_files:
