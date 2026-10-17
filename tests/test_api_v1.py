@@ -221,16 +221,23 @@ class ApiV1HttpTests(unittest.TestCase):
         self.assertEqual(payload["error"]["code"], 413)
 
     def test_rechaza_solicitud_sin_clave_cuando_esta_configurada(self):
-        with patch.dict("os.environ", {"CITO_API_KEY": "clave-prueba"}):
-            status, payload = self.request(
-                "POST",
-                "/api/v1/analyze",
-                body="{}",
-                headers={"Content-Type": "application/json"},
-            )
+        with patch("api_v1.registrar_acceso") as registrar:
+            with patch.dict("os.environ", {"CITO_API_KEY": "clave-prueba"}):
+                status, payload = self.request(
+                    "POST",
+                    "/api/v1/analyze",
+                    body="{}",
+                    headers={"Content-Type": "application/json"},
+                )
 
         self.assertEqual(status, 401)
         self.assertEqual(payload["error"]["code"], 401)
+        registrar.assert_called_once_with(
+            "/api/v1/analyze",
+            "POST",
+            False,
+            "status=401,motivo=autenticacion",
+        )
 
     def test_rechaza_solicitud_con_clave_incorrecta(self):
         with patch.dict("os.environ", {"CITO_API_KEY": "clave-prueba"}):
@@ -317,6 +324,36 @@ class ApiV1HttpTests(unittest.TestCase):
 
         self.assertEqual(status, 400)
         self.assertIn("image_name", payload["error"]["message"])
+
+    def test_audita_login_sin_registrar_credenciales(self):
+        users = json.dumps(
+            {"analista-prueba": {"password": "secreto-prueba", "role": "analista"}}
+        )
+        with patch("api_v1.registrar_acceso") as registrar:
+            with patch.dict(
+                "os.environ",
+                {
+                    "CITO_API_KEY": "",
+                    "CITO_JWT_SECRET": "jwt-secreto-prueba",
+                    "CITO_API_USERS": users,
+                },
+            ):
+                status, _ = self.request(
+                    "POST",
+                    "/api/v1/auth/login",
+                    body=json.dumps(
+                        {"username": "analista-prueba", "password": "secreto-prueba"}
+                    ),
+                    headers={"Content-Type": "application/json"},
+                )
+
+        self.assertEqual(status, 200)
+        registrar.assert_called_once_with(
+            "/api/v1/auth/login",
+            "POST",
+            True,
+            "status=200,motivo=login",
+        )
 
     def test_jwt_rechaza_rol_sin_permiso_de_analisis(self):
         users = json.dumps(

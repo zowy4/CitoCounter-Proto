@@ -7,8 +7,12 @@
 - CITO-92 agrega clave de API opcional, rate limiting, JWT HS256 y control
   de acceso por roles.
 - `registrar_acceso` registra eventos de auditoría como JSON estructurado, sin
-  incluir claves, contraseñas ni tokens. La prueba focalizada comprueba el
-  formato del evento.
+  incluir claves, contraseñas, tokens, cargas de imagen ni nombres de
+  imágenes. Incluye resultados exitosos y rechazos de autenticación,
+  autorización, límite de solicitudes y validación.
+- La suite focalizada de API verifica el formato, el rechazo `401` auditado y
+  el login sin credenciales en la bitácora (22 pruebas correctas,
+  17/oct/26).
 
 ## HTTPS y despliegue
 

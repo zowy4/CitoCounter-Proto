@@ -344,6 +344,11 @@ class CitoCounterApiHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _send_audited_response(self, payload, status, exito, detalles):
+        """Envía una respuesta JSON y registra el evento operativo sin secretos."""
+        registrar_acceso(self.path, self.command, exito, detalles)
+        self._send_json(payload, status)
+
     def do_GET(self):
         if self.path == "/api/v1/health":
             self._send_json({"ok": True, "api_version": "v1", "status": "healthy"}, 200)
@@ -355,9 +360,11 @@ class CitoCounterApiHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         if self.path not in {"/api/v1/analyze", "/api/v1/auth/login"}:
-            self._send_json(
+            self._send_audited_response(
                 {"ok": False, "error": {"code": 404, "message": "Endpoint no encontrado"}},
                 404,
+                False,
+                "status=404,motivo=endpoint_desconocido",
             )
             return
 
@@ -365,39 +372,55 @@ class CitoCounterApiHandler(BaseHTTPRequestHandler):
             identidad, authentication_error = validar_autenticacion(self.headers)
             if authentication_error:
                 response, status = authentication_error
-                self._send_json(response, status)
+                self._send_audited_response(
+                    response,
+                    status,
+                    False,
+                    f"status={status},motivo=autenticacion",
+                )
                 return
-            if identidad is None or identidad["role"] not in ROLES_ANALISIS:
-                self._send_json(
+            rol = identidad["role"] if identidad is not None else "desconocido"
+            if rol not in ROLES_ANALISIS:
+                self._send_audited_response(
                     {"ok": False, "error": {"code": 403, "message": "Rol sin acceso al análisis."}},
                     403,
+                    False,
+                    f"status=403,motivo=rol_no_autorizado,rol={rol}",
                 )
                 return
         if not permitir_solicitud(self.client_address[0]):
-            self._send_json(
+            self._send_audited_response(
                 {"ok": False, "error": {"code": 429, "message": "Demasiadas solicitudes."}},
                 429,
+                False,
+                "status=429,motivo=limite_solicitudes",
             )
             return
 
         try:
             content_length = int(self.headers.get("Content-Length", "0"))
         except ValueError:
-            self._send_json(
+            self._send_audited_response(
                 {"ok": False, "error": {"code": 400, "message": "Content-Length inválido"}},
                 400,
+                False,
+                "status=400,motivo=content_length_invalido",
             )
             return
         if content_length <= 0:
-            self._send_json(
+            self._send_audited_response(
                 {"ok": False, "error": {"code": 400, "message": "Cuerpo JSON vacío"}},
                 400,
+                False,
+                "status=400,motivo=cuerpo_vacio",
             )
             return
         if content_length > MAX_REQUEST_BODY_BYTES:
-            self._send_json(
+            self._send_audited_response(
                 {"ok": False, "error": {"code": 413, "message": "Cuerpo JSON demasiado grande"}},
                 413,
+                False,
+                "status=413,motivo=cuerpo_excesivo",
             )
             return
 
@@ -405,49 +428,70 @@ class CitoCounterApiHandler(BaseHTTPRequestHandler):
         try:
             payload = json.loads(raw.decode("utf-8"))
         except json.JSONDecodeError:
-            self._send_json(
+            self._send_audited_response(
                 {"ok": False, "error": {"code": 400, "message": "JSON inválido"}},
                 400,
+                False,
+                "status=400,motivo=json_invalido",
             )
             return
 
         if self.path == "/api/v1/auth/login":
             response, status = autenticar_usuario(payload)
-            self._send_json(response, status)
+            self._send_audited_response(
+                response,
+                status,
+                status == 200,
+                f"status={status},motivo=login",
+            )
             return
 
         validated, validation_status = validate_payload(payload)
         if validation_status != 200:
-            self._send_json(validated, validation_status)
+            self._send_audited_response(
+                validated,
+                validation_status,
+                False,
+                f"status={validation_status},motivo=payload_invalido",
+            )
             return
 
         # CITO-79: Additional security validations
         image_name = payload["image_name"]
         if not validar_ruta_segura(image_name):
-            self._send_json(
+            self._send_audited_response(
                 {"ok": False, "error": {"code": 400, "message": "`image_name` contiene rutas prohibidas."}},
                 400,
+                False,
+                "status=400,motivo=ruta_no_segura",
             )
             return
         
         path = validated["path"]
         if not validar_tamaño(path):
-            self._send_json(
+            self._send_audited_response(
                 {"ok": False, "error": {"code": 400, "message": "Imagen excede el límite de 64 KiB."}},
                 400,
+                False,
+                "status=400,motivo=imagen_excede_tamano",
             )
             return
         if not validar_contenido(path):
-            self._send_json(
+            self._send_audited_response(
                 {"ok": False, "error": {"code": 400, "message": "Imagen corrupta o vacía."}},
                 400,
+                False,
+                "status=400,motivo=contenido_invalido",
             )
             return
         
-        registrar_acceso("/api/v1/analyze", "POST", True)
-        
         response, status = analyze_from_payload(payload)
-        self._send_json(response, status)
+        self._send_audited_response(
+            response,
+            status,
+            status == 200,
+            f"status={status},rol={identidad['role']}",
+        )
 
 
 def run_api(host="127.0.0.1", port=8000):
