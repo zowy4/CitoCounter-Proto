@@ -164,6 +164,29 @@ class ApiV1HttpTests(unittest.TestCase):
         self.assertEqual(status, 400)
         self.assertIn("JSON inválido", payload["error"]["message"])
 
+    def test_rechaza_json_que_no_es_objeto(self):
+        status, payload = self.request(
+            "POST",
+            "/api/v1/analyze",
+            body="[]",
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 400)
+        self.assertIn("objeto", payload["error"]["message"])
+
+    def test_rechaza_directorio_de_imagen_invalido(self):
+        status, payload = self.request(
+            "POST",
+            "/api/v1/analyze",
+            body=json.dumps({
+                "image_name": "muestra.jpg",
+                "image_dir": "externo",
+            }),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 400)
+        self.assertIn("image_dir", payload["error"]["message"])
+
     def test_rechaza_cuerpo_excesivo(self):
         status, payload = self.request(
             "POST",

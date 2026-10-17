@@ -208,33 +208,27 @@ class CitoCounterApiHandler(BaseHTTPRequestHandler):
             )
             return
 
+        validated, validation_status = validate_payload(payload)
+        if validation_status != 200:
+            self._send_json(validated, validation_status)
+            return
+
         # CITO-79: Additional security validations
-        if not validar_ruta_segura(payload.get("image_name", "")):
+        image_name = payload["image_name"]
+        if not validar_ruta_segura(image_name):
             self._send_json(
                 {"ok": False, "error": {"code": 400, "message": "`image_name` contiene rutas prohibidas."}},
                 400,
             )
             return
         
-        image_name = payload.get("image_name", "")
-        if not validar_extension(image_name):
-            self._send_json(
-                {"ok": False, "error": {"code": 400, "message": f"Extensión no permitida: {Path(image_name).suffix}. Usa {sorted(ALLOWED_EXTENSIONS)}."}},
-                400,
-            )
-            return
-        
-        image_dir = payload.get("image_dir", "raw")
-        path = ALLOWED_IMAGE_ROOTS[image_dir] / image_name
+        path = validated["path"]
         if not validar_tamaño(path):
             self._send_json(
                 {"ok": False, "error": {"code": 400, "message": "Imagen excede el límite de 64 KiB."}},
                 400,
             )
             return
-        
-        import cv2
-        import os
         if not validar_contenido(path):
             self._send_json(
                 {"ok": False, "error": {"code": 400, "message": "Imagen corrupta o vacía."}},
