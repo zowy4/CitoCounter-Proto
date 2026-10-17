@@ -9,6 +9,7 @@ import sys
 import cv2
 import numpy as np
 import pandas as pd
+from pathlib import Path
 
 # Add workspace to path
 sys.path.insert(0, '/workspaces/CitoCounter-Proto')
@@ -40,6 +41,18 @@ def test_advertencia_presenten_todas_las_salidas():
     """S3: La advertencia debe aparecer en todas las salidas."""
     import main
     assert 'no equivale a diagnóstico clínico' in main.__doc__, "Falta el banner de advertencia"
+
+
+def test_interfaz_no_clasifica_ejemplos_como_riesgo_clinico():
+    """S3.1: La interfaz no debe presentar riesgo experimental como diagnóstico."""
+    contenido = Path("app.py").read_text(encoding="utf-8")
+
+    assert "Riesgo elevado" not in contenido
+    assert "Bajo riesgo" not in contenido
+    assert "Riesgo moderado" not in contenido
+    assert "Calidad de imagen no aceptable" in contenido
+    assert "resultado requiere revisión" in contenido
+    assert "humana y no debe usarse para una interpretación clínica" in contenido
 
 
 def test_tamano_imagen_maxim_64k():

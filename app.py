@@ -635,13 +635,15 @@ def mostrar_bienvenida():
         st.markdown("""
         **Ejemplo de Análisis:**
 
-        | Imagen | Total Células | Sospechosas | % Riesgo | Interpretación |
-        |--------|---------------|-------------|----------|----------------|
-        | EDF001.png | 261 | 36 | 13.8% | Riesgo elevado ⚠️ |
-        | EDF004.png | 114 | 9 | 7.9% | Bajo riesgo ✅ |
-        | EDF005.png | 272 | 25 | 9.2% | Riesgo moderado 🟡 |
+        | Imagen | Total Células | Sospechosas | % Experimental | Interpretación |
+        |--------|---------------|-------------|----------------|----------------|
+        | EDF001.png | 261 | 36 | 13.8% | Requiere revisión experta |
+        | EDF004.png | 114 | 9 | 7.9% | Requiere revisión experta |
+        | EDF005.png | 272 | 25 | 9.2% | Requiere revisión experta |
 
         *Datos obtenidos con σ1=3.0, σ2=5.0*
+
+        *Los ejemplos son experimentales y no constituyen diagnóstico médico.*
         """)
 
     st.markdown("---")
@@ -707,6 +709,13 @@ def mostrar_detalle(r, params, seccion_actual, expandir_calidad_por_defecto=Fals
 
     st.info("Resultado experimental: el porcentaje mostrado no constituye una evaluación clínica.")
     st.warning(resumen_resultado_experimental(resultados), icon="🔎")
+
+    if not metricas_calidad['es_aceptable']:
+        st.error(
+            "Calidad de imagen no aceptable: este resultado requiere revisión "
+            "humana y no debe usarse para una interpretación clínica.",
+            icon="⚠️",
+        )
 
     if metricas_calidad.get('advertencias'):
         with st.expander(
