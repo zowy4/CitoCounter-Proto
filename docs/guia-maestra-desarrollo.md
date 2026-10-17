@@ -192,7 +192,7 @@ La clave Jira debe aparecer en el commit o PR cuando sea posible. Si una activid
 |---|---|---|
 | `J-06` / `ACT-21` / `CITO-42` | `En revisión` | `src/dog_filter.py`, `tests/test_dog_filter.py`, `python -m unittest discover -s tests -v` |
 | `J-08` / `ACT-02` / `CITO-23` | `En curso` | `data/results/CITO-23-metricas-template.csv`, `data/results/CITO-23-metricas-resumen.txt`, `python calcular_metricas_cito23.py --match-distance 10.0`; falta ground truth trazable para la validación formal |
-| `J-10` / `ACT-03` / `CITO-24` | `En revisión` | `src/analysis.py`, `tests/test_analysis_rules.py`, `docs/evidencia-cito24-reglas-clasificacion.md`; reglas normal/sospechosa y límites de frontera implementados |
+| `J-10` / `ACT-03` / `CITO-24` | `En revisión` | `src/analysis.py`, `tests/test_cito77_reglas.py`, `docs/CITO-77-reglas-explicables.md`; reglas normal/sospechosa y límites de frontera implementados |
 | `J-11` / `ACT-04` / `CITO-25` | `En revisión` | `api_v1.py`, `tests/test_api_v1.py`, `docs/evidencia-cito25-api-rest.md`; API v1 validada con `/health`, `/analyze`, rechazo HTTP de JSON inválido y límite de 64 KiB |
 | `J-13` / `ACT-05` / `CITO-26` | `En revisión` | `app.py`, `src/interfaz_resultados.py`, `tests/test_interfaz_resultados.py`, `docs/evidencia-cito26-interfaz.md`; interfaz local con carga limitada, incertidumbre y exportaciones reproducibles |
 | `J-15` / `ACT-06` / `CITO-27` | `En revisión` | `app.py`, `src/historial_resultados.py`, `tests/test_historial_resultados.py`, `docs/evidencia-cito27-dashboard.md`; historial normalizado y métricas consolidadas |
@@ -536,7 +536,7 @@ La clave Jira debe aparecer en el commit o PR cuando sea posible. Si una activid
 |---|---|---|
 | `J-06` / `ACT-21` / `CITO-42` | `En revisión` | `src/dog_filter.py`, `tests/test_dog_filter.py`, `python -m unittest discover -s tests -v` |
 | `J-08` / `ACT-02` / `CITO-23` | `En curso` | `data/results/CITO-23-metricas-template.csv`, `data/results/CITO-23-metricas-resumen.txt`, `python calcular_metricas_cito23.py --match-distance 10.0`; falta ground truth trazable para la validación formal |
-| `J-10` / `ACT-03` / `CITO-24` | `En revisión` | `src/analysis.py`, `tests/test_analysis_rules.py`, `docs/evidencia-cito24-reglas-clasificacion.md`; reglas normal/sospechosa y límites de frontera implementados |
+| `J-10` / `ACT-03` / `CITO-24` | `En revisión` | `src/analysis.py`, `tests/test_cito77_reglas.py`, `docs/CITO-77-reglas-explicables.md`; reglas normal/sospechosa y límites de frontera implementados |
 | `J-11` / `ACT-04` / `CITO-25` | `En revisión` | `api_v1.py`, `tests/test_api_v1.py`, `docs/evidencia-cito25-api-rest.md`; API v1 validada con `/health`, `/analyze`, rechazo HTTP de JSON inválido y límite de 64 KiB |
 | `J-13` / `ACT-05` / `CITO-26` | `En revisión` | `app.py`, `src/interfaz_resultados.py`, `tests/test_interfaz_resultados.py`, `docs/evidencia-cito26-interfaz.md`; interfaz local con carga limitada, incertidumbre y exportaciones reproducibles |
 | `J-15` / `ACT-06` / `CITO-27` | `En revisión` | `app.py`, `src/historial_resultados.py`, `tests/test_historial_resultados.py`, `docs/evidencia-cito27-dashboard.md`; historial normalizado y métricas consolidadas |
