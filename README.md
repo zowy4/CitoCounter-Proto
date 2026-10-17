@@ -31,6 +31,7 @@ streamlit run app.py
 | Ejecutar la guía maestra y dar seguimiento en Jira | [Guía maestra de desarrollo](docs/guia-maestra-desarrollo.md) |
 | Riesgos, normativa y plan Jira | [Plan del proyecto](docs/plan-proyecto.md) |
 | Índice de carpetas y scripts | [Mapa del proyecto](docs/README.md) |
+| Arquitectura y referencias técnicas | [Manual técnico](docs/evidencia-cito87-documentacion-tecnica.md) |
 
 ## Estructura esencial
 

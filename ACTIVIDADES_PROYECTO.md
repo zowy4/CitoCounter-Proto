@@ -2,10 +2,10 @@
 
 ## Resumen General
 - **Total de actividades:** 33 actividades (CITO-22 a CITO-97)
-- **Actividades completadas:** 27
-- **Actividades por hacer:** 11
+- **Actividades completadas:** 28
+- **Actividades por hacer:** 10
 - **Actividades en revisión:** 1
-- **Estado general:** 81.8% completado, 18.2% pendiente
+- **Estado general:** 84.8% completado, 15.2% pendiente
 
 ## Mapa de Actividades CITO
 
@@ -38,7 +38,7 @@
 | CITO-84 | Auditar reproducibilidad y preparar entrega | Highest | Finalizado | 09/sep/26 1:51 PM | 07/oct/26 8:19 AM | -- |
 | CITO-85 | Validar F1-Score >= 90% en detección y segmentación | Highest | Finalizado | 09/sep/26 1:51 PM | 17/oct/26 2:48 PM | J-18 |
 | CITO-86 | Manejo de casos especiales: superposición, artefactos e iluminación | High | Finalizado | 09/sep/26 1:52 PM | 17/oct/26 3:12 PM | J-19 |
-| CITO-87 | Documentación técnica completa del sistema | High | Por hacer | 09/sep/26 1:52 PM | 07/oct/26 8:20 AM | -- |
+| CITO-87 | Documentación técnica completa del sistema | High | Finalizado | 09/sep/26 1:52 PM | 17/oct/26 3:20 PM | -- |
 | CITO-88 | Pruebas de la plataforma con usuarios potenciales | High | Por hacer | 09/sep/26 1:52 PM | 09/sep/26 2:34 PM | J-13 |
 | CITO-89 | Buscar mas datasets | Medium | Por hacer | 29/sep/26 12:02 PM | 29/sep/26 12:02 PM | -- |
 | CITO-90 | SEGMENTACION OPEN HSV | Medium | Por hacer | 29/sep/26 12:07 PM | 29/sep/26 12:07 PM | -- |
