@@ -230,8 +230,9 @@ def procesar_una_imagen(ruta_imagen, args):
         cv2.imwrite(str(ruta_salida), panel)
         print(f"   💾 Resultados guardados en: {ruta_salida}")
         
-        # Mostrar ventanas solo si NO estamos en modo lote o si se pide explícitamente
-        if not args.lote and not args.no_gui:
+        # Mostrar ventanas: solo si no estamos en modo lote, y a menos que --no-gui esté activado
+        # --mostrar-panel fuerza la visualización incluso con --no-gui
+        if not args.lote and (not args.no_gui or args.mostrar_panel):
             mostrar_ventanas_analisis({
                 "Panel Comparativo": panel
             })
@@ -335,6 +336,12 @@ Para más información, consulta README.md
         help="No mostrar ventanas emergentes (útil para modo lote)"
     )
     
+    parser.add_argument(
+        "--mostrar-panel",
+        action="store_true",
+        help="Mostrar panel de análisis con visualizaciones (default: True). Use --no-mostrar-panel para ocultarlo"
+    )
+
     parser.add_argument(
         "--polaridad",
         type=str,
