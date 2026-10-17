@@ -15,10 +15,19 @@ from api_v1 import (
     PROJECT_ROOT,
     analyze_from_payload,
     validate_payload,
+    permitir_solicitud,
 )
 
 
 class ApiV1Tests(unittest.TestCase):
+    def test_rate_limit_rechaza_solicitud_excedente(self):
+        import api_v1
+
+        api_v1.REQUEST_TIMESTAMPS.clear()
+        for _ in range(api_v1.RATE_LIMIT_REQUESTS):
+            self.assertTrue(permitir_solicitud("test-client", now=1.0))
+        self.assertFalse(permitir_solicitud("test-client", now=1.0))
+
     def setUp(self):
         self.raw_dir = PROJECT_ROOT / "data" / "raw"
         self.raw_dir.mkdir(parents=True, exist_ok=True)

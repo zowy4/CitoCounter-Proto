@@ -4,7 +4,11 @@ API REST v1 para CitoCounter Proto (CITO-25 / J-11).
 """
 
 import argparse
+import hmac
 import json
+import os
+import time
+from collections import defaultdict, deque
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 
@@ -29,6 +33,32 @@ ERROR_CODES = {
     "invalid_content": "invalid_content",
     "unsafe_path": "unsafe_path",
 }
+RATE_LIMIT_REQUESTS = 30
+RATE_LIMIT_WINDOW_SECONDS = 60
+REQUEST_TIMESTAMPS = defaultdict(deque)
+
+
+def validar_autenticacion(headers):
+    """Valida la clave de API configurada mediante CITO_API_KEY."""
+    expected_key = os.environ.get("CITO_API_KEY")
+    if not expected_key:
+        return None
+    supplied_key = headers.get("X-API-Key", "")
+    if not hmac.compare_digest(supplied_key, expected_key):
+        return error_response("Clave de API ausente o inválida.", 401)
+    return None
+
+
+def permitir_solicitud(cliente, now=None):
+    """Aplica límite fijo de solicitudes por cliente en una ventana temporal."""
+    now = time.monotonic() if now is None else now
+    requests = REQUEST_TIMESTAMPS[cliente]
+    while requests and now - requests[0] >= RATE_LIMIT_WINDOW_SECONDS:
+        requests.popleft()
+    if len(requests) >= RATE_LIMIT_REQUESTS:
+        return False
+    requests.append(now)
+    return True
 
 
 def error_response(message, status_code=400):
@@ -174,6 +204,18 @@ class CitoCounterApiHandler(BaseHTTPRequestHandler):
             self._send_json(
                 {"ok": False, "error": {"code": 404, "message": "Endpoint no encontrado"}},
                 404,
+            )
+            return
+
+        authentication_error = validar_autenticacion(self.headers)
+        if authentication_error:
+            payload, status = authentication_error
+            self._send_json(payload, status)
+            return
+        if not permitir_solicitud(self.client_address[0]):
+            self._send_json(
+                {"ok": False, "error": {"code": 429, "message": "Demasiadas solicitudes."}},
+                429,
             )
             return
 
