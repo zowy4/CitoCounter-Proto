@@ -1095,9 +1095,15 @@ def panel_ajustes():
             st.selectbox(
                 "Modo CLAHE",
                 options=["clahe", "auto", "histogram", "normalize"],
-                help="Auto selecciona automáticamente según el contraste de la imagen",
-                **_widget("modo_clahe")
-            )
+                        format_func=lambda x: {
+                            "clahe": "CLAHE clásico (tiles 8×8)",
+                            "auto": "Automático (recomendado)",
+                            "histogram": "Ecualización de histograma global",
+                            "normalize": "Normalización de contraste"
+                        }[x],
+                        help="Auto selecciona automáticamente según el contraste de la imagen",
+                        **_widget("modo_clahe")
+                    )
 
         reducir_ruido = st.checkbox(
             "Reducir Ruido",
@@ -1109,9 +1115,14 @@ def panel_ajustes():
             st.selectbox(
                 "Nivel de reducción",
                 options=["bajo", "medio", "alto"],
-                help="Intensidad del filtro bilateral",
-                **_widget("nivel_ruido")
-            )
+                        format_func=lambda x: {
+                            "bajo": "Bajo (suave, preserva detalle)",
+                            "medio": "Medio (equilibrado)",
+                            "alto": "Alto (fuerte, puede suavizar bordes)"
+                        }[x],
+                        help="Intensidad del filtro bilateral",
+                        **_widget("nivel_ruido")
+                    )
 
         st.markdown("---")
 
@@ -1128,9 +1139,13 @@ def panel_ajustes():
             st.selectbox(
                 "Método HSV",
                 options=["saturation", "value"],
-                help="Saturation: núcleos con color distinto. Value: núcleos más brillantes/oscuros.",
-                **_widget("metodo_hsv")
-            )
+                        format_func=lambda x: {
+                            "saturation": "Saturación (color distintivo)",
+                            "value": "Brillo/Valor (intensidad)"
+                        }[x],
+                        help="Saturación: núcleos con color distintivo. Valor: núcleos más brillantes/oscuros.",
+                        **_widget("metodo_hsv")
+                    )
             st.slider(
                 "Umbral HSV",
                 min_value=0, max_value=255, step=5,
@@ -1148,7 +1163,7 @@ def panel_ajustes():
             options=["none", "watershed", "maximos_locales"],
             format_func=lambda x: {
                 "none": "Sin separación (original)",
-                "watershed": "Watershed (Transformada de distancia)",
+                        "watershed": "Watershed (transformada de distancia)",
                 "maximos_locales": "Máximos locales (picos DoG)"
             }[x],
             help="Watershed separa núcleos en contacto. Máximos locales detecta picos en la respuesta DoG.",
