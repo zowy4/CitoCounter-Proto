@@ -1073,6 +1073,10 @@ def panel_ajustes():
         st.selectbox(
             "Polaridad de los núcleos",
             options=["nucleos-claros", "nucleos-oscuros"],
+            format_func=lambda polaridad: {
+                "nucleos-claros": "Núcleos claros sobre fondo oscuro",
+                "nucleos-oscuros": "Núcleos oscuros sobre fondo claro",
+            }[polaridad],
             help=(
                 "Núcleos claros sobre fondo oscuro (fluorescencia) o núcleos "
                 "oscuros sobre fondo claro (Papanicolaou/EDF). La opción "

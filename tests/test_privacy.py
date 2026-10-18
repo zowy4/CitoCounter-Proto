@@ -68,6 +68,15 @@ def test_navegacion_conserva_botones_legibles():
     assert 'type="primary" if seccion == destino else "secondary"' in contenido
 
 
+def test_interfaz_traduce_valores_internos_de_polaridad():
+    """S3.4: La interfaz muestra polaridad comprensible sin cambiar el contrato."""
+    contenido = Path("app.py").read_text(encoding="utf-8")
+
+    assert "Núcleos claros sobre fondo oscuro" in contenido
+    assert "Núcleos oscuros sobre fondo claro" in contenido
+    assert 'options=["nucleos-claros", "nucleos-oscuros"]' in contenido
+
+
 def test_interfaz_informa_limite_de_carga_aplicado():
     """S3.3: El límite de carga visible debe coincidir con la validación local."""
     contenido = Path("app.py").read_text(encoding="utf-8")
