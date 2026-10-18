@@ -238,7 +238,7 @@ footer { visibility: hidden; }
 [data-testid="stMetricLabel"] { text-transform: uppercase; letter-spacing: 0.5px; }
 
 /* BOTONES */
-.stButton > button, .stDownloadButton > button {
+.stButton > button[kind="primary"], .stDownloadButton > button {
     background: var(--color-brand-primary) !important;
     color: white !important;
     border: none !important;
@@ -246,9 +246,21 @@ footer { visibility: hidden; }
     font-weight: var(--font-weight-semibold) !important;
     transition: all 0.2s ease !important;
 }
-.stButton > button:hover, .stDownloadButton > button:hover {
+.stButton > button[kind="primary"]:hover, .stDownloadButton > button:hover {
     background: #1E40C0 !important;
     box-shadow: var(--shadow-floating) !important;
+}
+.stButton > button[kind="secondary"] {
+    background: var(--color-bg-card-light) !important;
+    color: var(--color-brand-primary) !important;
+    border: 1px solid var(--color-brand-primary) !important;
+    border-radius: var(--radius-md) !important;
+    font-weight: var(--font-weight-semibold) !important;
+    transition: all 0.2s ease !important;
+}
+.stButton > button[kind="secondary"]:hover {
+    background: var(--color-brand-primary-light) !important;
+    box-shadow: var(--shadow-card) !important;
 }
 
 .stAlert { border-radius: var(--radius-md) !important; }
@@ -386,6 +398,7 @@ for col, (etiqueta, destino) in zip(cols_acciones_principales, acciones[:4]):
             key=f"nav_{destino}",
             on_click=_ir_a_seccion,
             args=(destino,),
+            type="primary" if seccion == destino else "secondary",
             use_container_width=True,
         )
 
@@ -397,6 +410,7 @@ for col, (etiqueta, destino) in zip(cols_acciones_secundarias[:3], acciones[4:])
             key=f"nav_{destino}",
             on_click=_ir_a_seccion,
             args=(destino,),
+            type="primary" if seccion == destino else "secondary",
             use_container_width=True,
         )
 
@@ -405,6 +419,7 @@ with cols_acciones_secundarias[-1]:
         "◀ Ocultar panel" if st.session_state.panel_visible else "▶ Mostrar panel",
         key="toggle_panel",
         on_click=_toggle_panel,
+        type="secondary",
         use_container_width=True,
     )
 

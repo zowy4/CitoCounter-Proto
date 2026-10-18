@@ -64,6 +64,7 @@ def test_navegacion_conserva_botones_legibles():
     assert "cols_acciones = st.columns(len(acciones) + 1)" not in contenido
     assert "cols_acciones_principales = st.columns(4)" in contenido
     assert "cols_acciones_secundarias = st.columns(4)" in contenido
+    assert 'type="primary" if seccion == destino else "secondary"' in contenido
 
 
 def test_interfaz_informa_limite_de_carga_aplicado():
