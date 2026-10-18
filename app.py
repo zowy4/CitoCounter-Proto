@@ -365,7 +365,7 @@ st.markdown("""
             <span class="medical-card-icon primary">🔬</span>
             <span>CitoCounter Dashboard</span>
         </div>
-        <span class="badge info">v1.1 Web</span>
+        <span class="badge info">Investigación · v1.1</span>
     </div>
     <div class="medical-card-content">
         <p style="margin: 0;">
@@ -675,8 +675,8 @@ def mostrar_bienvenida():
     st.markdown("---")
     st.markdown("""
     <div style='text-align: center; color: gray; padding: 20px;'>
-        <p><strong>CitoCounter Proto v1.1 Web Dashboard</strong></p>
-        <p>Desarrollado para análisis automatizado de citologías cervicales</p>
+        <p><strong>CitoCounter Proto · Investigación · v1.1</strong></p>
+        <p>Prototipo para investigación en análisis de imágenes de citología cervical</p>
         <p>🔬 Algoritmo DoG + Regla del 3x | 📊 Interfaz Interactiva</p>
     </div>
     """, unsafe_allow_html=True)

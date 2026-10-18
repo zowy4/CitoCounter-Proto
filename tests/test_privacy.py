@@ -52,6 +52,7 @@ def test_interfaz_no_clasifica_ejemplos_como_riesgo_clinico():
     assert "Riesgo moderado" not in contenido
     assert "% Riesgo" not in contenido
     assert "Riesgo Promedio" not in contenido
+    assert "Investigación · v1.1" in contenido
     assert "Calidad de imagen no aceptable" in contenido
     assert "resultado requiere revisión" in contenido
     assert "humana y no debe usarse para una interpretación clínica" in contenido
