@@ -41,8 +41,40 @@ RATE_LIMIT_REQUESTS = 30
 RATE_LIMIT_WINDOW_SECONDS = 60
 REQUEST_TIMESTAMPS = defaultdict(deque)
 JWT_EXPIRATION_SECONDS = 3600
+JWT_REFRESH_EXPIRATION_SECONDS = 86400 * 7  # 7 days
 ROLES_ANALISIS = {"analista", "administrador"}
 ALGORITHM_REVISION = "dog-otsu-contours-area-experimental-v1"
+
+# CITO-92/CITO-93: Additional security constants
+LOGIN_ATTEMPTS = defaultdict(deque)
+MAX_LOGIN_ATTEMPTS = 5
+LOGIN_LOCKOUT_WINDOW_SECONDS = 300  # 5 minutes
+LOGIN_LOCKOUT_DURATION_SECONDS = 900  # 15 minutes
+LOCKED_ACCOUNTS = {}
+
+# Security headers
+SECURITY_HEADERS = {
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "X-XSS-Protection": "1; mode=block",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+    "Permissions-Policy": "geolocation=(), microphone=(), camera=()",
+}
+
+# CORS configuration
+CORS_ALLOWED_ORIGINS = os.environ.get("CITO_CORS_ORIGINS", "http://localhost:8501,http://127.0.0.1:8501").split(",")
+CORS_ALLOWED_METHODS = ["GET", "POST", "OPTIONS"]
+CORS_ALLOWED_HEADERS = ["Content-Type", "Authorization", "X-API-Key"]
+CORS_MAX_AGE = 86400
+
+# Password complexity requirements
+MIN_PASSWORD_LENGTH = 12
+REQUIRE_UPPERCASE = True
+REQUIRE_LOWERCASE = True
+REQUIRE_DIGITS = True
+REQUIRE_SPECIAL_CHARS = True
 
 
 def _base64url_codificar(data: bytes) -> str:
@@ -178,6 +210,32 @@ def autenticar_usuario(payload: object) -> tuple[dict[str, Any], int]:
     password = payload.get("password")
     if not isinstance(username, str) or not isinstance(password, str):
         return error_response("`username` y `password` son obligatorios.", 400)
+    
+    # Check if account is locked (CITO-92)
+    now = time.time()
+    if username in LOCKED_ACCOUNTS:
+        lockout_until = LOCKED_ACCOUNTS[username]
+        if now < lockout_until:
+            remaining = int(lockout_until - now)
+            return error_response(f"Cuenta bloqueada. Intente de nuevo en {remaining} segundos.", 429)
+        else:
+            # Lockout expired, remove from locked accounts
+            del LOCKED_ACCOUNTS[username]
+            # Also clear login attempts
+            if username in LOGIN_ATTEMPTS:
+                del LOGIN_ATTEMPTS[username]
+    
+    # Check login attempts (CITO-92)
+    if username in LOGIN_ATTEMPTS:
+        attempts = LOGIN_ATTEMPTS[username]
+        # Remove old attempts outside the window
+        while attempts and now - attempts[0] >= LOGIN_LOCKOUT_WINDOW_SECONDS:
+            attempts.popleft()
+        if len(attempts) >= MAX_LOGIN_ATTEMPTS:
+            # Lock the account
+            LOCKED_ACCOUNTS[username] = now + LOGIN_LOCKOUT_DURATION_SECONDS
+            return error_response(f"Demasiados intentos fallidos. Cuenta bloqueada por {LOGIN_LOCKOUT_DURATION_SECONDS // 60} minutos.", 429)
+    
     try:
         usuarios = json.loads(os.environ.get("CITO_API_USERS", ""))
     except json.JSONDecodeError:
@@ -186,6 +244,8 @@ def autenticar_usuario(payload: object) -> tuple[dict[str, Any], int]:
         return error_response("Autenticación JWT no configurada.", 503)
     usuario = usuarios.get(username)
     if not isinstance(usuario, dict):
+        # Record failed attempt (CITO-92)
+        LOGIN_ATTEMPTS[username].append(now)
         return error_response("Credenciales inválidas.", 401)
     password_configurada = usuario.get("password")
     rol = usuario.get("role")
@@ -194,14 +254,114 @@ def autenticar_usuario(payload: object) -> tuple[dict[str, Any], int]:
         or not isinstance(rol, str)
         or not hmac.compare_digest(password, password_configurada)
     ):
+        # Record failed attempt (CITO-92)
+        LOGIN_ATTEMPTS[username].append(now)
         return error_response("Credenciales inválidas.", 401)
+    
+    # Successful login - clear attempts
+    if username in LOGIN_ATTEMPTS:
+        del LOGIN_ATTEMPTS[username]
+    
+    access_token = crear_token_jwt(username, rol)
+    refresh_token = crear_refresh_token(username, rol)
     return {
         "ok": True,
         "token_type": "Bearer",
-        "access_token": crear_token_jwt(username, rol),
+        "access_token": access_token,
+        "refresh_token": refresh_token,
         "expires_in": JWT_EXPIRATION_SECONDS,
         "role": rol,
     }, 200
+
+
+def crear_refresh_token(usuario: str, rol: str, now: float | None = None) -> str:
+    """Crea un refresh token JWT HS256 de larga duración.
+
+    :param usuario: Identificador del usuario autenticado.
+    :type usuario: str
+    :param rol: Rol autorizado para el usuario.
+    :type rol: str
+    :param now: Tiempo UNIX opcional para pruebas deterministas.
+    :type now: float | None
+    :return: JWT firmado con el secreto configurado.
+    :rtype: str
+    :raises RuntimeError: Si falta el secreto JWT de entorno.
+    """
+    secreto = os.environ.get("CITO_JWT_SECRET")
+    if not secreto:
+        raise RuntimeError("CITO_JWT_SECRET no está configurado.")
+    issued_at = int(time.time() if now is None else now)
+    encabezado = _base64url_codificar(
+        json.dumps({"alg": "HS256", "typ": "JWT"}, separators=(",", ":")).encode("utf-8")
+    )
+    carga = _base64url_codificar(
+        json.dumps(
+            {"sub": usuario, "role": rol, "type": "refresh", "iat": issued_at, "exp": issued_at + JWT_REFRESH_EXPIRATION_SECONDS},
+            separators=(",", ":"),
+        ).encode("utf-8")
+    )
+    firma = hmac.new(
+        secreto.encode("utf-8"), f"{encabezado}.{carga}".encode("ascii"), hashlib.sha256
+    ).digest()
+    return f"{encabezado}.{carga}.{_base64url_codificar(firma)}"
+
+
+def validar_refresh_token(token: str, now: float | None = None) -> dict[str, str] | None:
+    """Valida un refresh token y devuelve los claims si es válido.
+
+    :param token: Refresh token JWT.
+    :type token: str
+    :param now: Tiempo UNIX opcional para pruebas deterministas.
+    :type now: float | None
+    :return: Claims del token o None si es inválido.
+    :rtype: dict[str, str] | None
+    """
+    secreto = os.environ.get("CITO_JWT_SECRET")
+    if not secreto:
+        return None
+    try:
+        encabezado, carga, firma = token.split(".")
+        header = json.loads(_base64url_decodificar(encabezado).decode("utf-8"))
+        if header != {"alg": "HS256", "typ": "JWT"}:
+            return None
+        expected_signature = hmac.new(
+            secreto.encode("utf-8"), f"{encabezado}.{carga}".encode("ascii"), hashlib.sha256
+        ).digest()
+        if not hmac.compare_digest(_base64url_decodificar(firma), expected_signature):
+            return None
+        claims = json.loads(_base64url_decodificar(carga).decode("utf-8"))
+        if not isinstance(claims, dict) or not isinstance(claims.get("sub"), str):
+            return None
+        if not isinstance(claims.get("role"), str) or not isinstance(claims.get("exp"), int):
+            return None
+        if claims.get("type") != "refresh":
+            return None
+        if claims["exp"] <= int(time.time() if now is None else now):
+            return None
+    except (binascii.Error, UnicodeDecodeError, ValueError, json.JSONDecodeError):
+        return None
+    return {"sub": claims["sub"], "role": claims["role"]}
+
+
+def validar_complejidad_password(password: str) -> tuple[bool, str]:
+    """Valida la complejidad de la contraseña (CITO-93).
+
+    :param password: Contraseña a validar.
+    :type password: str
+    :return: Tupla (es_válida, mensaje_error).
+    :rtype: tuple[bool, str]
+    """
+    if len(password) < MIN_PASSWORD_LENGTH:
+        return False, f"La contraseña debe tener al menos {MIN_PASSWORD_LENGTH} caracteres."
+    if REQUIRE_UPPERCASE and not any(c.isupper() for c in password):
+        return False, "La contraseña debe contener al menos una letra mayúscula."
+    if REQUIRE_LOWERCASE and not any(c.islower() for c in password):
+        return False, "La contraseña debe contener al menos una letra minúscula."
+    if REQUIRE_DIGITS and not any(c.isdigit() for c in password):
+        return False, "La contraseña debe contener al menos un dígito."
+    if REQUIRE_SPECIAL_CHARS and not any(not c.isalnum() for c in password):
+        return False, "La contraseña debe contener al menos un carácter especial."
+    return True, ""
 
 
 def permitir_solicitud(cliente, now=None):
@@ -361,11 +521,25 @@ def analyze_from_payload(payload):
 
 
 class CitoCounterApiHandler(BaseHTTPRequestHandler):
+    def _send_security_headers(self):
+        """Add security headers to all responses (CITO-93)."""
+        for header, value in SECURITY_HEADERS.items():
+            self.send_header(header, value)
+        # CORS headers
+        origin = self.headers.get("Origin", "")
+        if origin in CORS_ALLOWED_ORIGINS:
+            self.send_header("Access-Control-Allow-Origin", origin)
+            self.send_header("Access-Control-Allow-Credentials", "true")
+        self.send_header("Access-Control-Allow-Methods", ", ".join(CORS_ALLOWED_METHODS))
+        self.send_header("Access-Control-Allow-Headers", ", ".join(CORS_ALLOWED_HEADERS))
+        self.send_header("Access-Control-Max-Age", str(CORS_MAX_AGE))
+
     def _send_json(self, payload, status=200):
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
+        self._send_security_headers()
         self.end_headers()
         self.wfile.write(body)
 
@@ -373,6 +547,50 @@ class CitoCounterApiHandler(BaseHTTPRequestHandler):
         """Envía una respuesta JSON y registra el evento operativo sin secretos."""
         registrar_acceso(self.path, self.command, exito, detalles)
         self._send_json(payload, status)
+
+    def do_OPTIONS(self):
+        """Handle CORS preflight requests (CITO-93)."""
+        self.send_response(204)
+        self._send_security_headers()
+        self.end_headers()
+
+    def _handle_refresh_token(self):
+        """Handle refresh token endpoint (CITO-92)."""
+        try:
+            content_length = int(self.headers.get("Content-Length", "0"))
+        except ValueError:
+            return error_response("Content-Length inválido", 400)
+        if content_length <= 0:
+            return error_response("Cuerpo JSON vacío", 400)
+        if content_length > MAX_REQUEST_BODY_BYTES:
+            return error_response("Cuerpo JSON demasiado grande", 413)
+
+        raw = self.rfile.read(content_length)
+        try:
+            payload = json.loads(raw.decode("utf-8"))
+        except json.JSONDecodeError:
+            return error_response("JSON inválido", 400)
+
+        refresh_token = payload.get("refresh_token")
+        if not refresh_token or not isinstance(refresh_token, str):
+            return error_response("`refresh_token` es obligatorio y debe ser string.", 400)
+
+        claims = validar_refresh_token(refresh_token)
+        if not claims:
+            return error_response("Refresh token inválido o expirado.", 401)
+
+        # Generate new access token and refresh token
+        access_token = crear_token_jwt(claims["sub"], claims["role"])
+        new_refresh_token = crear_refresh_token(claims["sub"], claims["role"])
+
+        return {
+            "ok": True,
+            "token_type": "Bearer",
+            "access_token": access_token,
+            "refresh_token": new_refresh_token,
+            "expires_in": JWT_EXPIRATION_SECONDS,
+            "role": claims["role"],
+        }, 200
 
     def do_GET(self):
         if self.path == "/api/v1/health":
@@ -384,12 +602,22 @@ class CitoCounterApiHandler(BaseHTTPRequestHandler):
         )
 
     def do_POST(self):
-        if self.path not in {"/api/v1/analyze", "/api/v1/auth/login"}:
+        if self.path not in {"/api/v1/analyze", "/api/v1/auth/login", "/api/v1/auth/refresh"}:
             self._send_audited_response(
                 {"ok": False, "error": {"code": 404, "message": "Endpoint no encontrado"}},
                 404,
                 False,
                 "status=404,motivo=endpoint_desconocido",
+            )
+            return
+
+        if self.path == "/api/v1/auth/refresh":
+            response, status = self._handle_refresh_token()
+            self._send_audited_response(
+                response,
+                status,
+                status == 200,
+                f"status={status},motivo=refresh_token",
             )
             return
 

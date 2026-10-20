@@ -80,15 +80,9 @@ def obtener_imagenes_reales(directorio: Path, max_imagenes: int = 20) -> list:
 
 def obtener_todas_imagenes_reales(max_total: int = 50) -> list:
     """Obtiene imágenes reales de todos los splits."""
-    imagenes = []
-    for split in ['train', 'val', 'test']:
-        split_dir = Path('data/raw') / split
-        if split_dir.exists():
-            imgs = obtener_imagenes_reales(split_dir, max_imagenes=20)
-            imagenes.extend(imgs)
-            if len(imagenes) >= max_total:
-                break
-    return imagenes[:max_total]
+    # Las imágenes están en data/raw/ directamente, no en subdirectorios
+    # Usamos dataset_index.csv para saber el split si es necesario
+    return obtener_imagenes_reales(Path('data/raw'), max_imagenes=max_total)
 
 
 # ============================================================================
@@ -99,9 +93,9 @@ def evaluar_configuracion_real(
     rutas: list[Path], 
     sigma1: float, 
     sigma2: float,
-    umbral: int,
-    area_min: int,
-    area_max: int,
+    area_min: int = 100,
+    area_max: int = 300000,
+    umbral_fijo: int = 100,
     polaridad: str = 'nucleos-oscuros'
 ) -> dict:
     """Evalúa una configuración en imágenes reales."""
@@ -117,28 +111,25 @@ def evaluar_configuracion_real(
             imagen_gris, imagen_original = preprocesar_imagen(str(ruta), polaridad='nucleos-oscuros')
             imagen_dog = aplicar_filtro_dog(imagen_gris, sigma1=sigma1, sigma2=sigma2)
             
-            # Temporalmente sobrescribir constantes
+            # Temporalmente sobrescribir constantes de área (diccionarios)
             import src.analysis as analysis_module
-            old_umbral = analysis_module.UMBRAL_DOG
             old_area_min = analysis_module.AREA_MINIMA_NUCLEO
             old_area_max = analysis_module.AREA_MAXIMA_NUCLEO
             
-            analysis_module.UMBRAL_DOG = umbral
-            analysis_module.AREA_MINIMA_NUCLEO = {'nucleos-claros': 10, 'nucleos-oscuros': 100}
-            analysis_module.AREA_MAXIMA_NUCLEO = {'nucleos-claros': 1000, 'nucleos-oscuros': 300000}
+            analysis_module.AREA_MINIMA_NUCLEO = {'nucleos-claros': 10, 'nucleos-oscuros': area_min}
+            analysis_module.AREA_MAXIMA_NUCLEO = {'nucleos-claros': 1000, 'nucleos-oscuros': area_max}
             
             resultados = analizar_nucleos(
                 imagen_dog, 
                 imagen_original, 
                 polaridad='nucleos-oscuros',
                 usar_mascara_borde=True,
-                ancho_borde=50
+                umbral_fijo_nucleos_oscuros=umbral_fijo
             )
             
             # Restaurar constantes
-            analysis_module.UMBRAL_DOG = 5
-            analysis_module.AREA_MINIMA_NUCLEO = {'nucleos-claros': 10, 'nucleos-oscuros': 100}
-            analysis_module.AREA_MAXIMA_NUCLEO = {'nucleos-claros': 1000, 'nucleos-oscuros': 300000}
+            analysis_module.AREA_MINIMA_NUCLEO = old_area_min
+            analysis_module.AREA_MAXIMA_NUCLEO = old_area_max
             
             # Obtener ground truth
             label_path = Path('CitoDataset_v1/labels') / 'train' / f"{ruta.stem}.txt"
@@ -272,9 +263,9 @@ def calibrar_sigma_real():
                 rutas=[Path(r) for r in [str(p) for p in imagenes_cal[:5]]],  # Usar 5 imágenes
                 sigma1=s1,
                 sigma2=s2,
-                umbral=5,
                 area_min=100,
-                area_max=300000
+                area_max=300000,
+                umbral_fijo=100
             )
             
             if resultado['imagenes_procesadas'] == 0:
@@ -326,15 +317,16 @@ def calibrar_sigma_real():
 
 
 # ============================================================================
-# FUNCIÓN 3: Calibrar umbral para imágenes reales
+# FUNCIÓN 3: Calibrar umbralización adaptativa para imágenes reales
 # ============================================================================
 
 def calibrar_umbral_real():
     """
-    CITO-97: Calibrar UMBRAL_DOG para imágenes reales.
+    CITO-97: Calibrar parámetros de umbralización adaptativa para imágenes reales.
+    En lugar de umbral fijo, usamos block_size y C de cv2.adaptiveThreshold.
     """
     print("=" * 70)
-    print("2️⃣  CITO-97: CALIBRACIÓN DE UMBRAL DOG PARA IMÁGENES REALES")
+    print("2️⃣  CITO-97: CALIBRACIÓN DE UMBRALIZACIÓN ADAPTATIVA PARA IMÁGENES REALES")
     print("=" * 70)
     
     imagenes_cal = obtener_todas_imagenes_reales(max_total=10)
@@ -346,23 +338,25 @@ def calibrar_umbral_real():
     
     print(f"\n📊 Usando σ1={sigma1}, σ2={sigma2}")
     
-    valores_umbral = [3, 5, 8, 10, 12, 15, 20, 25, 30]
+    # Valores a probar para umbral fijo (basado en calibración CITO-97)
+    # Valores típicos: 80-140 para imágenes Papanicolaou/EDF
+    valores_umbral_fijo = [80, 90, 100, 110, 120, 130, 140]
     
-    print("\n📊 Valores a probar para umbral:")
-    print(f"   {valores_umbral}")
+    print("\n📊 Valores a probar para umbral fijo:")
+    print(f"   {valores_umbral_fijo}")
     
     mejores_resultados = []
     
-    for umbral in valores_umbral:
-        print(f"\n   Probando umbral={umbral}...")
+    for umbral_fijo in valores_umbral_fijo:
+        print(f"\n   Probando umbral_fijo={umbral_fijo}...")
         
         resultado = evaluar_configuracion_real(
             rutas=[Path(r) for r in [str(p) for p in imagenes_cal[:5]]],
             sigma1=sigma1,
             sigma2=sigma2,
-            umbral=umbral,
             area_min=100,
-            area_max=300000
+            area_max=300000,
+            umbral_fijo=umbral_fijo
         )
         
         if resultado['imagenes_procesadas'] == 0:
@@ -383,7 +377,7 @@ def calibrar_umbral_real():
             calidad += 0.1
         
         mejores_resultados.append({
-            'umbral': umbral,
+            'umbral_fijo': umbral_fijo,
             'precision': precision,
             'recall': recall,
             'f1': f1,
@@ -395,15 +389,15 @@ def calibrar_umbral_real():
     mejores_resultados.sort(key=lambda x: x['calidad'], reverse=True)
     
     print("\n" + "=" * 70)
-    print("🏆 MEJORES CONFIGURACIONES DE UMBRAL")
+    print("🏆 MEJORES CONFIGURACIONES DE UMBRAL FIJO")
     print("=" * 70)
     for i, r in enumerate(mejores_resultados[:5]):
-        print(f"   {i+1}. umbral={r['umbral']} - P={r['precision']:.3f}, R={r['recall']:.3f}, F1={r['f1']:.3f}, Calidad={r['calidad']:.2f}")
+        print(f"   {i+1}. umbral_fijo={r['umbral_fijo']} - P={r['precision']:.3f}, R={r['recall']:.3f}, F1={r['f1']:.3f}, Calidad={r['calidad']:.2f}")
     
     if mejores_resultados:
         mejor = mejores_resultados[0]
-        resultados_calibracion['umbral_dog_optimo'] = mejor['umbral']
-        print(f"\n   ✅ Mejor selección: umbral={mejor['umbral']}")
+        resultados_calibracion['umbral_fijo_optimo'] = mejor['umbral_fijo']
+        print(f"\n   ✅ Mejor selección: umbral_fijo={mejor['umbral_fijo']}")
     
     print()
 
@@ -425,9 +419,9 @@ def calibrar_areas_real():
     
     sigma1 = resultados_calibracion.get('sigma1_optimo', 10.0)
     sigma2 = resultados_calibracion.get('sigma2_optimo', 20.0)
-    umbral = resultados_calibracion.get('umbral_dog_optimo', 5)
+    umbral_fijo = resultados_calibracion.get('umbral_fijo_optimo', 100)
     
-    print(f"\n📊 Usando σ1={sigma1}, σ2={sigma2}, umbral={umbral}")
+    print(f"\n📊 Usando σ1={sigma1}, σ2={sigma2}, umbral_fijo={umbral_fijo}")
     
     valores_area_min = [50, 100, 150, 200, 300, 500]
     valores_area_max = [5000, 10000, 20000, 50000, 100000, 200000, 300000]
@@ -449,9 +443,9 @@ def calibrar_areas_real():
                 rutas=[Path(r) for r in [str(p) for p in imagenes_cal[:5]]],
                 sigma1=sigma1,
                 sigma2=sigma2,
-                umbral=umbral,
                 area_min=area_min,
-                area_max=area_max
+                area_max=area_max,
+                umbral_fijo=umbral_fijo
             )
             
             if resultado['imagenes_procesadas'] == 0:
@@ -512,16 +506,20 @@ def validar_con_test_set():
     print("4️⃣  CITO-97: VALIDACIÓN CON CONJUNTO DE PRUEBA SEPARADO")
     print("=" * 70)
     
-    # Usar imágenes de test reales
-    test_dir = Path('data/raw/test')
+    # Usar dataset_index.csv para obtener imágenes del split de test
+    import csv
     test_images = []
-    for f in test_dir.iterdir():
-        if f.suffix.lower() in {'.jpg', '.jpeg', '.png', '.tif', '.tiff', '.bmp'}:
-            img = cv2.imread(str(f))
-            if img is not None:
-                h, w = img.shape[:2]
-                if w >= 2000 and h >= 1500:
-                    test_images.append(f)
+    with open('CitoDataset_v1/dataset_index.csv', 'r') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if row['Split'] == 'test':
+                ruta = Path('data/raw') / row['Archivo']
+                if ruta.exists():
+                    img = cv2.imread(str(ruta))
+                    if img is not None:
+                        h, w = img.shape[:2]
+                        if w >= 2000 and h >= 1500:
+                            test_images.append(ruta)
     
     print(f"📸 Imágenes de test reales: {len(test_images)}")
     
@@ -532,12 +530,13 @@ def validar_con_test_set():
     # Usar mejores parámetros calibrados
     sigma1 = resultados_calibracion.get('sigma1_optimo', 10.0)
     sigma2 = resultados_calibracion.get('sigma2_optimo', 20.0)
-    umbral = resultados_calibracion.get('umbral_dog_optimo', 5)
+    umbral_fijo = resultados_calibracion.get('umbral_fijo_optimo', 100)
     area_min = resultados_calibracion.get('area_minima_optima', 100)
     area_max = resultados_calibracion.get('area_maxima_optima', 300000)
     
     print(f"\n📊 Parámetros finales:")
-    print(f"   σ1={sigma1}, σ2={sigma2}, umbral={umbral}")
+    print(f"   σ1={sigma1}, σ2={sigma2}")
+    print(f"   umbral_fijo={umbral_fijo}")
     print(f"   área=[{area_min}, {area_max}]")
     
     # Evaluar en todas las imágenes de test
@@ -545,9 +544,9 @@ def validar_con_test_set():
         rutas=[Path(r) for r in [str(p) for p in test_images]],
         sigma1=sigma1,
         sigma2=sigma2,
-        umbral=umbral,
         area_min=area_min,
-        area_max=area_max
+        area_max=area_max,
+        umbral_fijo=umbral_fijo
     )
     
     print(f"\n📊 RESULTADOS EN CONJUNTO DE PRUEBA:")
@@ -556,14 +555,12 @@ def validar_con_test_set():
     print(f"   Precision: {resultados['precision']:.4f}")
     print(f"   Recall: {resultados['recall']:.4f}")
     print(f"   F1-Score: {resultados['f1']:.4f}")
-    print(f"   Jaccard: {resultados['jaccard']:.4f}")
     
     # Guardar resultados
     resultados_calibracion['validacion_test'] = {
         'precision': resultados['precision'],
         'recall': resultados['recall'],
         'f1': resultados['f1'],
-        'jaccard': resultados['jaccard'],
         'tp': resultados['tp'],
         'fp': resultados['fp'],
         'fn': resultados['fn']
@@ -588,7 +585,7 @@ def generar_tabla_parametros_final():
         'Parámetro': [
             'σ1 (Sigma1 - Desenfoque fino)',
             'σ2 (Sigma2 - Desenfoque grueso)',
-            'UMBRAL_DOG (Umbral binarización)',
+            'UMBRAL_FIJO (Umbral binarización fijo)',
             'AREA_MINIMA_NUCLEO (nucleos-oscuros)',
             'AREA_MAXIMA_NUCLEO (nucleos-oscuros)',
             'FACTOR_RIESGO (Regla 3x)',
@@ -597,7 +594,7 @@ def generar_tabla_parametros_final():
         'Valor Base (CITO-74)': [
             5.0,
             10.0,
-            5,
+            'N/A (usaba umbral adaptativo)',
             10,
             500,
             3.0,
@@ -606,7 +603,7 @@ def generar_tabla_parametros_final():
         'Valor Calibrado (CITO-97)': [
             resultados_calibracion.get('sigma1_optimo', 'No calibrado'),
             resultados_calibracion.get('sigma2_optimo', 'No calibrado'),
-            resultados_calibracion.get('umbral_dog_optimo', 'No calibrado'),
+            resultados_calibracion.get('umbral_fijo_optimo', 'No calibrado'),
             resultados_calibracion.get('area_minima_optima', 'No calibrado'),
             resultados_calibracion.get('area_maxima_optima', 'No calibrado'),
             3.0,  # Se mantiene
@@ -615,7 +612,7 @@ def generar_tabla_parametros_final():
         'Justificación': [
             'Calibrado en CITO-97 con imágenes reales 2048x1536',
             'Calibrado en CITO-97 con imágenes reales 2048x1536',
-            'Calibrado en CITO-97 con imágenes reales 2048x1536',
+            'Calibrado en CITO-97 para binarización fija con máscara asimétrica',
             'Calibrado en CITO-97 para núcleos reales más pequeños',
             'Calibrado en CITO-97 para artefactos reales',
             'Regla de la Dra. Rangel, se mantiene',

@@ -25,6 +25,13 @@ streamlit>=1.51.0            # Dashboard web interactivo con sliders en tiempo r
 # scikit-learn==1.3.0        # Matriz de confusión, métricas de clasificación
 # scipy==1.11.2              # Pruebas estadísticas (t-test, ANOVA)
 
+# Deep Learning - PARA VALIDACIÓN REAL EN IMÁGENES REALES (CITO-95)
+# Descomentar para habilitar validación en imágenes Papanicolaou/EDF:
+# torch==2.1.0               # PyTorch para Cellpose/StarDist
+# cellpose==3.0.0            # Segmentación de núcleos zero-shot (recomendado)
+# stardist==0.9.1            # Alternativa: StarDist para núcleos
+# segmentation-models-pytorch==0.3.0  # U-Net, FPN, etc. para modelo custom
+
 # ============================================================================
 # INSTALACIÓN:
 #   pip install -r requirements.txt

@@ -50,8 +50,8 @@ Para evitar mezclar el identificador académico con la clave real de Jira, se us
 | ACT-05 | CITO-26 | Implementar interfaz para visualizar conteo y clasificación | J-13 | Finalizado |
 | ACT-06 | CITO-27 | Integrar el sistema con un dashboard de resultados y métricas | J-15 | Finalizado |
 | ACT-07 | CITO-28 | Diseñar indicadores clave del rendimiento del sistema | J-15 | Finalizado |
-| ACT-08 | CITO-29 | Construir flujo ETL para resultados y reportes históricos | J-15 | Por hacer |
-| ACT-09 | CITO-30 | Diseñar almacenamiento para resultados de experimentación | J-14 | Por hacer |
+| ACT-08 | CITO-29 | Construir flujo ETL para resultados y reportes históricos | J-15 | Finalizado ✅ |
+| ACT-09 | CITO-30 | Diseñar almacenamiento para resultados de experimentación | J-14 | Finalizado ✅ |
 | ACT-10 | CITO-31 | Validar F1-Score >= 90% con dataset de prueba congelado | J-18 | Por hacer |
 | ACT-11 | CITO-32 | Identificar estrategias para superar superposición celular | J-19 | Por hacer |
 | ACT-12 | CITO-33 | Mitigar artefactos de tinción y variaciones de iluminación | J-19 | Por hacer |
@@ -97,8 +97,8 @@ Antes de iniciar las actividades, confirmar manualmente en la extensión de Jira
 | CITO-26 | ACT-05 | Interfaz local actualizada con incertidumbre y exportación reproducible | Confirmado en plan | Actividad/subtarea con dashboard Streamlit, manejo de errores y pruebas de exportación | Finalizado | 2026-10-17 |
 | CITO-27 | ACT-06 | Dashboard consolidado de ejecuciones y métricas implementado | Confirmado en plan | Actividad/subtarea con historial normalizado, consulta por muestra y agregados en Streamlit | Finalizado | 2026-10-17 |
 | CITO-28 | ACT-07 | Indicadores de conteo, sospechosas, riesgo y comparación por muestra formalizados | Confirmado en plan | Actividad/subtarea con fórmulas, fuentes y pruebas reproducibles | Finalizado | 2026-10-17 |
-| CITO-29 | ACT-08 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
-| CITO-30 | ACT-09 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-29 | ACT-08 | ETL para resultados y reportes históricos implementado | Confirmado en plan | Actividad/subtarea con ETL reproducible, agregados por imagen y sigma, exportación CSV/JSON | Finalizado | 2026-10-19 |
+| CITO-30 | ACT-09 | Almacenamiento para resultados de experimentación implementado | Confirmado en plan | Actividad/subtarea con esquema SQLite, historial normalizado, consultas por muestra y sigma | Finalizado | 2026-10-19 |
 | CITO-31 | ACT-10 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | CITO-32 | ACT-11 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | CITO-33 | ACT-12 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
