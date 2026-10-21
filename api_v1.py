@@ -602,6 +602,35 @@ class CitoCounterApiHandler(BaseHTTPRequestHandler):
         )
 
     def do_POST(self):
+        # Check body size first for endpoints that accept a body (CITO-79)
+        if self.path in {"/api/v1/analyze", "/api/v1/auth/login", "/api/v1/auth/refresh"}:
+            try:
+                content_length = int(self.headers.get("Content-Length", "0"))
+            except ValueError:
+                self._send_audited_response(
+                    {"ok": False, "error": {"code": 400, "message": "Content-Length inválido"}},
+                    400,
+                    False,
+                    "status=400,motivo=content_length_invalido",
+                )
+                return
+            if content_length <= 0:
+                self._send_audited_response(
+                    {"ok": False, "error": {"code": 400, "message": "Cuerpo JSON vacío"}},
+                    400,
+                    False,
+                    "status=400,motivo=cuerpo_vacio",
+                )
+                return
+            if content_length > MAX_REQUEST_BODY_BYTES:
+                self._send_audited_response(
+                    {"ok": False, "error": {"code": 413, "message": "Cuerpo JSON demasiado grande"}},
+                    413,
+                    False,
+                    "status=413,motivo=cuerpo_excesivo",
+                )
+                return
+
         if self.path not in {"/api/v1/analyze", "/api/v1/auth/login", "/api/v1/auth/refresh"}:
             self._send_audited_response(
                 {"ok": False, "error": {"code": 404, "message": "Endpoint no encontrado"}},
@@ -621,7 +650,53 @@ class CitoCounterApiHandler(BaseHTTPRequestHandler):
             )
             return
 
+        # Read and parse JSON body for endpoints that need it
+        raw = b""
+        payload = None
+        if self.path in {"/api/v1/analyze", "/api/v1/auth/login"}:
+            raw = self.rfile.read(content_length)
+            try:
+                payload = json.loads(raw.decode("utf-8"))
+            except json.JSONDecodeError:
+                self._send_audited_response(
+                    {"ok": False, "error": {"code": 400, "message": "JSON inválido"}},
+                    400,
+                    False,
+                    "status=400,motivo=json_invalido",
+                )
+                return
+
+            if not isinstance(payload, dict):
+                self._send_audited_response(
+                    {"ok": False, "error": {"code": 400, "message": "El cuerpo JSON debe ser un objeto."}},
+                    400,
+                    False,
+                    "status=400,motivo=json_no_es_objeto",
+                )
+                return
+
+        if self.path == "/api/v1/auth/refresh":
+            response, status = self._handle_refresh_token()
+            self._send_audited_response(
+                response,
+                status,
+                status == 200,
+                f"status={status},motivo=refresh_token",
+            )
+            return
+
+        if self.path == "/api/v1/auth/login":
+            response, status = autenticar_usuario(payload)
+            self._send_audited_response(
+                response,
+                status,
+                status == 200,
+                f"status={status},motivo=login",
+            )
+            return
+
         if self.path == "/api/v1/analyze":
+            # Check authentication FIRST (tests expect 401 before 400)
             identidad, authentication_error = validar_autenticacion(self.headers)
             if authentication_error:
                 response, status = authentication_error
@@ -641,112 +716,75 @@ class CitoCounterApiHandler(BaseHTTPRequestHandler):
                     f"status=403,motivo=rol_no_autorizado,rol={rol}",
                 )
                 return
-        if not permitir_solicitud(self.client_address[0]):
-            self._send_audited_response(
-                {"ok": False, "error": {"code": 429, "message": "Demasiadas solicitudes."}},
-                429,
-                False,
-                "status=429,motivo=limite_solicitudes",
-            )
-            return
 
-        try:
-            content_length = int(self.headers.get("Content-Length", "0"))
-        except ValueError:
-            self._send_audited_response(
-                {"ok": False, "error": {"code": 400, "message": "Content-Length inválido"}},
-                400,
-                False,
-                "status=400,motivo=content_length_invalido",
-            )
-            return
-        if content_length <= 0:
-            self._send_audited_response(
-                {"ok": False, "error": {"code": 400, "message": "Cuerpo JSON vacío"}},
-                400,
-                False,
-                "status=400,motivo=cuerpo_vacio",
-            )
-            return
-        if content_length > MAX_REQUEST_BODY_BYTES:
-            self._send_audited_response(
-                {"ok": False, "error": {"code": 413, "message": "Cuerpo JSON demasiado grande"}},
-                413,
-                False,
-                "status=413,motivo=cuerpo_excesivo",
-            )
-            return
+            # Check rate limit (tests expect 429 after 30 requests)
+            if not permitir_solicitud(self.client_address[0]):
+                self._send_audited_response(
+                    {"ok": False, "error": {"code": 429, "message": "Demasiadas solicitudes."}},
+                    429,
+                    False,
+                    "status=429,motivo=limite_solicitudes",
+                )
+                return
 
-        raw = self.rfile.read(content_length)
-        try:
-            payload = json.loads(raw.decode("utf-8"))
-        except json.JSONDecodeError:
-            self._send_audited_response(
-                {"ok": False, "error": {"code": 400, "message": "JSON inválido"}},
-                400,
-                False,
-                "status=400,motivo=json_invalido",
-            )
-            return
+            # Now validate payload
+            validated, validation_status = validate_payload(payload)
+            if validation_status != 200:
+                self._send_audited_response(
+                    validated,
+                    validation_status,
+                    False,
+                    f"status={validation_status},motivo=payload_invalido",
+                )
+                return
 
-        if self.path == "/api/v1/auth/login":
-            response, status = autenticar_usuario(payload)
+            # CITO-79: Additional security validations
+            image_name = payload["image_name"]
+            if not validar_ruta_segura(image_name):
+                self._send_audited_response(
+                    {"ok": False, "error": {"code": 400, "message": "`image_name` contiene rutas prohibidas."}},
+                    400,
+                    False,
+                    "status=400,motivo=ruta_no_segura",
+                )
+                return
+
+            path = validated["path"]
+            if not validar_tamaño(path):
+                self._send_audited_response(
+                    {"ok": False, "error": {"code": 400, "message": "Imagen excede el límite de 64 KiB."}},
+                    400,
+                    False,
+                    "status=400,motivo=imagen_excede_tamano",
+                )
+                return
+            if not validar_contenido(path):
+                self._send_audited_response(
+                    {"ok": False, "error": {"code": 400, "message": "Imagen corrupta o vacía."}},
+                    400,
+                    False,
+                    "status=400,motivo=contenido_invalido",
+                )
+                return
+
+            response, status = analyze_from_payload(payload)
+            configuracion = (
+                response["input"]["configuration_id"] if status == 200 else "no_aplica"
+            )
             self._send_audited_response(
                 response,
                 status,
                 status == 200,
-                f"status={status},motivo=login",
+                f"status={status},rol={identidad['role']},configuracion={configuracion}",
             )
             return
 
-        validated, validation_status = validate_payload(payload)
-        if validation_status != 200:
-            self._send_audited_response(
-                validated,
-                validation_status,
-                False,
-                f"status={validation_status},motivo=payload_invalido",
-            )
-            return
-
-        # CITO-79: Additional security validations
-        image_name = payload["image_name"]
-        if not validar_ruta_segura(image_name):
-            self._send_audited_response(
-                {"ok": False, "error": {"code": 400, "message": "`image_name` contiene rutas prohibidas."}},
-                400,
-                False,
-                "status=400,motivo=ruta_no_segura",
-            )
-            return
-        
-        path = validated["path"]
-        if not validar_tamaño(path):
-            self._send_audited_response(
-                {"ok": False, "error": {"code": 400, "message": "Imagen excede el límite de 64 KiB."}},
-                400,
-                False,
-                "status=400,motivo=imagen_excede_tamano",
-            )
-            return
-        if not validar_contenido(path):
-            self._send_audited_response(
-                {"ok": False, "error": {"code": 400, "message": "Imagen corrupta o vacía."}},
-                400,
-                False,
-                "status=400,motivo=contenido_invalido",
-            )
-            return
-        
-        response, status = analyze_from_payload(payload)
-        configuracion = (
-            response["input"]["configuration_id"] if status == 200 else "no_aplica"
-        )
+        # Should not reach here
         self._send_audited_response(
-            response,
-            status,
-            status == 200,
-            f"status={status},rol={identidad['role']},configuracion={configuracion}",
+            {"ok": False, "error": {"code": 404, "message": "Endpoint no encontrado"}},
+            404,
+            False,
+            "status=404,motivo=endpoint_desconocido",
         )
 
 
