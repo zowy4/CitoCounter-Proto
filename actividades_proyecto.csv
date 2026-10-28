@@ -1,0 +1,16 @@
+Clave,Tipo,Prioridad,Estado,Persona asignada,Fecha creación,Resumen,Padre Jira
+CITO-83,Tarea,High,Finalizado,Zoé Andrés Chacón Zavala,09/sep/26 1:51 PM,Medir rendimiento y reducción de tiempo,J-16
+CITO-84,Tarea,Highest,Finalizado,Zoé Andrés Chacón Zavala,09/sep/26 1:51 PM,Auditar reproducibilidad y preparar entrega,--
+CITO-85,Tarea,Highest,Por hacer,Zoé Andrés Chacón Zavala,09/sep/26 1:51 PM,Validar F1-Score >= 90% en detección y segmentación,J-18
+CITO-86,Tarea,High,Por hacer,Zoé Andrés Chacón Zavala,09/sep/26 1:52 PM,Manejo de casos especiales: superposición, artefactos e iluminación,J-19
+CITO-87,Tarea,High,Por hacer,Zoé Andrés Chacón Zavala,09/sep/26 1:52 PM,Documentación técnica completa del sistema,--
+CITO-88,Tarea,High,Por hacer,Zoé Andrés Chacón Zavala,09/sep/26 1:52 PM,Pruebas de la plataforma con usuarios potenciales,J-13
+CITO-89,Tarea,Medium,Por hacer,Zoé Andrés Chacón Zavala,29/sep/26 12:02 PM,Buscar mas datasets,--
+CITO-90,Tarea,Medium,Por hacer,Zoé Andrés Chacón Zavala,29/sep/26 12:07 PM,SEGMENTACION OPEN HSV,--
+CITO-91,Tarea,Medium,Por hacer,Zoé Andrés Chacón Zavala,29/sep/26 12:14 PM,TOMAR EN CUENTA QUE SE ESCANEAN MUCHAS IMAGENES AL MISMO TIEMPO,--
+CITO-92,Tarea,Medium,Por hacer,Zoé Andrés Chacón Zavala,07/oct/26 12:14 PM,Implementar autenticación básica y rate limiting en API REST,J-12
+CITO-93,Tarea,Medium,Por hacer,Zoé Andrés Chacón Zavala,07/oct/26 12:14 PM,Endurecer seguridad: logs auditoría, HTTPS, revisión dependencias,J-12
+CITO-94,Tarea,Medium,Por hacer,Zoé Andrés Chacón Zavala,07/oct/26 12:14 PM,Casos especiales: superposición celular, artefactos e iluminación,J-19
+CITO-95,Tarea,Highest,Por hacer,Zoé Andrés Chacón Zavala,07/oct/26 12:14 PM,Validar F1-Score >= 90% en detección y segmentación con dataset congelado,J-18
+CITO-96,Tarea,Highest,Por hacer,Zoé Andrés Chacón Zavala,07/oct/26 12:14 PM,Completar dataset con splits train/val/test y ground truth trazable,J-03/J-04/J-05
+CITO-97,Tarea,Highest,Por hacer,Zoé Andrés Chacón Zavala,07/oct/26 12:14 PM,Calibrar DoG con conjunto autorizado separado,J-07

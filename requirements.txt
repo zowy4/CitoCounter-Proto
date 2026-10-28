@@ -1,0 +1,44 @@
+# ============================================================================
+# CitoCounter Proto - Dependencias del Proyecto
+# ============================================================================
+# VERSIONES ESPECÍFICAS para garantizar reproducibilidad (BM6)
+# Generado: 2025-11-18
+# Python: 3.8+
+# ============================================================================
+
+# Procesamiento de imágenes - CRÍTICAS
+opencv-python==4.8.1.78      # Filtro DoG, procesamiento de contornos
+numpy==1.24.3                # Operaciones matriciales, cálculos estadísticos
+
+# Visualización - RECOMENDADAS
+matplotlib==3.8.0            # Gráficos de calibración, histogramas
+
+# Generación de reportes y manejo de imágenes - OPCIONALES
+Pillow==10.1.0               # Manipulación adicional de imágenes
+
+# Web Dashboard - INTERFAZ INTERACTIVA
+streamlit>=1.51.0            # Dashboard web interactivo con sliders en tiempo real
+
+# Análisis de datos - PARA VALIDACIÓN CIENTÍFICA (BM5)
+# Descomentar si necesitas calcular métricas de validación:
+# pandas==2.0.3              # Análisis de bitácora de experimentos
+# scikit-learn==1.3.0        # Matriz de confusión, métricas de clasificación
+# scipy==1.11.2              # Pruebas estadísticas (t-test, ANOVA)
+
+# Deep Learning - PARA VALIDACIÓN REAL EN IMÁGENES REALES (CITO-95)
+# Descomentar para habilitar validación en imágenes Papanicolaou/EDF:
+# torch==2.1.0               # PyTorch para Cellpose/StarDist
+# cellpose==3.0.0            # Segmentación de núcleos zero-shot (recomendado)
+# stardist==0.9.1            # Alternativa: StarDist para núcleos
+# segmentation-models-pytorch==0.3.0  # U-Net, FPN, etc. para modelo custom
+
+# ============================================================================
+# INSTALACIÓN:
+#   pip install -r requirements.txt
+#
+# ACTUALIZAR ESTE ARCHIVO:
+#   pip freeze > requirements.txt
+#
+# VERIFICAR INSTALACIÓN:
+#   pip list
+# ============================================================================

@@ -1,0 +1,24 @@
+============================================================
+📊 REPORTE DE MÉTRICAS CITO-75: VAL
+============================================================
+Conjunto: VAL
+Imágenes procesadas: 42
+
+📈 Métricas de Detección (Centroides):
+  - Verdaderos Positivos (TP): 0
+  - Falsos Positivos (FP): 0
+  - Falsos Negativos (FN): 0
+  - Precision: 0.0000
+  - Recall (Sensibilidad): 0.0000
+  - F1-Score: 0.0000
+
+📐 Métricas de Segmentación (IoU):
+  - Verdaderos Positivos (TP IoU): 0
+  - Falsos Positivos (FP IoU): 0
+  - Falsos Negativos (FN IoU): 0
+  - IoU Promedio: N/A
+
+⚙️  Configuración:
+  - Distancia de matching: 10.0 px
+  - Umbral IoU: 0.5
+============================================================

@@ -1,0 +1,61 @@
+CITO-23 - Validación de métricas del detector DoG (mejorada)
+======================================================================
+
+Imágenes evaluadas: 5
+Umbral IoU: 0.50
+Sigma DoG: sigma1=5.00, sigma2=8.00
+Imágenes: data\sintetico\evaluacion\images
+Etiquetas: data\sintetico\evaluacion\labels
+
+MÉTRICAS TOTALES:
+----------------------------------------------------------------------
+TP total:   68
+FP total:   0
+FN total:   10
+Precision:  1.0000
+Recall:     0.8718
+F1-Score:   0.9315
+Mean IoU:   0.7308
+
+DETALLE POR IMAGEN:
+----------------------------------------------------------------------
+
+SINTETICA_101.png:
+  Label file: data\sintetico\evaluacion\labels\SINTETICA_101.txt
+  Exists: True
+  Detections: 14
+  References: 16
+  TP=14 FP=0 FN=2
+  P=1.0000 R=0.8750 F1=0.9333 IoU=0.7575
+
+SINTETICA_102.png:
+  Label file: data\sintetico\evaluacion\labels\SINTETICA_102.txt
+  Exists: True
+  Detections: 15
+  References: 17
+  TP=15 FP=0 FN=2
+  P=1.0000 R=0.8824 F1=0.9375 IoU=0.6950
+
+SINTETICA_103.png:
+  Label file: data\sintetico\evaluacion\labels\SINTETICA_103.txt
+  Exists: True
+  Detections: 11
+  References: 14
+  TP=11 FP=0 FN=3
+  P=1.0000 R=0.7857 F1=0.8800 IoU=0.7674
+
+SINTETICA_104.png:
+  Label file: data\sintetico\evaluacion\labels\SINTETICA_104.txt
+  Exists: True
+  Detections: 11
+  References: 13
+  TP=11 FP=0 FN=2
+  P=1.0000 R=0.8462 F1=0.9167 IoU=0.7205
+
+SINTETICA_105.png:
+  Label file: data\sintetico\evaluacion\labels\SINTETICA_105.txt
+  Exists: True
+  Detections: 17
+  References: 18
+  TP=17 FP=0 FN=1
+  P=1.0000 R=0.9444 F1=0.9714 IoU=0.7134

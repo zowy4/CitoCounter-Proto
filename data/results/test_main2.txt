@@ -1,0 +1,30 @@
+============================================================
+INFORME DE RENDIMIENTO - CITOCOUNTER PROTO (CITO-83)
+============================================================
+
+Total de ejecuciones analizadas: 3
+Tiempo manual de referencia: 180.0 segundos/imagen
+Objetivo de reducción: 70% (≤54.0 seg/imagen)
+
+ESTADÍSTICAS DE TIEMPO AUTOMATIZADO:
+  Promedio:     0.0156 segundos
+  Mediano:      0.0043 segundos
+  Mínimo:       0.0043 segundos
+  Máximo:       0.0382 segundos
+  Desv. Est.:   0.0196 segundos
+
+REDUCCIÓN DE TIEMPO LOGRADA:
+  Promedio:     99.99%
+  Cumplen objetivo (≥70%): 3/3 (100.0%)
+
+DETALLE POR EJECUCIÓN:
+   1. data/raw/MUESTRA_455.jpg       |   0.0382s |  99.98% | ✅ CUMPLE
+   2. data/raw/MUESTRA_1857.jpg      |   0.0043s | 100.00% | ✅ CUMPLE
+   3. data/raw/MUESTRA_1051.jpg      |   0.0043s | 100.00% | ✅ CUMPLE
+
+ANÁLISIS POR ETAPAS (promedio):
+  - pipeline_completo        : 0.0156s (100.1% del total)
+
+============================================================
+CONCLUSIÓN: ✅ OBJETIVO CUMPLIDO (100.0% de ejecuciones cumplen ≥70% reducción)
+============================================================

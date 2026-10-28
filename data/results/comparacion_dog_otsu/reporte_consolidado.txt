@@ -1,0 +1,18 @@
+======================================================================
+📊 REPORTE CONSOLIDADO CITO-76: COMPARACIÓN DOG vs OTSU vs BASE
+======================================================================
+
+CONJUNTO TRAIN (147 imágenes):
+  - DoG F1: 0.0000 | Otsu F1: 0.0000 | Base F1: 0.0000
+
+CONJUNTO VAL (42 imágenes):
+  - DoG F1: 0.0000 | Otsu F1: 0.0000 | Base F1: 0.0000
+
+CONJUNTO TEST (22 imágenes):
+  - DoG F1: 0.0000 | Otsu F1: 0.0000 | Base F1: 0.0000
+
+🏆 GANADOR POR CONJUNTO:
+  TRAIN: DoG
+  VAL: DoG
+  TEST: DoG
+======================================================================

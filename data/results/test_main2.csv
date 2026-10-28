@@ -1,0 +1,4 @@
+timestamp,imagen,tiempo_total_segundos,tiempo_manual_estimado_segundos,reduccion_lograda_porcentaje,cumple_objetivo,version_codigo,etapa_pipeline_completo_segundos
+2026-10-06 20:25:51,data/raw/MUESTRA_455.jpg,0.0382,180.0,99.98,True,1.0,0.038220149001062964
+2026-10-06 20:25:51,data/raw/MUESTRA_1857.jpg,0.0043,180.0,100.0,True,1.0,0.004343294000136666
+2026-10-06 20:25:51,data/raw/MUESTRA_1051.jpg,0.0043,180.0,100.0,True,1.0,0.004269466999176075

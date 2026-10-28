@@ -1,0 +1,438 @@
+import http.client
+import json
+import tempfile
+import threading
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+import numpy as np
+
+from api_v1 import (
+    CitoCounterApiHandler,
+    HTTPServer,
+    MAX_REQUEST_BODY_BYTES,
+    PROJECT_ROOT,
+    analyze_from_payload,
+    crear_identificador_configuracion,
+    validate_payload,
+    permitir_solicitud,
+    registrar_acceso,
+)
+
+
+class ApiV1Tests(unittest.TestCase):
+    def test_identificador_configuracion_es_estable_y_sensible_a_parametros(self):
+        parametros = {
+            "mejorar_contraste": True,
+            "reducir_ruido": False,
+            "polaridad": "nucleos-claros",
+            "sigma1": 5.0,
+            "sigma2": 8.0,
+        }
+
+        identificador = crear_identificador_configuracion(parametros)
+        self.assertEqual(identificador, crear_identificador_configuracion(parametros))
+
+        parametros_alternos = {**parametros, "sigma2": 10.0}
+        self.assertNotEqual(
+            identificador,
+            crear_identificador_configuracion(parametros_alternos),
+        )
+
+    def test_registrar_acceso_emite_evento_json(self):
+        with self.assertLogs("cito-api", level="INFO") as logs:
+            registrar_acceso("/api/v1/analyze", "POST", True, "usuario=analista")
+
+        event = json.loads(logs.output[0].split(":", 2)[2])
+        self.assertEqual(event["endpoint"], "/api/v1/analyze")
+        self.assertEqual(event["metodo"], "POST")
+        self.assertTrue(event["exito"])
+        self.assertEqual(event["detalles"], "usuario=analista")
+
+    def test_rate_limit_rechaza_solicitud_excedente(self):
+        import api_v1
+
+        api_v1.REQUEST_TIMESTAMPS.clear()
+        for _ in range(api_v1.RATE_LIMIT_REQUESTS):
+            self.assertTrue(permitir_solicitud("test-client", now=1.0))
+        self.assertFalse(permitir_solicitud("test-client", now=1.0))
+
+    def setUp(self):
+        self.raw_dir = PROJECT_ROOT / "data" / "raw"
+        self.raw_dir.mkdir(parents=True, exist_ok=True)
+
+    def test_rechaza_payload_sin_image_path(self):
+        payload = {"sigma1": 7.0, "sigma2": 8.0}
+        response, status = analyze_from_payload(payload)
+        self.assertEqual(status, 400)
+        self.assertFalse(response["ok"])
+
+    def test_rechaza_sigmas_invalidos(self):
+        img = self.raw_dir / "api_test_sigmas.jpg"
+        img.touch()
+        payload = {
+            "image_name": img.name,
+            "image_dir": "raw",
+            "sigma1": 8.0,
+            "sigma2": 8.0,
+        }
+        response, status = analyze_from_payload(payload)
+        self.assertEqual(status, 400)
+        self.assertIn("sigma2", response["error"]["message"])
+        img.unlink(missing_ok=True)
+
+    def test_rechaza_sigmas_no_numericos(self):
+        img = self.raw_dir / "api_test_sigma_texto.jpg"
+        img.touch()
+        response, status = validate_payload({
+            "image_name": img.name,
+            "sigma1": "no-numero",
+            "sigma2": 8.0,
+        })
+        self.assertEqual(status, 400)
+        self.assertIn("numéricos", response["error"]["message"])
+        img.unlink(missing_ok=True)
+
+    def test_rechaza_booleano_como_cadena(self):
+        img = self.raw_dir / "api_test_booleano.jpg"
+        img.touch()
+        response, status = validate_payload({
+            "image_name": img.name,
+            "noise_reduction": "false",
+        })
+        self.assertEqual(status, 400)
+        self.assertIn("noise_reduction", response["error"]["message"])
+        img.unlink(missing_ok=True)
+
+    def test_conserva_booleanos_json(self):
+        img = self.raw_dir / "api_test_booleanos_validos.jpg"
+        img.touch()
+        response, status = validate_payload({
+            "image_name": img.name,
+            "noise_reduction": True,
+            "enhance_contrast": False,
+        })
+        self.assertEqual(status, 200)
+        self.assertTrue(response["reducir_ruido"])
+        self.assertFalse(response["mejorar_contraste"])
+        img.unlink(missing_ok=True)
+
+    def test_rechaza_ruta_fuera_de_directorio_permitido(self):
+        payload = {
+            "image_name": "../externa.jpg",
+            "image_dir": "raw",
+            "sigma1": 7.0,
+            "sigma2": 8.0,
+        }
+        response, status = analyze_from_payload(payload)
+        self.assertEqual(status, 400)
+        self.assertIn("no debe contener rutas", response["error"]["message"])
+
+    @patch("api_v1.analizar_nucleos")
+    @patch("api_v1.aplicar_filtro_dog")
+    @patch("api_v1.preprocesar_imagen")
+    def test_flujo_valido_entrega_resultado(
+        self, mock_preprocesar, mock_dog, mock_analizar
+    ):
+        with tempfile.TemporaryDirectory() as d:
+            img_path = self.raw_dir / "api_test_muestra.jpg"
+            img_path.touch()
+            mock_preprocesar.return_value = (
+                np.zeros((10, 10), dtype=np.uint8),
+                np.zeros((10, 10, 3), dtype=np.uint8),
+            )
+            mock_dog.return_value = np.zeros((10, 10), dtype=np.uint8)
+            mock_analizar.return_value = {
+                "total_celulas": 10,
+                "normales": 7,
+                "sospechosas": 3,
+                "frontera": 2,
+                "porcentaje_riesgo": 30.0,
+            }
+
+            payload = {
+                "image_name": img_path.name,
+                "image_dir": "raw",
+                "sigma1": 7.0,
+                "sigma2": 8.0,
+                "noise_reduction": True,
+                "enhance_contrast": True,
+            }
+            response, status = analyze_from_payload(payload)
+
+            self.assertEqual(status, 200)
+            self.assertTrue(response["ok"])
+            self.assertTrue(
+                response["input"]["configuration_id"].startswith(
+                    "dog-otsu-contours-area-experimental-v1:"
+                )
+            )
+            self.assertEqual(response["result"]["total_cells"], 10)
+            self.assertEqual(response["result"]["suspicious_cells"], 3)
+            self.assertEqual(response["result"]["borderline_cells"], 2)
+            img_path.unlink(missing_ok=True)
+
+
+class ApiV1HttpTests(unittest.TestCase):
+    def setUp(self):
+        import api_v1
+
+        api_v1.REQUEST_TIMESTAMPS.clear()
+        self.server = HTTPServer(("127.0.0.1", 0), CitoCounterApiHandler)
+        self.thread = threading.Thread(target=self.server.serve_forever)
+        self.thread.start()
+
+    def tearDown(self):
+        self.server.shutdown()
+        self.thread.join()
+        self.server.server_close()
+
+    def request(self, method, path, body=None, headers=None):
+        connection = http.client.HTTPConnection("127.0.0.1", self.server.server_port)
+        connection.request(method, path, body=body, headers=headers or {})
+        response = connection.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+        connection.close()
+        return response.status, payload
+
+    def test_health_endpoint(self):
+        status, payload = self.request("GET", "/api/v1/health")
+        self.assertEqual(status, 200)
+        self.assertTrue(payload["ok"])
+
+    def test_rechaza_json_invalido(self):
+        status, payload = self.request(
+            "POST",
+            "/api/v1/analyze",
+            body="{",
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 400)
+        self.assertIn("JSON inválido", payload["error"]["message"])
+
+    def test_rechaza_json_que_no_es_objeto(self):
+        status, payload = self.request(
+            "POST",
+            "/api/v1/analyze",
+            body="[]",
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 400)
+        self.assertIn("objeto", payload["error"]["message"])
+
+    def test_rechaza_directorio_de_imagen_invalido(self):
+        status, payload = self.request(
+            "POST",
+            "/api/v1/analyze",
+            body=json.dumps({
+                "image_name": "muestra.jpg",
+                "image_dir": "externo",
+            }),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 400)
+        self.assertIn("image_dir", payload["error"]["message"])
+
+    def test_rechaza_cuerpo_excesivo(self):
+        status, payload = self.request(
+            "POST",
+            "/api/v1/analyze",
+            body="x" * (MAX_REQUEST_BODY_BYTES + 1),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 413)
+        self.assertEqual(payload["error"]["code"], 413)
+
+    def test_rechaza_solicitud_sin_clave_cuando_esta_configurada(self):
+        with patch("api_v1.registrar_acceso") as registrar:
+            with patch.dict("os.environ", {"CITO_API_KEY": "clave-prueba"}):
+                status, payload = self.request(
+                    "POST",
+                    "/api/v1/analyze",
+                    body="{}",
+                    headers={"Content-Type": "application/json"},
+                )
+
+        self.assertEqual(status, 401)
+        self.assertEqual(payload["error"]["code"], 401)
+        registrar.assert_called_once_with(
+            "/api/v1/analyze",
+            "POST",
+            False,
+            "status=401,motivo=autenticacion",
+        )
+
+    def test_rechaza_solicitud_con_clave_incorrecta(self):
+        with patch.dict("os.environ", {"CITO_API_KEY": "clave-prueba"}):
+            status, payload = self.request(
+                "POST",
+                "/api/v1/analyze",
+                body="{}",
+                headers={
+                    "Content-Type": "application/json",
+                    "X-API-Key": "clave-incorrecta",
+                },
+            )
+
+        self.assertEqual(status, 401)
+        self.assertEqual(payload["error"]["code"], 401)
+
+    def test_acepta_clave_valida_antes_de_validar_payload(self):
+        with patch.dict("os.environ", {"CITO_API_KEY": "clave-prueba"}):
+            status, payload = self.request(
+                "POST",
+                "/api/v1/analyze",
+                body="{}",
+                headers={
+                    "Content-Type": "application/json",
+                    "X-API-Key": "clave-prueba",
+                },
+            )
+
+        self.assertEqual(status, 400)
+        self.assertIn("image_name", payload["error"]["message"])
+
+    def test_rechaza_por_limite_de_solicitudes_http(self):
+        headers = {"Content-Type": "application/json"}
+        for _ in range(30):
+            status, _ = self.request(
+                "POST",
+                "/api/v1/analyze",
+                body="{}",
+                headers=headers,
+            )
+            self.assertEqual(status, 400)
+
+        status, payload = self.request(
+            "POST",
+            "/api/v1/analyze",
+            body="{}",
+            headers=headers,
+        )
+
+        self.assertEqual(status, 429)
+        self.assertEqual(payload["error"]["code"], 429)
+
+    def test_login_jwt_permite_analisis_al_rol_analista(self):
+        users = json.dumps(
+            {"analista-prueba": {"password": "secreto-prueba", "role": "analista"}}
+        )
+        with patch.dict(
+            "os.environ",
+            {
+                "CITO_API_KEY": "",
+                "CITO_JWT_SECRET": "jwt-secreto-prueba",
+                "CITO_API_USERS": users,
+            },
+        ):
+            status, login = self.request(
+                "POST",
+                "/api/v1/auth/login",
+                body=json.dumps(
+                    {"username": "analista-prueba", "password": "secreto-prueba"}
+                ),
+                headers={"Content-Type": "application/json"},
+            )
+            self.assertEqual(status, 200)
+
+            status, payload = self.request(
+                "POST",
+                "/api/v1/analyze",
+                body="{}",
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {login['access_token']}",
+                },
+            )
+
+        self.assertEqual(status, 400)
+        self.assertIn("image_name", payload["error"]["message"])
+
+    def test_audita_login_sin_registrar_credenciales(self):
+        users = json.dumps(
+            {"analista-prueba": {"password": "secreto-prueba", "role": "analista"}}
+        )
+        with patch("api_v1.registrar_acceso") as registrar:
+            with patch.dict(
+                "os.environ",
+                {
+                    "CITO_API_KEY": "",
+                    "CITO_JWT_SECRET": "jwt-secreto-prueba",
+                    "CITO_API_USERS": users,
+                },
+            ):
+                status, _ = self.request(
+                    "POST",
+                    "/api/v1/auth/login",
+                    body=json.dumps(
+                        {"username": "analista-prueba", "password": "secreto-prueba"}
+                    ),
+                    headers={"Content-Type": "application/json"},
+                )
+
+        self.assertEqual(status, 200)
+        registrar.assert_called_once_with(
+            "/api/v1/auth/login",
+            "POST",
+            True,
+            "status=200,motivo=login",
+        )
+
+    def test_jwt_rechaza_rol_sin_permiso_de_analisis(self):
+        users = json.dumps(
+            {"lector-prueba": {"password": "secreto-prueba", "role": "lector"}}
+        )
+        with patch.dict(
+            "os.environ",
+            {
+                "CITO_API_KEY": "",
+                "CITO_JWT_SECRET": "jwt-secreto-prueba",
+                "CITO_API_USERS": users,
+            },
+        ):
+            _, login = self.request(
+                "POST",
+                "/api/v1/auth/login",
+                body=json.dumps(
+                    {"username": "lector-prueba", "password": "secreto-prueba"}
+                ),
+                headers={"Content-Type": "application/json"},
+            )
+            status, payload = self.request(
+                "POST",
+                "/api/v1/analyze",
+                body="{}",
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {login['access_token']}",
+                },
+            )
+
+        self.assertEqual(status, 403)
+        self.assertEqual(payload["error"]["code"], 403)
+
+    def test_jwt_rechaza_token_invalido(self):
+        with patch.dict(
+            "os.environ",
+            {
+                "CITO_API_KEY": "",
+                "CITO_JWT_SECRET": "jwt-secreto-prueba",
+            },
+        ):
+            status, payload = self.request(
+                "POST",
+                "/api/v1/analyze",
+                body="{}",
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer token.invalido.firmado",
+                },
+            )
+
+        self.assertEqual(status, 401)
+        self.assertEqual(payload["error"]["code"], 401)
+
+
+if __name__ == "__main__":
+    unittest.main()
