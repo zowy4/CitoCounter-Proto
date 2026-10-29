@@ -42,19 +42,23 @@ En el checkout revisado, `src/herlev_dataset.py`, `src/herlev_evaluation.py`, `p
 
 ## 3. Actividades Jira y ruta de trabajo
 
-La lista importable completa y sus dependencias están en [JIRA_IMPORT_CITO95_DL.csv](./JIRA_IMPORT_CITO95_DL.csv). Al importar, se deben crear las actividades como subtareas de la épica E9 y conservar la referencia `J-xx`; las claves reales CITO asignadas por Jira deben añadirse al mapa después de la importación.
+La lista importable completa y sus dependencias están en [JIRA_IMPORT_CITO95_DL.csv](./JIRA_IMPORT_CITO95_DL.csv). El mapa de línea base y contratos producido por CITO-99 está en [CITO-99-mapa-componentes-integracion.md](./CITO-99-mapa-componentes-integracion.md); el inventario estructural de Herlev está en [CITO-100-inventario-herlev.md](./CITO-100-inventario-herlev.md). Al importar, se deben crear las actividades como subtareas de la épica E9 y conservar la referencia `J-xx`; las claves reales CITO asignadas por Jira deben añadirse al mapa después de la importación.
 
 ### Fase A — Preservar y entender la línea base (J-40–J-42)
 
 - **J-40:** inventariar rama, estado Git, cambios locales y artefactos; proteger cualquier trabajo sin seguimiento antes de modificarlo.
-- **J-41:** mapear componentes implementados y contratos para identificar las extensiones mínimas por interfaz.
-- **J-42:** documentar procedencia, cobertura, estructura y restricciones del Herlev local.
+- **J-41 (CITO-99):** mapear componentes implementados y contratos para identificar las extensiones mínimas por interfaz; evidencia en [CITO-99-mapa-componentes-integracion.md](./CITO-99-mapa-componentes-integracion.md).
+- **J-42 (CITO-100):** inventariar procedencia, cobertura, estructura y restricciones del Herlev local; evidencia estructural en [CITO-100-inventario-herlev.md](./CITO-100-inventario-herlev.md). Licencia/autorización y auditoría visual continúan pendientes.
 
 **Salida:** alcance de actualización confirmado, sin duplicar funciones existentes ni perder artefactos locales.
 
 ### Fase B — Ground truth reproducible y auditado (J-43–J-50)
 
-- **J-43–J-47:** completar lector de polígonos, rasterizado, conversión al esquema CSV existente, splits por grupo sin fuga y CLI determinista. Reproducir en una ubicación temporal y comparar hashes; no sobrescribir la salida local hasta validar diferencias.
+- **J-43:** el lector de polígonos está implementado en [src/herlev_dataset.py](../src/herlev_dataset.py), con cobertura en [tests/test_herlev_dataset.py](../tests/test_herlev_dataset.py). Lee pares x,y y descubre anotaciones `nuc`/`cyt` para imágenes completas y crops. Se verificó con todos los archivos de anotación local.
+- **J-44:** `rasterizar_mascara()` usa `cv2.fillPoly` para crear una máscara `uint8` de dimensiones explícitas; rechaza dimensiones o polígonos inválidos y permite colecciones vacías. Hay pruebas de unión, recorte en bordes y polígonos fuera del lienzo. Aún no se regeneraron las máscaras locales ni se hizo validación visual.
+- **J-45:** implementadas en [src/herlev_dataset.py](../src/herlev_dataset.py) la conversión de polígonos a filas del esquema `cells.csv` y la escritura CSV que falla si el destino ya existe. Se fija X/Y como esquina superior izquierda de caja delimitadora, base cero; Width/Height incluyen los extremos tras redondeo al entero más cercano. La clase se conserva como etiqueta fuente explícita y no se infiere. No se generaron ni sobrescribieron los CSV locales: la comparación agregada no permitió reproducir sus coordenadas.
+- **J-46:** implementadas en `src/herlev_dataset.py` la asociación por prefijo de nombre de origen (prefijo más largo) y la propagación de los splits del grupo a sus imágenes/crops relacionados. Se comprobó en memoria que los 813 crops tienen un único origen entre las 223 imágenes completas; al heredar la asignación existente, train/val/test reciben 564/109/140 crops y ningún grupo se cruza entre splits. No se escribieron manifiestos ni se modificaron los existentes.
+- **J-47:** implementada la CLI [preparar_herlev.py](../preparar_herlev.py), con lógica en `src/herlev_preparation.py`. Valida los tres manifiestos de entrada, mantiene juntos origen y crops, produce CSV/máscaras y manifiestos ordenados, y publica el resultado solo en un directorio nuevo. No copia imágenes fuente ni `.dat`. Pruebas sintéticas verifican hashes repetibles, herencia de splits, rechazo de colisiones/salidas existentes y limpieza ante fallos. El límite de archivo de imagen es 16 MiB (las entradas locales observadas llegan a 9.437.238 bytes); 64 KiB habría excluido 306 de las 1.036 BMP. No se generaron artefactos sobre el dataset local.
 - **J-48:** auditar una muestra de imágenes completas y cobertura de anotaciones; documentar que el repositorio solo contiene `im_Dyskeratotic` y que no representa las clases Herlev ausentes.
 - **J-49:** ampliar el validador del dataset con pruebas de integridad para máscaras, coordenadas, CSV y manifiestos.
 - **J-50:** adaptar/reutilizar el evaluador y probar el protocolo de métricas con fixtures conocidos antes de medir rendimiento.
@@ -125,9 +129,9 @@ Esta fase no bloquea la validación científica ni justifica duplicar el pipelin
 
 ## 7. Orden de inicio inmediato
 
-1. Completar J-40/J-41 y preservar los artefactos locales existentes.
-2. Implementar J-43/J-44 con fixtures sintéticos pequeños y casos borde; no comenzar con cambios de modelo o UI.
-3. Completar J-45–J-50 y comparar una generación temporal con las salidas locales para identificar discrepancias.
+1. J-40/J-41 y J-43–J-47 están documentadas/implementadas; preservar los artefactos locales existentes.
+2. Continuar con J-48: auditar visualmente una muestra de imágenes, polígonos y máscaras sin adjuntar imágenes fuente.
+3. Completar J-48–J-50 y comparar una generación temporal con las salidas locales para identificar discrepancias.
 4. Ejecutar J-48 antes de aceptar cualquier métrica; si hay anotaciones incompletas, dejarlo como limitación o detener baseline.
 5. Congelar el baseline DoG en J-51; después instalar entorno DL y correr zero-shot en validation.
 6. Integrar solo el candidato respaldado por evidencia. Qt permanece en una rama paralela y opcional.
