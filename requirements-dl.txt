@@ -1,0 +1,27 @@
+# ============================================================================
+# CitoCounter Proto - Dependencias Deep Learning (CITO-95)
+# ============================================================================
+# PyTorch para Cellpose/StarDist
+torch==2.1.0; python_version < '3.14'
+torch==2.15.0; python_version >= '3.14'
+
+# Cellpose para segmentación zero-shot de núcleos
+cellpose==3.0.0; python_version < '3.14'
+cellpose==4.2.1.1; python_version >= '3.14'
+
+# StarDist para segmentación poligonal / star-convex
+stardist==0.9.1; python_version < '3.14'
+stardist>=0.0.0; python_version >= '3.14'
+
+# Segmentation Models PyTorch (U-Net, FPN, etc.)
+segmentation-models-pytorch==0.3.0; python_version < '3.14'
+segmentation-models-pytorch==0.6.0; python_version >= '3.14'
+
+# Dependencias base fijadas
+opencv-python>=4.8.1.78
+numpy>=1.24.3
+matplotlib>=3.8.0
+Pillow>=10.1.0
+pandas>=2.0.3
+scikit-learn>=1.3.0
+scipy>=1.11.2

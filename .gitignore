@@ -48,6 +48,7 @@ venv.bak/
 data/raw/*.jpg
 data/raw/*.jpeg
 data/raw/*.png
+data/processed/
 data/raw/*.tif
 data/raw/*.tiff
 data/ground_truth/*.jpg
@@ -104,3 +105,12 @@ Thumbs.db
 *.tmp
 *.bak
 *.swp
+
+.venv/
+venv/
+env/
+__pycache__/
+*.csv
+*.xlsx
+*.zip
+*.rar

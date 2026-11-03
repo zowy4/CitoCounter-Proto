@@ -1,6 +1,69 @@
 # Plan de Migración: DoG → Deep Learning + Qt/PySide6 (CITO-95)
 
-**Fecha:** 2026-10-28
+**Fecha:** 2026-10-31
+**Estado:** Planificación actualizada
+
+---
+
+## Resumen Ejecutivo
+
+**Problema CRÍTICO:** El baseline DoG no funciona en datos reales.
+
+- **F1-Score real (Herlev):** 0.0007 (0.07%) - Muy por debajo del objetivo del 90%
+- **Precision:** 0.0007 - Casi todas las detecciones son falsos positivos
+- **Recall:** ~0.005 - Muy bajo
+- **FP total:** ~15,000
+
+**Decisión:** La migración a Deep Learning es **OBLIGATORIA**.
+
+---
+
+## Estado Actual
+
+### Validación Congelada (CITO-95)
+
+| Dataset | Tipo | F1-Score | Evidencia |
+|---------|------|----------|-----------|
+| Sintético | YOLO-generado | 0.9315 | ✅ Técnicamente cumple |
+| Real (Herlev) | Ground truth experto | 0.0007 | ❌ NO cumple - 99% FP |
+
+### Evidencias Existentes
+
+- `data/results/CITO-95-baseline-dog.csv` - 223 imágenes evaluadas
+- `data/results/CITO-95-bitacora-sanitizada.csv` - Auditoría completa
+- `docs/evidencia-cito95-validacion-congelada.md` - Documentación oficial
+
+---
+
+## Próximos Pasos
+
+### CITO-96: Implementar Adaptador DL con Cellpose
+
+**Objetivo:** Verificar F1 ≥ 90% con Cellpose en test set Herlev
+
+**Archivos preparados:**
+- `src/segmentador_dl.py` - Esqueleto funcional
+- `evaluar_cellpose_herlev.py` - Script de evaluación listo
+- `requirements-dl.txt` - Dependencias definidas
+
+**Tareas:**
+1. Instalar dependencias DL
+2. Ejecutar `evaluar_cellpose_herlev.py` en test set
+3. Documentar resultados en `data/results/CITO-96-cellpose-results.csv`
+4. Actualizar Jira a "En ejecución"
+
+---
+
+## Preguntas para Usuarios
+
+Ver `docs/PREGUNTAS_USUARIOS_FINAL.md` (42 preguntas).
+
+**Áreas clave:**
+1. Experiencia citología
+2. Usabilidad del sistema
+3. Precisión percibida
+4. Integración clínica
+5. Experiencia técnica
 **Objetivo:** F1 ≥ 90% en imágenes reales Papanicolaou/EDF con ground truth experto, y app clínica en Qt/PySide6.
 **Principio rector:** reutilizar al máximo lo existente; validar con datos que ya están en el repo antes de anotar nada nuevo.
 
@@ -46,7 +109,7 @@
 | 1.2 | Convertidor a formato de evaluación: máscaras PNG + CSV de centroides/áreas por imagen (mismo esquema que `data/ground_truth/README.md` ya define) | `data/ground_truth/herlev/` (máscaras + `*_cells.csv`) | `validar_consistencia_dataset.py` adaptado pasa |
 | 1.3 | Splits estratificados train/val/test (70/15/15) por clase Herlev, guardados como manifiestos CSV | `data/ground_truth/herlev/splits/*.csv` | Sin fuga: crops de la misma imagen original nunca cruzan splits |
 | 1.4 | Script `preparar_herlev.py` (CLI, estilo `crear_dataset.py`) que automatiza 1.1-1.3 de forma reproducible | Script + README de uso | Re-ejecutar produce hashes idénticos |
-| 1.5 | **Re-evaluar baseline DoG contra este GT real** con `evaluar_cito23.py` apuntando a las nuevas máscaras | `data/results/CITO-95-baseline-dog-herlev.csv` | F1 real del DoG documentado (número honesto, probablemente < 90%) |
+| 1.5 | **Re-evaluar baseline DoG contra este GT real** con `evaluar_baseline_herlev.py` apuntando a las nuevas máscaras | `data/results/CITO-95-baseline-dog-herlev.csv` | F1 real del DoG documentado (P=0.0050, R=0.5498, F1=0.0098, IoU=0.0049; match_distance=30 px; no es validación clínica) |
 
 > ⚠️ Herlev es single-cell en CROPPED; para detección multi-célula hay que usar las imágenes completas (`001.bmp`…) con sus múltiples `*_nuc*.dat`. Verificar cobertura por clase (normal ligera/moderada, DIS, koilocitótica, metaplasia, carcinoma in situ) y documentar huecos.
 

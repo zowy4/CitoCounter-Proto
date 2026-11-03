@@ -445,6 +445,8 @@ Antes de iniciar las actividades, confirmar manualmente en la extensión de Jira
 | CITO-30 | ACT-09 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | CITO-31 | ACT-10 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | CITO-32 | ACT-11 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-31 | ACT-10 | Evaluación sintética congelada ejecutada: F1=1.0000, precisión=1.0000, recall=1.0000, IoU medio=0.7583 (5 imágenes, 78 núcleos, polaridad nucleos-claros); falta validación con anotación experta independiente | Confirmado en plan | Actividad/subtarea con evidencia reproducible; resultado no clínicamente validado | En revisión recomendado | 2026-09-19 |
+| CITO-32 | ACT-11 | Diagnóstico completado: RETR_EXTERNAL fusiona núcleos tocantes; se selecciona distance transform + watershed como alternativa experimental sobre candidatos ambiguos | Confirmado en plan | Actividad/subtarea completada: watershed implementado y documentado; lista para evaluación experimental | Hecha | 2026-09-19 |
 | CITO-33 | ACT-12 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | CITO-34 | ACT-13 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | CITO-35 | ACT-14 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |

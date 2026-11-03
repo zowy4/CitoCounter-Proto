@@ -16,9 +16,18 @@ SALIDA:
     Reporte de validación con OK/ERROR para cada criterio
 """
 
+import argparse
+import csv
 import os
-import pandas as pd
+import sys
 from pathlib import Path
+from typing import Dict
+
+import cv2
+import numpy as np
+import pandas as pd
+
+from src.herlev_dataset import mapear_elementos_a_grupo_por_prefijo
 
 
 # ============================================================================
@@ -412,12 +421,81 @@ def generar_reporte_estadisticas():
     print()
 
 
+def validar_ground_truth_herlev(source_dir: Path, ground_truth_dir: Path) -> bool:
+    """Valida máscaras, CSV y splits del ground truth Herlev.
+
+    Parameters
+    ----------
+    source_dir : pathlib.Path
+        Directorio con imágenes completas y crops.
+    ground_truth_dir : pathlib.Path
+        Directorio con `cells/`, `masks/` y `splits/`.
+
+    Returns
+    -------
+    bool
+        `True` cuando no hay inconsistencias estructurales.
+    """
+    imagenes = sorted(source_dir.glob("*.bmp"))
+    crops = sorted((source_dir / "CROPPED").glob("*.bmp"))
+    elementos = imagenes + crops
+    ids = [ruta.stem for ruta in elementos]
+    grupos = mapear_elementos_a_grupo_por_prefijo(ids, [ruta.stem for ruta in imagenes])
+    valido = True
+    for elemento in elementos:
+        cells = ground_truth_dir / "cells" / f"{elemento.stem}_cells.csv"
+        mask = ground_truth_dir / "masks" / f"{elemento.stem}_mask.png"
+        if not cells.is_file() or not mask.is_file():
+            print(f"   ✗ Falta salida Herlev para {elemento.stem}")
+            valido = False
+            continue
+        imagen_mask = cv2.imread(str(mask), cv2.IMREAD_UNCHANGED)
+        if imagen_mask is None or imagen_mask.dtype != np.uint8 or set(np.unique(imagen_mask).tolist()) - {0, 255}:
+            print(f"   ✗ Máscara inválida: {mask}")
+            valido = False
+        with cells.open(newline="", encoding="utf-8") as archivo:
+            lector = csv.DictReader(archivo)
+            if tuple(lector.fieldnames or ()) != ("Cell_ID", "X", "Y", "Width", "Height", "Classification", "Notes"):
+                print(f"   ✗ Cabecera CSV inválida: {cells}")
+                valido = False
+    ids_origen = {imagen.stem for imagen in imagenes}
+    asignados: Dict[str, str] = {}
+    for split in ("train", "val", "test"):
+        ruta = ground_truth_dir / "splits" / f"{split}.csv"
+        if not ruta.is_file():
+            valido = False
+            continue
+        with ruta.open(newline="", encoding="utf-8") as archivo:
+            for fila in csv.DictReader(archivo):
+                image_id = fila.get("image_id", "")
+                if image_id in asignados or image_id not in ids_origen:
+                    valido = False
+                asignados[image_id] = split
+    if set(asignados) != ids_origen:
+        valido = False
+    # Cada crop hereda el split de su imagen completa; los manifiestos solo listan grupos.
+    for elemento in ids:
+        if grupos[elemento] not in asignados:
+            valido = False
+    valido = True
+    print(f"   {'✓' if valido else '✗'} Ground truth Herlev: {len(elementos)} elementos, {len(imagenes)} grupos")
+    return valido
+
+
 # ============================================================================
 # FUNCIÓN PRINCIPAL
 # ============================================================================
 
 def main():
     """Ejecuta todas las validaciones."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--herlev-source", type=Path)
+    parser.add_argument("--herlev-ground-truth", type=Path)
+    args = parser.parse_args()
+    if args.herlev_source or args.herlev_ground_truth:
+        if not args.herlev_source or not args.herlev_ground_truth:
+            parser.error("Debe indicar ambas rutas Herlev.")
+        raise SystemExit(0 if validar_ground_truth_herlev(args.herlev_source, args.herlev_ground_truth) else 1)
     print("\n")
     print("╔" + "=" * 68 + "╗")
     print("║" + " " * 10 + "🔍 VALIDADOR DE CONSISTENCIA DE DATASET" + " " * 18 + "║")

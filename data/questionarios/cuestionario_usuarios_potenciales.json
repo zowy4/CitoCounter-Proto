@@ -1,0 +1,142 @@
+{
+  "title": "Cuestionario para Usuarios Potenciales - CitoCounter",
+  "description": "Instrumento validado para recopilar feedback de citotecnólogos sobre usabilidad e interfaz del sistema CitoCounter-Proto",
+  "target_audience": ["Citotecnólogos", "Personal clínico", "Investigadores en citología"],
+  "sections": [
+    {
+      "id": "experiencia",
+      "title": "Sección 1: Experiencia con Herramientas de Citología",
+      "questions": [
+        {
+          "id": "q1",
+          "question": "¿Con qué frecuencia utiliza herramientas de análisis de imágenes en tu trabajo diario?",
+          "type": "enum",
+          "options": ["Diariamente", "Varias veces por semana", "Semanalmente", "Ocasionalmente", "Nunca"],
+          "required": true
+        },
+        {
+          "id": "q2",
+          "question": "¿Qué programas o softwares utilizas habitualmente para el conteo de núcleos?",
+          "type": "string",
+          "allow_other": true,
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "usabilidad",
+      "title": "Sección 2: Usabilidad del Sistema Actual",
+      "questions": [
+        {
+          "id": "q3",
+          "question": "¿En qué medida cumple con tus necesidades la interfaz de Streamlit actual?",
+          "type": "scale",
+          "min_label": "Nada",
+          "max_label": "Perfectamente",
+          "min": 1,
+          "max": 5,
+          "required": true
+        },
+        {
+          "id": "q4",
+          "question": "¿Cuáles son los aspectos de la interfaz que te resultan más difíciles o poco intuitivos?",
+          "type": "string",
+          "allow_other": false,
+          "required": false
+        },
+        {
+          "id": "q5",
+          "question": "¿Preferirías una aplicación de escritorio nativa (Qt/PySide6) en lugar de una web?",
+          "type": "enum",
+          "options": ["Sí, preferiría una app de escritorio", "No, me es una web es suficiente", "No importa, lo uso igual"],
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "funcionalidad",
+      "title": "Sección 3: Funcionalidad y Resultados",
+      "questions": [
+        {
+          "id": "q6",
+          "question": "¿Cómo valoras la precisión del conteo de núcleos actual (~93% F1 en datos sintéticos)?",
+          "type": "enum",
+          "options": ["Muy bien", "Bien", "Regular", "Mal", "Muy mal"],
+          "required": true
+        },
+        {
+          "id": "q7",
+          "question": "¿Qué tan importante es para ti la capacidad de exportar resultados (CSV, imágenes, reportes)?",
+          "type": "scale",
+          "min_label": "Nada importante",
+          "max_label": "Muy importante",
+          "min": 1,
+          "max": 5,
+          "required": true
+        },
+        {
+          "id": "q8",
+          "question": "¿Te gustaría poder procesar lotes de imágenes de forma automática?",
+          "type": "enum",
+          "options": ["Sí", "No", "Depende del tipo de imágenes"],
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "clinico",
+      "title": "Sección 4: Integración Clínica",
+      "questions": [
+        {
+          "id": "q9",
+          "question": "¿Qué criterios de calidad usarías para validar un sistema de conteo automático?",
+          "type": "string",
+          "allow_other": true,
+          "required": false
+        },
+        {
+          "id": "q10",
+          "question": "¿Qué información adicional necesitarías para confiar en los resultados automáticos?",
+          "type": "string",
+          "allow_other": true,
+          "required": false
+        }
+      ]
+    },
+    {
+      "id": "tecnico",
+      "title": "Sección 5: Experiencia Técnica",
+      "questions": [
+        {
+          "id": "q11",
+          "question": "¿Cuentas con conocimientos técnicos para instalar y usar una aplicación de escritorio?",
+          "type": "enum",
+          "options": ["Sí, tengo experiencia", "Tengo conocimientos básicos", "No, necesitaría ayuda", "No tengo experiencia técnica"],
+          "required": true
+        },
+        {
+          "id": "q12",
+          "question": "¿Qué tipo de dispositivos utilizas habitualmente?",
+          "type": "multi",
+          "options": ["Portátil", "Escritorio/Fijo", "Tableta", "Móvil", "Otros"],
+          "required": true
+        },
+        {
+          "id": "q13",
+          "question": "Comparte cualquier otra sugerencia o comentario sobre el sistema:",
+          "type": "string",
+          "allow_other": true,
+          "required": false
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "created": "2026-10-28",
+    "last_updated": "2026-10-28",
+    "target_sample_size": 15,
+    "consent_required": true,
+    "confidentiality_note": "La información recopilada será utilizada exclusivamente para mejorar la usabilidad del sistema y no será compartida con terceros."
+  }
+}

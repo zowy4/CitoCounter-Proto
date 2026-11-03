@@ -38,7 +38,13 @@ def verificar_libreria(nombre, nombre_import=None):
     
     try:
         modulo = __import__(nombre_import)
-        version = getattr(modulo, '__version__', 'desconocida')
+        version = getattr(modulo, '__version__', None)
+        if version is None:
+            try:
+                import importlib.metadata
+                version = importlib.metadata.version(nombre_import)
+            except Exception:
+                version = getattr(modulo, 'version_str', 'desconocida')
         print(f"✓ {nombre} (versión {version})")
         return True
     except ImportError:
@@ -73,6 +79,7 @@ def verificar_archivos_codigo():
     archivos_requeridos = [
         "main.py",
         "requirements.txt",
+        "requirements-dl.txt",
         "README.md",
         "bitacora_experimentos.csv",
         "src/__init__.py",
@@ -161,6 +168,18 @@ def main():
     imprimir_seccion("5. Imagen de Prueba")
     resultados['imagen'] = verificar_imagen_prueba()
     
+    # 6. Verificar librerías Deep Learning (CITO-95)
+    imprimir_seccion("6. Librerías Deep Learning (CITO-95)")
+    librerias_dl = [
+        ('PyTorch', 'torch'),
+        ('Cellpose', 'cellpose'),
+        ('StarDist', 'stardist'),
+        ('Segmentation Models PyTorch', 'segmentation_models_pytorch')
+    ]
+    dl_status = []
+    for nombre, import_name in librerias_dl:
+        dl_status.append(verificar_libreria(nombre, import_name))
+
     # Resumen final
     imprimir_seccion("RESUMEN")
     
