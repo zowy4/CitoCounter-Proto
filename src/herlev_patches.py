@@ -1,3 +1,9 @@
+"""
+herlev_patches.py - Extracción y aumentación de parches 256x256 para entrenamiento DL.
+
+Genera parches superpuestos desde imágenes completas + máscaras Herlev,
+aplicando aumentaciones para crear dataset de entrenamiento robusto.
+"""
 
 from __future__ import annotations
 
