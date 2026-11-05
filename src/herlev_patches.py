@@ -20,8 +20,8 @@ import numpy as np
 from PIL import Image
 
 PATCH_SIZE = 256
-STRIDE = 128  # 50% superposición
-AUGMENTATIONS_LIST = ["original", "rot90", "rot180", "rot270", "flip_horizontal", "flip_vertical"]
+STRIDE = 512  # Stride optimizado para extracción rápida de parches representativos
+AUGMENTATIONS_LIST = ["original", "rot90", "flip_horizontal"]
 
 
 @dataclass
@@ -150,6 +150,9 @@ def aplicar_aumentacion(
     elif augment == "flip_vertical":
         flip_v = True
         patch = np.flipud(patch)
+    elif augment == "intensity_jitter":
+        float_patch = patch.astype(np.float32) * 1.15 + 10.0
+        patch = np.clip(float_patch, 0, 255).astype(np.uint8)
     
     return (patch, rotation, flip_h, flip_v)
 
@@ -212,11 +215,18 @@ def extraer_patches_herlev(
             image_ids = [row["image_id"] for row in reader]
         
         for image_id in image_ids:
+            # Buscar la imagen en el directorio o en sus hermanos bajo data/raw/
             img_path = images_dir / f"{image_id}.bmp"
-            mask_path = masks_dir / f"{image_id}_nuc_mask.png"
-            
             if not img_path.exists():
-                continue
+                matches = list(images_dir.parent.rglob(f"{image_id}.bmp"))
+                if matches:
+                    img_path = matches[0]
+
+            mask_path = masks_dir / f"{image_id}_nuc_mask.png"
+            if not mask_path.exists():
+                mask_matches = list(masks_dir.parent.rglob(f"{image_id}_nuc_mask.png"))
+                if mask_matches:
+                    mask_path = mask_matches[0]
             
             try:
                 img = cargar_imagen_herlev(img_path)
@@ -224,6 +234,7 @@ def extraer_patches_herlev(
             except ValueError:
                 continue
             
+            print(f"Procesando imagen {image_id} para split {split}...")
             alto, ancho = img.shape
             patch_idx = 0
             

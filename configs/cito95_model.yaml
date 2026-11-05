@@ -1,0 +1,30 @@
+# Configuración de Modelo CITO-95 para Fine-Tuning de Cellpose / StarDist
+model:
+  name: "cellpose_nuclei_finetuned"
+  base_model: "cpsam_v2"
+  patch_size: 256
+  channels: [0, 0]
+
+training:
+  epochs: 50
+  learning_rate: 0.0001
+  batch_size: 8
+  random_seed: 42
+  optimizer: "AdamW"
+  scheduler: "CosineAnnealing"
+
+data:
+  train_manifest: "data/processed/herlev_patches/train.csv"
+  val_manifest: "data/processed/herlev_patches/val.csv"
+  test_manifest: "data/processed/herlev_patches/test.csv"
+  patches_dir: "data/processed/herlev_patches"
+
+evaluation:
+  metric: "F1-Score"
+  target_f1: 0.90
+  max_train_val_gap: 10.0
+  match_distance: 30.0
+
+output:
+  weights_dir: "models/cito95/"
+  logs_dir: "data/calibration/"

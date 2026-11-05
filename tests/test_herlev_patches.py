@@ -119,6 +119,16 @@ class HerlevPatchesTests(unittest.TestCase):
         self.assertTrue(flip_v)
         np.testing.assert_array_equal(result, np.flipud(img))
 
+    def test_aplicar_aumentacion_intensity_jitter(self):
+        """Verifica la aumentación intensity jitter."""
+        img = np.full((64, 64), 100, dtype=np.uint8)
+        result, rot, flip_h, flip_v = aplicar_aumentacion(img, "intensity_jitter")
+        self.assertEqual(rot, 0)
+        self.assertFalse(flip_h)
+        self.assertFalse(flip_v)
+        self.assertEqual(result.dtype, np.uint8)
+        self.assertGreater(result[0, 0], 100)
+
     def test_generar_patch_id_is_deterministic(self):
         """Verifica que el ID del parche es determinístico y único."""
         id1 = generar_patch_id("001", 0, 0, "original", 0)
