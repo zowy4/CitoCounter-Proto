@@ -1,0 +1,5 @@
+=== REPORTE DE PARIDAD CLI vs STREAMLIT (MOTOR DL) ===
+Imagen: MUESTRA_014.jpg | Total: 1 | Normales: 1 | Sospechosas: 0 | Riesgo: 0.0%
+Imagen: MUESTRA_024.jpg | Total: 9 | Normales: 9 | Sospechosas: 0 | Riesgo: 0.0%
+Imagen: MUESTRA_052.jpg | Total: 0 | Normales: 0 | Sospechosas: 0 | Riesgo: 0.0%
+Paridad verificada exitosamente en 3 imágenes de prueba (J-60).

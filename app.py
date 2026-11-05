@@ -87,6 +87,7 @@ EXTENSIONES_IMAGEN = {'.jpg', '.jpeg', '.png', '.tif', '.tiff', '.bmp'}
 # aunque el panel esté oculto.
 CONFIG_DEFAULT = {
     "fuente_imagenes": "upload",
+    "motor": "dog",
     "sigma1": 7.0,
     "sigma2": 8.0,
     "polaridad": "nucleos-claros",
@@ -503,15 +504,20 @@ def procesar_imagen_individual(ruta_imagen, params):
         )
 
         metricas_calidad = verificar_calidad_imagen(imagen_gris)
-        imagen_dog = aplicar_filtro_dog(imagen_gris, params['sigma1'], params['sigma2'])
 
-        metodo_sep = None if params['metodo_separacion'] == "none" else params['metodo_separacion']
-        resultados = analizar_nucleos(
-            imagen_dog,
-            imagen_original,
-            polaridad=params['polaridad'],
-            metodo_separacion=metodo_sep
-        )
+        if params.get('motor') == 'dl':
+            from src.segmentador_dl import analizar_nucleos_dl
+            resultados = analizar_nucleos_dl(imagen_gris, imagen_original, polaridad=params['polaridad'])
+            imagen_dog = imagen_gris
+        else:
+            imagen_dog = aplicar_filtro_dog(imagen_gris, params['sigma1'], params['sigma2'])
+            metodo_sep = None if params['metodo_separacion'] == "none" else params['metodo_separacion']
+            resultados = analizar_nucleos(
+                imagen_dog,
+                imagen_original,
+                polaridad=params['polaridad'],
+                metodo_separacion=metodo_sep
+            )
 
         img_resultado = dibujar_estadisticas_en_imagen(
             resultados['imagen_procesada'],
@@ -1038,6 +1044,22 @@ def panel_ajustes():
             }[x],
             help="Elige entre subir tus propias imágenes o usar las del dataset del proyecto",
             **_widget("fuente_imagenes")
+        )
+
+        st.markdown("---")
+
+        # --- MOTOR DE ANÁLISIS ---
+        st.markdown("##### ⚙️ Motor de Análisis")
+
+        st.selectbox(
+            "Seleccionar motor",
+            options=["dog", "dl"],
+            format_func=lambda x: {
+                "dog": "Filtro DoG (Difference of Gaussians)",
+                "dl": "Deep Learning (Cellpose / Adaptador DL)"
+            }[x],
+            help="Elige entre el motor tradicional DoG o el motor de Deep Learning",
+            **_widget("motor")
         )
 
         st.markdown("---")
