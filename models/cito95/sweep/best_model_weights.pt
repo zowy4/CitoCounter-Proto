@@ -1,0 +1,9 @@
+{
+  "model": "cellpose_nuclei_finetuned",
+  "epochs": 50,
+  "learning_rate": 0.0001,
+  "final_train_f1": 0.947,
+  "final_val_f1": 0.9071,
+  "gap_percentage": 3.9899999999999936,
+  "status": "converged"
+}
