@@ -36,21 +36,21 @@ class SegmentadorDLTests(unittest.TestCase):
         self.assertEqual(res.shape, (2, 2))
 
     def test_analizar_nucleos_dl_imagen_vacia(self):
-            # Imagen de 50x50 ceros (2.5 KB)
-            img = np.zeros((50, 50), dtype=np.uint8)
-            resultado = analizar_nucleos_dl(img)
-            self.assertIn("contornos", resultado)
-            self.assertIn("areas", resultado)
-            self.assertIn("total_celulas", resultado)
-            self.assertEqual(resultado["total_celulas"], 0)
+        # Imagen de 50x50 ceros (2.5 KB)
+        img = np.zeros((50, 50), dtype=np.uint8)
+        resultado = analizar_nucleos_dl(img)
+        self.assertIn("contornos", resultado)
+        self.assertIn("areas", resultado)
+        self.assertIn("total_celulas", resultado)
+        self.assertEqual(resultado["total_celulas"], 0)
 
-        def test_segmentador_dl_conectividad(self):
-            """Verifica que el adaptador DL se importa y ejecuta sin errores."""
-            img = np.ones((100, 100), dtype=np.uint8) * 200  # Imagen con relieve
-            resultado = analizar_nucleos_dl(img)
-            self.assertIsInstance(resultado, dict)
-            self.assertIn("total_celulas", resultado)
-            self.assertIn("reglas", resultado)
+    def test_segmentador_dl_conectividad(self):
+        """Verifica que el adaptador DL se importa y ejecuta sin errores."""
+        img = np.ones((100, 100), dtype=np.uint8) * 200  # Imagen con relieve
+        resultado = analizar_nucleos_dl(img)
+        self.assertIsInstance(resultado, dict)
+        self.assertIn("total_celulas", resultado)
+        self.assertIn("reglas", resultado)
 
 
     class TestCellposeRegresion(unittest.TestCase):
@@ -102,5 +102,5 @@ class SegmentadorDLTests(unittest.TestCase):
             )
 
 
-    if __name__ == "__main__":
-        unittest.main()
+if __name__ == "__main__":
+    unittest.main()
