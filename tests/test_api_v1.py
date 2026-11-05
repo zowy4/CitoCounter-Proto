@@ -173,6 +173,56 @@ class ApiV1Tests(unittest.TestCase):
             self.assertEqual(response["result"]["borderline_cells"], 2)
             img_path.unlink(missing_ok=True)
 
+    def test_rechaza_engine_invalido(self):
+        img = self.raw_dir / "api_test_engine.jpg"
+        img.touch()
+        payload = {
+            "image_name": img.name,
+            "image_dir": "raw",
+            "engine": "invalid_engine",
+        }
+        response, status = analyze_from_payload(payload)
+        self.assertEqual(status, 400)
+        self.assertIn("engine", response["error"]["message"])
+        img.unlink(missing_ok=True)
+
+    @patch("src.segmentador_dl.analizar_nucleos_dl")
+    @patch("api_v1.preprocesar_imagen")
+    def test_acepta_engine_dl(self, mock_preprocesar, mock_analizar_dl):
+        with tempfile.TemporaryDirectory() as d:
+            img_path = self.raw_dir / "api_test_engine_dl.jpg"
+            img_path.touch()
+            mock_preprocesar.return_value = (
+                np.zeros((10, 10), dtype=np.uint8),
+                np.zeros((10, 10, 3), dtype=np.uint8),
+            )
+            mock_analizar_dl.return_value = {
+                "total_celulas": 5,
+                "normales": 4,
+                "sospechosas": 1,
+                "frontera": 0,
+                "porcentaje_riesgo": 20.0,
+            }
+            payload = {
+                "image_name": img_path.name,
+                "image_dir": "raw",
+                "engine": "dl",
+            }
+            response, status = analyze_from_payload(payload)
+            self.assertEqual(status, 200)
+            self.assertTrue(response["ok"])
+            self.assertEqual(response["input"]["engine"], "dl")
+            self.assertEqual(response["result"]["total_cells"], 5)
+            img_path.unlink(missing_ok=True)
+
+    def test_identificador_configuracion_sensible_a_engine(self):
+        p1 = {"mejorar_contraste": True, "reducir_ruido": False, "polaridad": "nucleos-claros", "sigma1": 7.0, "sigma2": 8.0, "engine": "dog"}
+        p2 = {"mejorar_contraste": True, "reducir_ruido": False, "polaridad": "nucleos-claros", "sigma1": 7.0, "sigma2": 8.0, "engine": "dl"}
+        self.assertNotEqual(
+            crear_identificador_configuracion(p1),
+            crear_identificador_configuracion(p2)
+        )
+
 
 class ApiV1HttpTests(unittest.TestCase):
     def setUp(self):

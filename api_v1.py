@@ -404,6 +404,7 @@ def crear_identificador_configuracion(parametros: Mapping[str, Any]) -> str:
     """
     configuracion = {
         "algorithm_revision": ALGORITHM_REVISION,
+        "engine": parametros.get("engine", "dog"),
         "enhance_contrast": parametros["mejorar_contraste"],
         "noise_reduction": parametros["reducir_ruido"],
         "polarity": parametros["polaridad"],
@@ -460,6 +461,10 @@ def validate_payload(payload):
             f"`polarity` debe ser uno de: {sorted(POLARIDADES_VALIDAS)}."
         )
 
+    engine = payload.get("engine", "dog")
+    if not isinstance(engine, str) or engine not in {"dog", "dl"}:
+        return error_response("`engine` debe ser 'dog' o 'dl'.")
+
     return {
         "path": path,
         "sigma1": sigma1,
@@ -467,6 +472,7 @@ def validate_payload(payload):
         "reducir_ruido": reducir_ruido,
         "mejorar_contraste": mejorar_contraste,
         "polaridad": polaridad,
+        "engine": engine,
     }, 200
 
 
@@ -483,12 +489,24 @@ def analyze_from_payload(payload):
             reducir_ruido_flag=validated["reducir_ruido"],
             polaridad=validated["polaridad"],
         )
-        imagen_dog = aplicar_filtro_dog(
-            imagen_gris,
-            sigma1=validated["sigma1"],
-            sigma2=validated["sigma2"],
-        )
-        resultados = analizar_nucleos(imagen_dog, imagen_original, polaridad=validated["polaridad"])
+        if validated["engine"] == "dl":
+            from src.segmentador_dl import analizar_nucleos_dl
+            resultados = analizar_nucleos_dl(
+                imagen_gris,
+                imagen_original,
+                polaridad=validated["polaridad"],
+            )
+        else:
+            imagen_dog = aplicar_filtro_dog(
+                imagen_gris,
+                sigma1=validated["sigma1"],
+                sigma2=validated["sigma2"],
+            )
+            resultados = analizar_nucleos(
+                imagen_dog,
+                imagen_original,
+                polaridad=validated["polaridad"],
+            )
     except Exception as exc:
         return error_response(f"Error procesando imagen: {exc}", status_code=500)
 
@@ -501,6 +519,7 @@ def analyze_from_payload(payload):
         "input": {
             "algorithm_revision": ALGORITHM_REVISION,
             "configuration_id": configuration_id,
+            "engine": validated["engine"],
             "image_name": validated["path"].name,
             "image_dir": next(k for k, v in ALLOWED_IMAGE_ROOTS.items() if validated["path"].is_relative_to(v)),
             "sigma1": validated["sigma1"],
