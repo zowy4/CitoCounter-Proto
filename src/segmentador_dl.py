@@ -89,6 +89,7 @@ def analizar_nucleos_dl(imagen: np.ndarray, imagen_original: np.ndarray = None, 
     contornos_sospechosos: List[np.ndarray] = []
     normales = 0
     sospechosas = 0
+    frontera = 0
 
     reglas = obtener_reglas_clasificacion(polaridad)
 
@@ -101,6 +102,9 @@ def analizar_nucleos_dl(imagen: np.ndarray, imagen_original: np.ndarray = None, 
             areas_validas.append(area)
             decision = clasificar_nucleo_por_area(area, polaridad)
             clasificaciones.append(decision)
+
+            if decision.get("es_frontera", False):
+                frontera += 1
 
             if decision["clasificacion"] == "sospechosa":
                 sospechosas += 1
@@ -118,7 +122,7 @@ def analizar_nucleos_dl(imagen: np.ndarray, imagen_original: np.ndarray = None, 
         "total_celulas": total_celulas,
         "normales": normales,
         "sospechosas": sospechosas,
-        "frontera": 0,
+        "frontera": frontera,
         "porcentaje_riesgo": porcentaje_riesgo,
         "imagen_procesada": imagen_procesada,
         "areas": areas_validas,
