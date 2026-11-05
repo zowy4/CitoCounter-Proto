@@ -180,22 +180,32 @@ def procesar_una_imagen(ruta_imagen, args):
         print(f"❌ Error al cargar imagen: {e}")
         return None
     
-    # 3. FILTRO DOG
-    print(f"   [2/5] Aplicando filtro DoG (σ1={args.sigma1}, σ2={args.sigma2})...")
-    try:
-        imagen_dog = aplicar_filtro_dog(imagen_gris, sigma1=args.sigma1, sigma2=args.sigma2)
-    except Exception as e:
-        print(f"❌ Error en filtro DoG: {e}")
-        return None
-    
-    # 4. ANÁLISIS
-    print("   [3/5] Analizando núcleos...")
-    try:
-        resultados = analizar_nucleos(imagen_dog, imagen_original, polaridad='nucleos-claros')
-        print(generar_reporte_estadistico(resultados))
-    except Exception as e:
-        print(f"❌ Error en análisis: {e}")
-        return None
+    # 3. FILTRO DOG o MOTOR DL
+    if args.motor == "dl":
+        print(f"   [2-3/5] Usando motor Deep Learning (src/segmentador_dl.py)...")
+        try:
+            from src.segmentador_dl import analizar_nucleos_dl
+            resultados = analizar_nucleos_dl(imagen_gris, imagen_original, polaridad=args.polaridad)
+            imagen_dog = imagen_gris
+            print(generar_reporte_estadistico(resultados))
+        except Exception as e:
+            print(f"❌ Error en motor DL: {e}")
+            return None
+    else:
+        print(f"   [2/5] Aplicando filtro DoG (σ1={args.sigma1}, σ2={args.sigma2})...")
+        try:
+            imagen_dog = aplicar_filtro_dog(imagen_gris, sigma1=args.sigma1, sigma2=args.sigma2)
+        except Exception as e:
+            print(f"❌ Error en filtro DoG: {e}")
+            return None
+
+        print("   [3/5] Analizando núcleos...")
+        try:
+            resultados = analizar_nucleos(imagen_dog, imagen_original, polaridad=args.polaridad)
+            print(generar_reporte_estadistico(resultados))
+        except Exception as e:
+            print(f"❌ Error en análisis: {e}")
+            return None
     
     # 5. VISUALIZACIÓN Y GUARDADO
     print("   [4/5] Generando visualizaciones...")
@@ -401,6 +411,14 @@ Para más información, consulta README.md
     )
     
     parser.add_argument(
+        "--motor",
+        type=str,
+        default="dog",
+        choices=["dog", "dl"],
+        help="Motor de procesamiento y segmentación: 'dog' (filtro DoG clásico) o 'dl' (Deep Learning / Cellpose adapter). Default: dog"
+    )
+
+    parser.add_argument(
         "--bitacora",
         type=str,
         default=None,
@@ -420,7 +438,7 @@ Para más información, consulta README.md
     print("=" * 70)
     print("  🔬 CitoCounter Proto v1.1 - CLI Optimizado")
     print(f"  📋 Modo: {'PROCESAMIENTO LOTE' if args.lote else 'IMAGEN INDIVIDUAL'}")
-    print(f"  ⚙️  Parámetros DoG: σ1={args.sigma1}, σ2={args.sigma2}")
+    print(f"  ⚙️  Motor: {args.motor.upper()} | Parámetros DoG: σ1={args.sigma1}, σ2={args.sigma2}")
     print(f"  🔧 Preprocesamiento: CLAHE={'OFF' if args.no_contraste else 'ON'}, Ruido={'ON' if args.ruido else 'OFF'}")
     print(f"  📊 Bitácora: {args.bitacora}")
     print("  ⚠️  Resultado no equivale a diagnóstico clínico")
