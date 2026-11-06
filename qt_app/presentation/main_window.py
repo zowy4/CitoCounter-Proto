@@ -6,6 +6,7 @@ Muestra la interfaz gráfica y permite visualizar imágenes y overlays de clasif
 """
 
 import sys
+import cv2
 import numpy as np
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
@@ -23,7 +24,9 @@ from PySide6.QtWidgets import (
 
 from qt_app.logic.image_controller import ImageController
 from qt_app.presentation.visor_imagen import VisorImagen
+from qt_app.presentation.panel_ajustes import PanelAjustes
 from src.analysis import analizar_nucleos
+from src.dog_filter import aplicar_filtro_dog
 from src.segmentador_dl import analizar_nucleos_dl
 
 
@@ -58,12 +61,10 @@ class MainWindow(QMainWindow):
         self.btn_demo.clicked.connect(self.cargar_demo)
         control_layout.addWidget(self.btn_demo)
 
-        # Selector de motor
-        lbl_motor = QLabel("Motor de Segmentación:")
-        control_layout.addWidget(lbl_motor)
-        self.combo_motor = QComboBox()
-        self.combo_motor.addItems(["dog", "dl"])
-        control_layout.addWidget(self.combo_motor)
+        # Panel de ajustes (CITO-66)
+        self.panel_ajustes = PanelAjustes()
+        self.panel_ajustes.parametros_cambiados.connect(self.ejecutar_analisis)
+        control_layout.addWidget(self.panel_ajustes)
 
         self.btn_analizar = QPushButton("Ejecutar Análisis y Overlays")
         self.btn_analizar.clicked.connect(self.ejecutar_analisis)
@@ -124,19 +125,40 @@ class MainWindow(QMainWindow):
         self.lbl_info.setText(f"Estado: OK\nOrigen: {titulo}\nDimensiones: {w}x{h}\nCélulas: 0")
 
     def ejecutar_analisis(self) -> None:
-        """Ejecuta el análisis con el motor seleccionado (dog o dl) y renderiza overlays."""
+        """Ejecuta el análisis con el motor seleccionado y parámetros en vivo (CITO-65 / CITO-66)."""
         if self.controller.current_image is None:
             QMessageBox.warning(self, "Advertencia", "No hay ninguna imagen cargada para analizar.")
             return
 
-        motor = self.combo_motor.currentText()
+        params = self.panel_ajustes.obtener_parametros()
+        motor = params["motor"]
+        sigma1 = params["sigma1"]
+        sigma2 = params["sigma2"]
+        polaridad = params["polaridad"]
+        metodo_separacion = params["metodo_separacion"]
+        if metodo_separacion == "none":
+            metodo_separacion = None
+
         img = self.controller.current_image
 
         try:
-            if motor == "dl":
-                resultado = analizar_nucleos_dl(img)
+            if len(img.shape) == 3:
+                gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                imagen_original = img
             else:
-                resultado = analizar_nucleos(img)
+                gray = img
+                imagen_original = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+
+            if motor == "dl":
+                resultado = analizar_nucleos_dl(gray, imagen_original, polaridad=polaridad)
+            else:
+                dog = aplicar_filtro_dog(gray, sigma1=sigma1, sigma2=sigma2)
+                resultado = analizar_nucleos(
+                    dog,
+                    imagen_original,
+                    polaridad=polaridad,
+                    metodo_separacion=metodo_separacion
+                )
 
             self.visor.renderizar_resultados(resultado)
 
