@@ -20,11 +20,13 @@ from PySide6.QtWidgets import (
     QWidget,
     QMessageBox,
     QComboBox,
+    QTabWidget,
 )
 
 from qt_app.logic.image_controller import ImageController
 from qt_app.presentation.visor_imagen import VisorImagen
 from qt_app.presentation.panel_ajustes import PanelAjustes
+from qt_app.presentation.dashboard_widget import DashboardWidget
 from src.analysis import analizar_nucleos
 from src.dog_filter import aplicar_filtro_dog
 from src.segmentador_dl import analizar_nucleos_dl
@@ -44,11 +46,18 @@ class MainWindow(QMainWindow):
         self._cargar_imagen_inicial()
 
     def _init_ui(self) -> None:
-        """Inicializa los componentes visuales de la ventana."""
+        """Inicializa los componentes visuales de la ventana con pestañas (Análisis y Dashboard)."""
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
 
-        main_layout = QHBoxLayout(central_widget)
+        main_layout = QVBoxLayout(central_widget)
+
+        self.tabs = QTabWidget()
+        main_layout.addWidget(self.tabs)
+
+        # Pestaña 1: Análisis y Visor
+        tab_analisis = QWidget()
+        analisis_layout = QHBoxLayout(tab_analisis)
 
         # Panel izquierdo: Controles y análisis
         control_layout = QVBoxLayout()
@@ -75,12 +84,18 @@ class MainWindow(QMainWindow):
         control_layout.addWidget(self.lbl_info)
 
         control_layout.addStretch()
-        main_layout.addLayout(control_layout, stretch=1)
+        analisis_layout.addLayout(control_layout, stretch=1)
 
         # Panel derecho: Visor gráfico con overlays
         self.visor = VisorImagen(self)
         self.visor.setMinimumSize(600, 600)
-        main_layout.addWidget(self.visor, stretch=3)
+        analisis_layout.addWidget(self.visor, stretch=3)
+
+        self.tabs.addTab(tab_analisis, "Análisis y Visor")
+
+        # Pestaña 2: Dashboard de Métricas
+        self.dashboard_widget = DashboardWidget()
+        self.tabs.addTab(self.dashboard_widget, "Dashboard de Métricas")
 
     def _cargar_imagen_inicial(self) -> None:
         """Carga una imagen de demostración al iniciar."""

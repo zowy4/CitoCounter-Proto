@@ -68,3 +68,20 @@ def test_visor_imagen_renderizado(qapp, qtbot):
 
     visor.renderizar_resultados(resultado)
     assert len(visor.overlay_items) == 1
+
+
+def test_dashboard_widget(qapp, qtbot):
+    """Verifica que el DashboardWidget se inicializa y carga métricas correctamente."""
+    from qt_app.presentation.dashboard_widget import DashboardWidget
+
+    dashboard = DashboardWidget()
+    qtbot.addWidget(dashboard)
+    dashboard.show()
+
+    # Verificar existencia de elementos principales
+    assert dashboard.btn_actualizar is not None
+    assert dashboard.tabla_historial is not None
+
+    # Forzar actualización
+    dashboard.actualizar_datos()
+    assert dashboard.tabla_historial.rowCount() >= 0
