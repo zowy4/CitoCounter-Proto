@@ -85,10 +85,8 @@ def get_connection(db_path: Optional[Path] = None):
 
 def inicializar_db(db_path: Optional[Path] = None) -> None:
     """Inicializa la base de datos creando las tablas si no existen."""
-    path = db_path or get_db_path()
-    with sqlite3.connect(path) as conn:
+    with get_connection(db_path) as conn:
         conn.executescript(SCHEMA_SQL)
-        conn.commit()
 
 
 # ---------------------------------------------------------------------------
@@ -154,18 +152,17 @@ def insertar_experimento(
     placeholders = ", ".join(["?"] * len(campos))
     sql = f"INSERT INTO experimentos ({', '.join(campos)}) VALUES ({placeholders})"
 
-    with sqlite3.connect(get_db_path()) as conn:
+    with get_connection(db_path) as conn:
         conn.execute("INSERT OR REPLACE INTO experimentos (" +
                      ", ".join(campos) + ") VALUES (" + placeholders + ")",
                      valores)
-        conn.commit()
 
     return datos["id_prueba"]
 
 
 def obtener_experimento(id_prueba: str, db_path: Optional[Path] = None) -> Optional[Dict[str, Any]]:
     """Obtiene un experimento por su ID."""
-    with sqlite3.connect(get_db_path()) as conn:
+    with get_connection(db_path) as conn:
         conn.row_factory = sqlite3.Row
         cursor = conn.execute(
             "SELECT * FROM experimentos WHERE id_prueba = ?", (id_prueba,)
@@ -208,7 +205,7 @@ def listar_experimentos(
     """
     params.extend([limite, offset])
 
-    with sqlite3.connect(get_db_path()) as conn:
+    with get_connection(db_path) as conn:
         conn.row_factory = sqlite3.Row
         cursor = conn.execute(sql, params)
         return [dict(fila) for fila in cursor.fetchall()]
@@ -238,7 +235,7 @@ def contar_experimentos(
 
     where_clause = "WHERE " + " AND ".join(condiciones) if condiciones else ""
 
-    with sqlite3.connect(get_db_path()) as conn:
+    with get_connection(db_path) as conn:
         cursor = conn.execute(
             f"SELECT COUNT(*) FROM experimentos {where_clause}", params
         )
@@ -275,23 +272,21 @@ def actualizar_experimento(
     valores.append(id_prueba)
     sql = f"UPDATE experimentos SET {', '.join(campos)} WHERE id_prueba = ?"
 
-    with sqlite3.connect(get_db_path()) as conn:
+    with get_connection(db_path) as conn:
         cursor = conn.execute(sql, valores)
-        conn.commit()
         return cursor.rowcount > 0
 
 
 def eliminar_experimento(id_prueba: str, db_path: Optional[Path] = None) -> bool:
     """Elimina un experimento por su ID."""
-    with sqlite3.connect(get_db_path()) as conn:
+    with get_connection(db_path) as conn:
         cursor = conn.execute("DELETE FROM experimentos WHERE id_prueba = ?", (id_prueba,))
-        conn.commit()
         return cursor.rowcount > 0
 
 
 def obtener_estadisticas_generales(db_path: Optional[Path] = None) -> Dict[str, Any]:
     """Obtiene estadísticas generales de la base de datos."""
-    with sqlite3.connect(get_db_path()) as conn:
+    with get_connection(db_path) as conn:
         conn.row_factory = sqlite3.Row
 
         # Total de experimentos
@@ -335,7 +330,7 @@ def obtener_estadisticas_generales(db_path: Optional[Path] = None) -> Dict[str, 
 
 def exportar_a_csv(ruta_salida: Path, db_path: Optional[Path] = None) -> None:
     """Exporta todos los experimentos a un archivo CSV."""
-    with sqlite3.connect(get_db_path()) as conn:
+    with get_connection(db_path) as conn:
         conn.row_factory = sqlite3.Row
         cursor = conn.execute("SELECT * FROM experimentos ORDER BY fecha DESC, hora DESC")
         filas = cursor.fetchall()
@@ -353,7 +348,7 @@ def exportar_a_csv(ruta_salida: Path, db_path: Optional[Path] = None) -> None:
 
 def exportar_a_json(ruta_salida: Path, db_path: Optional[Path] = None) -> None:
     """Exporta todos los experimentos a un archivo JSON."""
-    with sqlite3.connect(get_db_path()) as conn:
+    with get_connection(db_path) as conn:
         conn.row_factory = sqlite3.Row
         cursor = conn.execute("SELECT * FROM experimentos ORDER BY fecha DESC, hora DESC")
         filas = [dict(fila) for fila in cursor.fetchall()]

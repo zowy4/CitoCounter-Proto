@@ -14,6 +14,7 @@ from src.almacenamiento import (
     exportar_a_csv,
     exportar_a_json,
     get_db_path,
+    get_connection,
 )
 
 
@@ -35,12 +36,11 @@ class AlmacenamientoTests(unittest.TestCase):
 
     def test_inicializar_db_crea_tablas(self):
         """Verifica que la base de datos se inicializa correctamente."""
-        import sqlite3
-        conn = sqlite3.connect(self.temp_dir.name + "/test.db")
-        cursor = conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name='experimentos'"
-        )
-        tabla = cursor.fetchone()
+        with get_connection() as conn:
+            cursor = conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='experimentos'"
+            )
+            tabla = cursor.fetchone()
         self.assertIsNotNone(tabla)
         self.assertEqual(tabla[0], "experimentos")
 
