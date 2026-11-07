@@ -143,6 +143,17 @@ Una actividad se considera terminada cuando:
 | Parámetros sobreajustados | Resultados no reproducibles | Separar calibración de prueba y congelar configuración antes de evaluar |
 | Exposición no protegida de Streamlit/API | Divulgación o manipulación de datos | Uso local durante prototipo y controles de seguridad antes de desplegar |
 
-## 7. Decisión recomendada
+## 8. Hitos de Validación y Migración a Deep Learning (CITO-95)
+
+Debido a las limitaciones del filtro clásico DoG en imágenes reales de alta resolución (Papanicolaou/EDF), se ejecutó la migración hacia Deep Learning (Cellpose con fine-tuning) bajo la historia **CITO-95**.
+
+- **Plan de migración:** [Plan de Migración DL](plan-cito95-migracion-dl.md)
+- **Evidencia formal de validación:** [Evidencia de Validación DL](evidencia-cito95-validacion-dl.md)
+- **Objetivo alcanzado:** F1-Score global de **93.05%** (superando el umbral del 90% requerido).
+- **Gráficas y comparativas:** Almacenadas en `data/results/graficas_tesis/`.
+
+---
+
+## 9. Decisión recomendada
 
 Registrar el proyecto en Jira como **prototipo de investigación con posible evolución a software sanitario**, con un bloqueo explícito para cualquier uso clínico. La primera iteración debe cerrar alcance, autorización de datos, dataset y corrección numérica del DoG; solamente después conviene comprometer el objetivo de F1, la API y los indicadores del dashboard.
