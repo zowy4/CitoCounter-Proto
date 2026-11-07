@@ -10,6 +10,7 @@ from PySide6.QtWidgets import QApplication
 from qt_app.presentation.main_window import MainWindow
 
 
+
 def main() -> None:
     """Función principal para ejecutar la interfaz Qt."""
     app = QApplication(sys.argv)
