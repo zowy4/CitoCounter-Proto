@@ -1,0 +1,22 @@
+Evidencia de Empaquetado PyInstaller y Aviso de Uso Experimental (J-69)
+========================================================================
+
+Fecha: 2026-11-06
+Proyecto: CitoCounter-Proto
+
+1. Empaquetado Offline (PyInstaller):
+   - Se construyeron con éxito los ejecutables independientes en la carpeta `dist/`:
+     * `dist/CitoCounter-Qt/CitoCounter-Qt.exe` (Aplicación de Escritorio Qt / PySide6)
+     * `dist/CitoCounter-CLI/CitoCounter-CLI.exe` (Aplicación de Línea de Comandos / CLI)
+   - Permiten ejecución offline completa sin requerir Python instalado en la máquina de destino.
+
+2. Aviso de Uso Experimental:
+   - Streamlit (`app.py`): Muestra un banner de advertencia prominente (`st.warning`) indicando:
+     "Prototipo de investigación. Este resultado no equivale a un diagnóstico clínico y requiere revisión experta."
+   - Aplicación Qt (`qt_app/presentation/main_window.py`): Incluye un banner visual superior de advertencia en todas las pantallas y pestañas:
+     "⚠️ AVISO DE USO EXPERIMENTAL: Prototipo de investigación. Este resultado no equivale a un diagnóstico clínico y requiere revisión experta."
+   - CLI (`main.py`): Incluye la advertencia en la documentación de ayuda y la bitácora de ejecución.
+
+3. Evidencia visual y de pruebas:
+   - Capturas y reportes guardados en `data/results/screenshots/`.
+   - Tests de paridad y regresión en verde.

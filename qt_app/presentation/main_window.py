@@ -52,6 +52,18 @@ class MainWindow(QMainWindow):
 
         main_layout = QVBoxLayout(central_widget)
 
+        # Aviso de uso experimental (J-69)
+        self.lbl_aviso = QLabel(
+            "⚠️ AVISO DE USO EXPERIMENTAL: Prototipo de investigación. "
+            "Este resultado no equivale a un diagnóstico clínico y requiere revisión experta."
+        )
+        self.lbl_aviso.setStyleSheet(
+            "background-color: #FEF3C7; color: #92400E; padding: 8px; "
+            "font-weight: bold; border-radius: 4px; border: 1px solid #FCD34D;"
+        )
+        self.lbl_aviso.setAlignment(Qt.AlignCenter)
+        main_layout.addWidget(self.lbl_aviso)
+
         self.tabs = QTabWidget()
         main_layout.addWidget(self.tabs)
 
