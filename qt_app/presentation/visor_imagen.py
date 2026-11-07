@@ -75,6 +75,13 @@ class VisorImagen(QGraphicsView):
         contornos = resultado_analisis.get("contornos", [])
         clasificaciones = resultado_analisis.get("clasificaciones", [])
 
+        if not contornos:
+            contornos_norm = resultado_analisis.get("contornos_normales", [])
+            contornos_sosp = resultado_analisis.get("contornos_sospechosos", [])
+            contornos = contornos_norm + contornos_sosp
+            if not clasificaciones:
+                clasificaciones = [{"clasificacion": "normal"}] * len(contornos_norm) + [{"clasificacion": "sospechosa"}] * len(contornos_sosp)
+
         for i, c in enumerate(contornos):
             if c is None or len(c) == 0:
                 continue

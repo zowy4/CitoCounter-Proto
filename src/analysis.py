@@ -829,6 +829,9 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
         resultados["porcentaje_riesgo"] = (
             resultados["sospechosas"] / resultados["total_celulas"]
         ) * 100.0
+
+    resultados["contornos"] = resultados["contornos_normales"] + resultados["contornos_sospechosos"]
+    resultados["clasificaciones"] = resultados["criterios_clasificacion"]
     
     return resultados
 
