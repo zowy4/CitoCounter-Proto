@@ -8,6 +8,6 @@ CITO-106,ACT-35,Fase 2,Selección y optimización del motor de inferencia (DoG/Y
 CITO-107,ACT-36,Fase 2,Optimización de preprocesamiento y conversión vectorial,Semana 7,Finalizado
 CITO-108,ACT-37,Fase 3,Calibración de escala µm/píxel con regla micrométrica,Semana 8,En curso
 CITO-109,ACT-38,Fase 3,Normalización de color e iluminación para tinción Papanicolaou,Semana 9,Por hacer
-CITO-110,ACT-39,Fase 4,Simulación de barrido de platina en zigzag y tracking antiduplicados,Semana 10,En curso
+CITO-110,ACT-39,Fase 4,Simulación de barrido de platina en zigzag y tracking antiduplicados,Semana 10,Finalizado
 CITO-111,ACT-40,Fase 5,Estructuración estricta del dataset train/val/test por paciente,Semana 11,En curso
 CITO-112,ACT-41,Fase 6,Protocolo de validación en microscopio real y bitácoras,Semana 12,En curso
