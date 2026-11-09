@@ -68,6 +68,10 @@ Para evitar mezclar el identificador académico con la clave real de Jira, se us
 | ACT-22 | CITO-43 | Medir tiempo de procesamiento manual vs automatizado | J-16 | Hecha ✅ | Auto: 83.2 ms/imagen vs Manual: 423.6 ms/imagen (80.3% ahorro) | CITO-43_REPORTE.md | 2026-10-02 |
 | ACT-23 | CITO-44 | Crear suite de pruebas para validación de dataset | J-05 | Por hacer |
 
+| ACT-24 | CITO-51 | Integrar modulos core: pipeline asincrono, tracking, dataset splitting, metricas clinicas | J-18 | Finalizado | ✅ | 2026-11-07 |
+| ACT-25 | CITO-52 | Implementar protocolo de métricas clínicas (precisión, recall, mAP@0.5, error relativo, FPS) | J-18 | Finalizado | ✅ | 2026-11-08 |
+| ACT-26 | CITO-53 | Protocolo de validación en microscopio real con laminillas físicas | J-21 | En curso | ✅ | 2026-11-08 |
+
 | ACT-24 | CITO-92 | Implementar autenticación básica y rate limiting en API REST | J-12 | Por hacer |
 | ACT-25 | CITO-93 | Endurecer seguridad: logs auditoría, HTTPS, revisión dependencias | J-12 | Por hacer |
 | ACT-26 | CITO-94 | Casos especiales: superposición celular, artefactos e iluminación | J-19 | Por hacer |

@@ -23,6 +23,45 @@
 
 ---
 
+### Fase 5: Entrenamiento y Evaluación (Actualizado)
+
+### Fase 6: Muestras y Pruebas (Activa)
+
+#### Actividad 6.1: Protocolo de validación en microscopio real
+
+**Estado:** En curso
+
+**Descripción:** Diseñar protocolo de prueba con laminillas físicas en microscopio óptico con cámara acoplada.
+
+**Implementación:**
+- Creado `src/protocolo_microscopio_real.py` con clase `ProtocoloMicroscopioReal`
+- Registro de pruebas con metadatos: laminilla_id, aumento, exposición, ganancia
+- Cálculo automático de error absoluto y relativo (%)
+- Bitácora JSON persistente en `data/results/bitacora_microscopio.json`
+- Método `obtener_resumen()` para estadísticas de pruebas
+
+**Pruebas unitarias:** `tests/test_protocolo_microscopio_real.py` - ✅ Pasan correctamente
+
+### Fase 5: Entrenamiento y Evaluación
+
+#### Actividad 5.2: Protocolo de métricas clínicas
+
+**Estado:** Completo
+
+**Descripción:** Evaluar precisión, recall, mAP@0.5, error relativo de conteo y FPS sostenido.
+
+**Implementación:**
+- Creado `src/protocolo_metricas_clinicas.py` con clase `EvaluadorMetricasClinicas`
+- Cálculo de IoU entre cajas delimitadoras (ymin, xmin, ymax, xmax)
+- Métricas: precisión, recall, F1, mAP@0.5 (basado en IoU)
+- Error relativo de conteo porcentual
+- FPS sostenido para benchmark de rendimiento
+- Control de tamaño de datos de entrada (OWASP/STRIDE)
+
+**Pruebas unitarias:** `tests/test_protocolo_metricas_clinicas.py` - ✅ Pasan correctamente
+
+---
+
 ## Problemas Identificados
 
 1. **Alta tasa de falsos positivos** (>99% de detecciones son incorrectas)
