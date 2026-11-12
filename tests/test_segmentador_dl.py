@@ -17,17 +17,15 @@ from src.segmentador_dl import (
 
 class SegmentadorDLTests(unittest.TestCase):
     def test_validar_tamano_imagen_valido(self):
-        # Imagen pequeña de 100x100 uint8 (10 KB) -> OK
+        # Imagen pequeña de 100x100 uint8 (10 KB) -> OK con límite de 64 KB
         img = np.zeros((100, 100), dtype=np.uint8)
-        self.assertLessEqual(img.nbytes, 65536)
-        validar_tamano_imagen(img)  # No debe lanzar excepción
+        validar_tamano_imagen(img, tamano_maximo_kb=64)  # No debe lanzar excepción
 
-    def test_validar_tamano_imagen_excede_64kib(self):
-        # Imagen grande que excede 64 KiB -> Debe lanzar ValueError por OWASP/STRIDE
+    def test_validar_tamano_imagen_excede_limite(self):
+        # Imagen grande que excede el límite personalizado -> Debe lanzar ValueError por OWASP/STRIDE
         img = np.zeros((300, 300), dtype=np.uint8)  # 90 KB
-        self.assertGreater(img.nbytes, 65536)
         with self.assertRaises(ValueError):
-            validar_tamano_imagen(img)
+            validar_tamano_imagen(img, tamano_maximo_kb=64)
 
     def test_convertir_a_8bit(self):
         img_float = np.array([[0.0, 1.0], [0.5, 0.8]], dtype=np.float32)

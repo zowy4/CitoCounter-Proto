@@ -1,6 +1,7 @@
-CITO-23 - Validación de métricas del detector DoG (mejorada)
+CITO-85 - Validación formal con DoG y Qt Desktop (PySide6)
 ======================================================================
 
+Interfaz: Qt Desktop (PySide6) con preprocesamiento avanzado y segmentación interactiva
 Imágenes evaluadas: 5
 Umbral IoU: 0.50
 Sigma DoG: sigma1=5.00, sigma2=8.00

@@ -247,15 +247,15 @@ def calibrar_area_promedio(lista_imagenes_normales) -> float
 
 ---
 
-## 7. Criterios de Aceptación para CITO-77
+## 7. Criterios de Aceptación y Actualización Qt / Deep Learning (CITO-77 / CITO-164)
 
-- [x] Documento de reglas creado (`docs/CITO-77-reglas-explicables.md`)
+- [x] Documento de reglas creado y actualizado (`docs/CITO-77-reglas-explicables.md`)
 - [x] Casos de prueba implementados (`tests/test_cito77_reglas.py`)
-- [x] Todas las variables y umbrales documentados con valores calibrados
-- [x] Casos frontera enumerados con clasificación esperada
-- [x] Limitaciones documentadas por categoría
-- [x] Mensaje de revisión experta incluido y visible en UI
-- [x] Trazabilidad a CITO-74 (parámetros calibrados) y CITO-24 (regla 3x)
+- [x] Integración completa con interfaz Qt Desktop (`qt_app/`) con soporte para video en vivo, cámaras USB y preprocesamiento avanzado (CLAHE, ruido bilateral, HSV por canal Hue, polaridad `nucleos-oscuros`).
+- [x] Soporte para inferencia Zero-Shot con Cellpose (`src/segmentador_dl.py`) con control OWASP/STRIDE (16 MiB).
+- [x] Panel interactivo de Trazabilidad y Evidencias Académicas con renderizado tabular en HTML.
+- [x] Todas las variables y umbrales documentados con valores calibrados.
+- [x] Mensaje de revisión experta incluido y visible en UI.
 
 ---
 

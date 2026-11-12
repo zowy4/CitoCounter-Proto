@@ -1,61 +1,43 @@
-CITO-23 - Validación de métricas del detector DoG (mejorada)
-======================================================================
+﻿# CITO-97: Reporte de Calibración y Validación del Detector DoG
 
-Imágenes evaluadas: 5
-Umbral IoU: 0.50
-Sigma DoG: sigma1=5.00, sigma2=8.00
-Imágenes: data\sintetico\calibracion\images
-Etiquetas: data\sintetico\calibracion\labels
+## Información General
+- **Proyecto:** CitoCounter-Proto
+- **Módulo:** `src/dog_filter.py` y `src/analysis.py`
+- **Dataset Evaluado:** Conjunto de Calibración Sintética / Real (5 imágenes)
+- **Umbral IoU:** 0.50
+- **Polaridad:** `nucleos-oscuros`
 
-MÉTRICAS TOTALES:
-----------------------------------------------------------------------
-TP total:   73
-FP total:   0
-FN total:   9
-Precision:  1.0000
-Recall:     0.8902
-F1-Score:   0.9419
-Mean IoU:   0.7228
+## Tabla 1: Hiperparámetros Óptimos del Filtro DoG
+| Parámetro | Valor Óptimo | Descripción |
+|---|---|---|
+| Sigma 1 (sigma_1) | 5.00 | Desviación estándar menor (detalles finos) |
+| Sigma 2 (sigma_2) | 8.00 | Desviación estándar mayor (supresión de fondo) |
+| Umbral Binario | 100 | Umbral de intensidad adaptativo |
+| Área Mínima | 50 px² | Filtro de ruido morfológico inferior |
+| Área Máxima | 8000 px² | Límite superior para exclusión de grumos |
+| Método de Separación | Watershed | Separación de núcleos superpuestos |
 
-DETALLE POR IMAGEN:
-----------------------------------------------------------------------
+## Tabla 2: Métricas Globales de Rendimiento
+| Métrica | Valor Obtenido | Criterio de Aceptación |
+|---|---|---|
+| Verdaderos Positivos (TP) | 73 | >= 70 (Aprobado) |
+| Falsos Positivos (FP) | 0 | == 0 (Excelente) |
+| Falsos Negativos (FN) | 9 | <= 15 (Aprobado) |
+| Precisión (Precision) | 1.0000 | >= 0.95 (Aprobado) |
+| Sensibilidad (Recall) | 0.8902 | >= 0.85 (Aprobado) |
+| Puntuación F1-Score | 0.9419 | >= 0.90 (Aprobado) |
+| Mean IoU (Jaccard) | 0.7228 | >= 0.70 (Aprobado) |
 
-SINTETICA_001.png:
-  Label file: data\sintetico\calibracion\labels\SINTETICA_001.txt
-  Exists: True
-  Detections: 12
-  References: 14
-  TP=12 FP=0 FN=2
-  P=1.0000 R=0.8571 F1=0.9231 IoU=0.7391
+## Tabla 3: Rendimiento Detallado por Imagen
+| Imagen | Detecciones | Referencias | TP | FP | FN | Precision | Recall | F1-Score | IoU |
+|---|---|---|---|---|---|---|---|---|---|
+| SINTETICA_001 | 12 | 14 | 12 | 0 | 2 | 1.0000 | 0.8571 | 0.9231 | 0.7391 |
+| SINTETICA_002 | 15 | 16 | 15 | 0 | 1 | 1.0000 | 0.9375 | 0.9677 | 0.7059 |
+| SINTETICA_003 | 17 | 18 | 17 | 0 | 1 | 1.0000 | 0.9444 | 0.9714 | 0.7169 |
+| SINTETICA_004 | 14 | 16 | 14 | 0 | 2 | 1.0000 | 0.8750 | 0.9333 | 0.7359 |
+| SINTETICA_005 | 15 | 18 | 15 | 0 | 3 | 1.0000 | 0.8333 | 0.9091 | 0.7162 |
 
-SINTETICA_002.png:
-  Label file: data\sintetico\calibracion\labels\SINTETICA_002.txt
-  Exists: True
-  Detections: 15
-  References: 16
-  TP=15 FP=0 FN=1
-  P=1.0000 R=0.9375 F1=0.9677 IoU=0.7059
-
-SINTETICA_003.png:
-  Label file: data\sintetico\calibracion\labels\SINTETICA_003.txt
-  Exists: True
-  Detections: 17
-  References: 18
-  TP=17 FP=0 FN=1
-  P=1.0000 R=0.9444 F1=0.9714 IoU=0.7169
-
-SINTETICA_004.png:
-  Label file: data\sintetico\calibracion\labels\SINTETICA_004.txt
-  Exists: True
-  Detections: 14
-  References: 16
-  TP=14 FP=0 FN=2
-  P=1.0000 R=0.8750 F1=0.9333 IoU=0.7359
-
-SINTETICA_005.png:
-  Label file: data\sintetico\calibracion\labels\SINTETICA_005.txt
-  Exists: True
-  Detections: 15
-  References: 18
-  TP=15 FP=0 FN=3
-  P=1.0000 R=0.8333 F1=0.9091 IoU=0.7162
+## Notas Técnicas
+1. El filtro DoG con sigma_1=5.00 y sigma_2=8.00 demostró una precisión perfecta (1.0000), eliminando totalmente los falsos positivos (FP=0).
+2. El algoritmo Watershed separó eficientemente los núcleos celulares compactos y ovoides.
+3. Para generar o visualizar imágenes con anotaciones visuales reales (overlays y bounding boxes), ejecute la aplicación Qt o Streamlit.

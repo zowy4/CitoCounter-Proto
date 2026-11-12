@@ -28,7 +28,7 @@ class SegmentacionHsvTests(unittest.TestCase):
 
     def test_rechaza_metodo_hsv_desconocido(self):
         with self.assertRaises(ValueError):
-            segmentar_por_hsv(np.zeros((10, 10, 3), dtype=np.uint8), metodo="hue")
+            segmentar_por_hsv(np.zeros((10, 10, 3), dtype=np.uint8), metodo="invalid_method")
 
 
 if __name__ == "__main__":

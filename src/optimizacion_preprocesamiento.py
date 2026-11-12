@@ -78,8 +78,8 @@ def benchmark_preprocesamiento(imagen: np.ndarray, iteraciones: int = 50) -> Dic
     inicio = time.time()
     for _ in range(iteraciones):
         _ = optimizar_preprocesamiento(imagen)
-    duracion = time.time() - inicio
-    fps = iteraciones / duracion if duracion > 0 else 0.0
+    duracion = max(time.time() - inicio, 1e-6)
+    fps = iteraciones / duracion
 
     return {
         "iteraciones": iteraciones,

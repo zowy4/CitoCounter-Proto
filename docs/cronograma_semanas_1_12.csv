@@ -1,13 +1,13 @@
 id,actividad,clase,descripcion,semana,estado
 CITO-101,ACT-30,Fase 8,Definición de objetivos y alcance inicial del cronograma,Semana 1,Finalizado
 CITO-102,ACT-31,Fase 8,Diseño de arquitectura base y contratos de datos,Semana 2,Finalizado
-CITO-103,ACT-32,Fase 1,Implementación de captura de video en tiempo real (USB/C-mount),Semana 3,En curso
-CITO-104,ACT-33,Fase 1,Pipeline de inferencia asíncrono y separación de hilos,Semana 4,Por hacer
-CITO-105,ACT-34,Fase 1,Superposición de bounding boxes y visualización en vivo,Semana 5,Por hacer
-CITO-106,ACT-35,Fase 2,Selección y optimización del motor de inferencia (DoG/YOLOv8-nano),Semana 6,En curso
+CITO-103,ACT-32,Fase 1,Implementación de captura de video en tiempo real (USB/C-mount),Semana 3,Finalizado
+CITO-104,ACT-33,Fase 1,Pipeline de inferencia asíncrono y separación de hilos,Semana 4,Finalizado
+CITO-105,ACT-34,Fase 1,Superposición de bounding boxes y visualización en vivo,Semana 5,Finalizado
+CITO-106,ACT-35,Fase 2,Selección y optimización del motor de inferencia (DoG/YOLOv8-nano),Semana 6,Finalizado
 CITO-107,ACT-36,Fase 2,Optimización de preprocesamiento y conversión vectorial,Semana 7,Finalizado
-CITO-108,ACT-37,Fase 3,Calibración de escala µm/píxel con regla micrométrica,Semana 8,En curso
-CITO-109,ACT-38,Fase 3,Normalización de color e iluminación para tinción Papanicolaou,Semana 9,Por hacer
+CITO-108,ACT-37,Fase 3,Calibración de escala µm/píxel con regla micrométrica,Semana 8,Finalizado
+CITO-109,ACT-38,Fase 3,Normalización de color e iluminación para tinción Papanicolaou,Semana 9,Finalizado
 CITO-110,ACT-39,Fase 4,Simulación de barrido de platina en zigzag y tracking antiduplicados,Semana 10,Finalizado
-CITO-111,ACT-40,Fase 5,Estructuración estricta del dataset train/val/test por paciente,Semana 11,En curso
+CITO-111,ACT-40,Fase 5,Estructuración estricta del dataset train/val/test por paciente,Semana 11,Finalizado
 CITO-112,ACT-41,Fase 6,Protocolo de validación en microscopio real y bitácoras,Semana 12,Finalizado

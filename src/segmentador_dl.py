@@ -18,20 +18,26 @@ import numpy as np
 from src.analysis import obtener_reglas_clasificacion, clasificar_nucleo_por_area
 
 
-def validar_tamano_imagen(imagen: np.ndarray) -> None:
+def validar_tamano_imagen(imagen: np.ndarray, tamano_maximo_kb: int = 16384) -> None:
     """
-    Valida que el tamaño de la imagen en memoria no supere 64 KiB (65536 bytes)
+    Valida que el tamaño de la imagen en memoria no supere el límite máximo (por defecto 16384 KB = 16 MB)
     como control de seguridad OWASP/STRIDE contra ataques de denegación de servicio (DoS).
     
     :param imagen: Arreglo numpy de la imagen a validar
     :type imagen: numpy.ndarray
-    :raises ValueError: Si la imagen excede 64 KiB de memoria
+    :param tamano_maximo_kb: Tamaño máximo permitido en kilobytes (default: 16384 KB = 16 MB)
+    :type tamano_maximo_kb: int
+    :raises ValueError: Si la imagen excede el límite máximo
     :rtype: None
     """
-    if imagen.nbytes > 65536:
+    if imagen is None:
+        raise ValueError("La imagen es nula.")
+    tamano_bytes = imagen.nbytes
+    tamano_maximo_bytes = tamano_maximo_kb * 1024
+    if tamano_bytes > tamano_maximo_bytes:
         raise ValueError(
-            f"El tamaño de la imagen ({imagen.nbytes} bytes) excede el límite de seguridad "
-            "de 64 KiB (65536 bytes) especificado para procesamiento seguro (OWASP/STRIDE)."
+            f"El tamaño de la imagen ({tamano_bytes / 1024:.1f} KB) excede el límite de seguridad "
+            f"de {tamano_maximo_kb} KB especificado para procesamiento seguro (OWASP/STRIDE)."
         )
 
 

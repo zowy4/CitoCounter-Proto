@@ -10,9 +10,10 @@ Soporta salidas tanto del motor DoG como del motor DL.
 
 from typing import List, Dict, Any, Optional
 import numpy as np
+import cv2
 from PySide6.QtCore import Qt, QPointF
 from PySide6.QtGui import QImage, QPixmap, QPen, QColor, QPainterPath, QPainter
-from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QGraphicsPathItem
+from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QGraphicsPathItem, QGraphicsTextItem
 
 
 class VisorImagen(QGraphicsView):
@@ -56,24 +57,29 @@ class VisorImagen(QGraphicsView):
         self.pixmap_item = self.scene.addPixmap(pixmap)
         self.setSceneRect(0, 0, width, height)
 
-    def renderizar_resultados(self, resultado_analisis: Dict[str, Any]) -> None:
+    def renderizar_resultados(self, resultado_analisis: Dict[str, Any], mostrar_contornos: bool = True, mostrar_areas: bool = False) -> None:
         """
         Renderiza sobre la imagen los contornos y clasificaciones obtenidos
         de analizar_nucleos() (DoG) o analizar_nucleos_dl() (Deep Learning).
 
-        El diccionario de resultado debe contener al menos 'contornos' y 'areas'
-        o bien 'clasificaciones' / decisiones por contorno.
-
         :param resultado_analisis: Diccionario con salidas del segmentador.
         :type resultado_analisis: dict
+        :param mostrar_contornos: Si True, dibuja los contornos celulares.
+        :type mostrar_contornos: bool
+        :param mostrar_areas: Si True, muestra las áreas en píxeles sobre la imagen.
+        :type mostrar_areas: bool
         """
         # Limpiar overlays anteriores
         for item in self.overlay_items:
             self.scene.removeItem(item)
         self.overlay_items.clear()
 
+        if not mostrar_contornos:
+            return
+
         contornos = resultado_analisis.get("contornos", [])
         clasificaciones = resultado_analisis.get("clasificaciones", [])
+        areas = resultado_analisis.get("areas", [])
 
         if not contornos:
             contornos_norm = resultado_analisis.get("contornos_normales", [])
@@ -87,7 +93,6 @@ class VisorImagen(QGraphicsView):
                 continue
 
             # Determinar color según clasificación y zona frontera (CITO-77)
-            # Por defecto verde (normal)
             color = QColor(0, 255, 0) # Verde normal
             
             if i < len(clasificaciones):
@@ -116,3 +121,14 @@ class VisorImagen(QGraphicsView):
             
             self.scene.addItem(path_item)
             self.overlay_items.append(path_item)
+
+            if mostrar_areas and len(areas) > i:
+                area_val = areas[i]
+                M = cv2.moments(c)
+                if M["m00"] > 0:
+                    cx = int(M["m10"] / M["m00"])
+                    cy = int(M["m01"] / M["m00"])
+                    text_item = self.scene.addText(f"{int(area_val)}px")
+                    text_item.setDefaultTextColor(color)
+                    text_item.setPos(cx, cy)
+                    self.overlay_items.append(text_item)

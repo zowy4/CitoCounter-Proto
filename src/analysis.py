@@ -41,12 +41,12 @@ UMBRAL_DOG = 5                      # Valor mínimo para considerar un píxel co
 # imágenes reales de citología (Papanicolaou/EDF) donde los núcleos pueden ser
 # más pequeños que en imágenes sintéticas.
 AREA_MINIMA_NUCLEO = {
-    'nucleos-claros': 10,      # CITO-74: 10 (era 50)
-    'nucleos-oscuros': 100,    # CITO-97: 100 (era 200, reducido para detectar núcleos pequeños en imágenes reales)
+    'nucleos-claros': 10,      # CITO-74: 10
+    'nucleos-oscuros': 50,     # Optimizado para capturar núcleos pequeños sin ruido
 }
 AREA_MAXIMA_NUCLEO = {
-    'nucleos-claros': 1000,    # CITO-97: 1000 (era 500, aumentado para detectar núcleos sintéticos más grandes)
-    'nucleos-oscuros': 300000, # Mantenido (requiere validación específica)
+    'nucleos-claros': 1000,    # CITO-97: 1000
+    'nucleos-oscuros': 8000,   # Reducido de 300,000 a 8,000 para eliminar manchas gigantes y artefactos de fondo
 }
 
 
@@ -731,25 +731,27 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
                 perimetro = cv2.arcLength(contorno, True)
                 if perimetro > 0:
                     circularidad = 4 * np.pi * area / (perimetro ** 2)
-                    # Umbral reducido a 0.15 para núcleos reales de citología (Papanicolaou/EDF)
-                    # que no son perfectamente circulares por superposición y variaciones de tinción
-                    if circularidad < 0.15:  # Filtrar formas muy irregulares (ruido)
+                    # Circularidad optimizada para rechazar formas muy irregulares o ruido granular
+                    if circularidad < 0.20:
                         continue
                 
+                # Solidez (Solidity) = area / area_hull (rechaza residuos dentados o alargados)
+                hull = cv2.convexHull(contorno)
+                area_hull = cv2.contourArea(hull)
+                if area_hull > 0:
+                    solidez = area / area_hull
+                    if solidez < 0.60:
+                        continue
+
                 # Filtrar por aspecto (relación ancho/alto)
                 x, y, w, h = cv2.boundingRect(contorno)
                 if w > 0 and h > 0:
                     aspecto = max(w, h) / min(w, h)
-                    if aspecto > 3.0:  # Filtrar formas muy alargadas (artefactos)
+                    if aspecto > 2.5:  # Rechazar formas muy alargadas o fibras
                         continue
                 
-                # Filtrar por tamaño (artefactos muy pequeños o grandes)
-                # Área mínima: evita detectar ruido de fondo
-                # Área máxima: evita detectar manchas de tinción grandes o polvo
-                area = cv2.contourArea(contorno)
-                if area < AREA_MINIMA_NUCLEO[polaridad] * 0.1:
-                    continue
-                if area > AREA_MAXIMA_NUCLEO[polaridad] * 5:
+                # Filtrar por tamaño (fuera de rangos estrictos)
+                if area < AREA_MINIMA_NUCLEO[polaridad] or area > AREA_MAXIMA_NUCLEO[polaridad]:
                     continue
             
             area = cv2.contourArea(contorno)

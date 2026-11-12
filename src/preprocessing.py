@@ -56,26 +56,29 @@ def invertir_polaridad(imagen_gris):
     return cv2.bitwise_not(imagen_gris)
 
 
-def cargar_imagen(ruta_imagen):
+def cargar_imagen(ruta_o_array):
     """
-    Carga una imagen desde disco con validaciÃ³n.
+    Carga una imagen desde disco o la acepta si ya es un arreglo numpy.
 
     Args:
-        ruta_imagen (str): Ruta al archivo de imagen
+        ruta_o_array (str o numpy.ndarray): Ruta al archivo de imagen o matriz BGR
 
     Returns:
         numpy.ndarray: Imagen BGR (formato de OpenCV)
 
     Raises:
         FileNotFoundError: Si la imagen no existe
-        ValueError: Si la imagen estÃ¡ corrupta o no puede leerse
+        ValueError: Si la imagen está corrupta o no puede leerse
     """
-    imagen = cv2.imread(ruta_imagen)
+    if isinstance(ruta_o_array, np.ndarray):
+        return ruta_o_array
+
+    imagen = cv2.imread(str(ruta_o_array))
 
     if imagen is None:
         raise FileNotFoundError(
-            f"No se pudo cargar la imagen: {ruta_imagen}\n"
-            "Verifica que el archivo existe y es una imagen vÃ¡lida."
+            f"No se pudo cargar la imagen: {ruta_o_array}\n"
+            "Verifica que el archivo existe y es una imagen válida."
         )
 
     return imagen
@@ -466,7 +469,10 @@ def segmentar_por_hsv(imagen_bgr, umbral_sat=100, umbral_val=100, metodo='satura
     imagen_hsv = cv2.cvtColor(imagen_bgr, cv2.COLOR_BGR2HSV)
 
     # Umbralizar segÃºn el mÃ©todo especificado
-    if metodo == 'saturation':
+    if metodo == 'hue':
+        # Usar canal H (tono): 0-179 en OpenCV
+        _, mask = cv2.threshold(imagen_hsv[:, :, 0], umbral_sat, 255, cv2.THRESH_BINARY)
+    elif metodo == 'saturation':
         # Usar canal S (saturaciÃ³n): 1 = totalmente desaturado, 255 = color puro
         _, mask = cv2.threshold(imagen_hsv[:, :, 1], umbral_sat, 255, cv2.THRESH_BINARY)
     elif metodo == 'value':
@@ -474,7 +480,7 @@ def segmentar_por_hsv(imagen_bgr, umbral_sat=100, umbral_val=100, metodo='satura
         _, mask = cv2.threshold(imagen_hsv[:, :, 2], umbral_val, 255, cv2.THRESH_BINARY)
     else:
         raise ValueError(f"MÃ©todo HSV desconocido: {metodo}. "
-                        "Usa 'saturation' o 'value'")
+                        "Usa 'hue', 'saturation' o 'value'")
 
     # Aplicar morfologÃ­a abierta para eliminar ruido pequeÃ±o
     kernel = np.ones((3, 3), np.uint8)

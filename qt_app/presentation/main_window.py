@@ -21,15 +21,18 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QComboBox,
     QTabWidget,
+    QGroupBox,
 )
 
 from qt_app.logic.image_controller import ImageController
 from qt_app.presentation.visor_imagen import VisorImagen
 from qt_app.presentation.panel_ajustes import PanelAjustes
 from qt_app.presentation.dashboard_widget import DashboardWidget
+from qt_app.presentation.evidencia_panel import EvidenciaPanel
 from src.analysis import analizar_nucleos
 from src.dog_filter import aplicar_filtro_dog
 from src.segmentador_dl import analizar_nucleos_dl
+from src.preprocessing import preprocesar_imagen
 
 
 class MainWindow(QMainWindow):
@@ -82,9 +85,38 @@ class MainWindow(QMainWindow):
         self.btn_demo.clicked.connect(self.cargar_demo)
         control_layout.addWidget(self.btn_demo)
 
-        # Panel de ajustes (CITO-66)
-        self.panel_ajustes = PanelAjustes()
-        self.panel_ajustes.parametros_cambiados.connect(self.ejecutar_analisis)
+        # Selector de cámara y video en vivo
+        self.group_camara = QGroupBox("Captura en Vivo / Microscopio (CITO-103)")
+        cam_layout = QVBoxLayout(self.group_camara)
+
+        self.combo_camaras = QComboBox()
+        self.poblar_camaras()
+        cam_layout.addWidget(self.combo_camaras)
+
+        self.btn_iniciar_camara = QPushButton("Iniciar Cámara / Microscopio")
+        self.btn_iniciar_camara.clicked.connect(self.toggle_camara_en_vivo)
+        cam_layout.addWidget(self.btn_iniciar_camara)
+
+        self.btn_cargar_video = QPushButton("Analizar Archivo de Video...")
+        self.btn_cargar_video.clicked.connect(self.cargar_video_dialogo)
+        cam_layout.addWidget(self.btn_cargar_video)
+
+        self.lbl_velocidad = QLabel("Velocidad de Reproducción:")
+        cam_layout.addWidget(self.lbl_velocidad)
+
+        self.combo_velocidad = QComboBox()
+        self.combo_velocidad.addItem("Normal (1x - 33ms)", 33)
+        self.combo_velocidad.addItem("Lento (0.5x - 66ms)", 66)
+        self.combo_velocidad.addItem("Muy Lento (0.25x - 133ms)", 133)
+        self.combo_velocidad.addItem("Cámara Lenta (0.1x - 250ms)", 250)
+        self.combo_velocidad.addItem("Cuadro por Cuadro (500ms)", 500)
+        self.combo_velocidad.currentIndexChanged.connect(self.actualizar_velocidad_timer)
+        cam_layout.addWidget(self.combo_velocidad)
+
+        control_layout.addWidget(self.group_camara)
+
+        # Panel de ajustes de parámetros
+        self.panel_ajustes = PanelAjustes(self)
         control_layout.addWidget(self.panel_ajustes)
 
         self.btn_analizar = QPushButton("Ejecutar Análisis y Overlays")
@@ -109,6 +141,10 @@ class MainWindow(QMainWindow):
         self.dashboard_widget = DashboardWidget()
         self.tabs.addTab(self.dashboard_widget, "Dashboard de Métricas")
 
+        # Pestaña 3: Panel de Evidencias Académicas
+        self.evidencia_panel = EvidenciaPanel()
+        self.tabs.addTab(self.evidencia_panel, "Evidencias y Actividades")
+
     def _cargar_imagen_inicial(self) -> None:
         """Carga una imagen de demostración al iniciar."""
         try:
@@ -117,6 +153,148 @@ class MainWindow(QMainWindow):
         except Exception as e:
             self.lbl_info.setText(f"Error al cargar imagen inicial: {e}")
 
+    def poblar_camaras(self) -> None:
+        """Detecta cámaras disponibles en el sistema (índices 0 a 3)."""
+        self.combo_camaras.clear()
+        for i in range(4):
+            cap = cv2.VideoCapture(i)
+            if cap.isOpened():
+                self.combo_camaras.addItem(f"Cámara / USB / C-mount #{i}", i)
+                cap.release()
+        if self.combo_camaras.count() == 0:
+            self.combo_camaras.addItem("No se detectaron cámaras", -1)
+
+    def toggle_camara_en_vivo(self) -> None:
+        """Inicia o detiene la captura de video en vivo."""
+        if getattr(self, "en_vivo", False):
+            self.detener_camara_en_vivo()
+        else:
+            self.iniciar_camara_en_vivo()
+
+    def actualizar_velocidad_timer(self) -> None:
+        """Actualiza el intervalo del temporizador de reproducción según la velocidad seleccionada."""
+        if hasattr(self, "timer_camara") and self.timer_camara.isActive():
+            intervalo = self.combo_velocidad.currentData()
+            if intervalo:
+                self.timer_camara.setInterval(intervalo)
+
+    def iniciar_camara_en_vivo(self) -> None:
+        idx = self.combo_camaras.currentData()
+        if idx is None or idx < 0:
+            QMessageBox.warning(self, "Advertencia", "No hay ninguna cámara válida seleccionada.")
+            return
+
+        from src.captura_microscopio import GestorCapturaMicroscopio
+        from PySide6.QtCore import QTimer
+
+        self.gestor_camara = GestorCapturaMicroscopio(fuente_id=idx)
+        if not self.gestor_camara.iniciar_captura():
+            QMessageBox.critical(self, "Error", f"No se pudo abrir la cámara #{idx}")
+            return
+
+        self.en_vivo = True
+        self.btn_iniciar_camara.setText("Detener Cámara en Vivo")
+        self.btn_cargar.setEnabled(False)
+        self.btn_demo.setEnabled(False)
+
+        intervalo = self.combo_velocidad.currentData() or 33
+        self.timer_camara = QTimer(self)
+        self.timer_camara.timeout.connect(self.procesar_frame_en_vivo)
+        self.timer_camara.start(intervalo)
+
+    def detener_camara_en_vivo(self) -> None:
+        if hasattr(self, "timer_camara"):
+            self.timer_camara.stop()
+        if hasattr(self, "gestor_camara"):
+            self.gestor_camara.liberar()
+
+        self.en_vivo = False
+        self.btn_iniciar_camara.setText("Iniciar Cámara / Microscopio")
+        self.btn_cargar.setEnabled(True)
+        self.btn_demo.setEnabled(True)
+        self.lbl_info.setText("Estado: Cámara detenida")
+
+    def procesar_frame_en_vivo(self) -> None:
+        ret, frame = self.gestor_camara.leer_frame()
+        if not ret or frame is None:
+            return
+
+        # Procesar análisis en tiempo real con los parámetros avanzados (CLAHE, ruido, HSV, polaridad, separación)
+        params = self.panel_ajustes.obtener_parametros()
+        motor = params["motor"]
+        sigma1 = params["sigma1"]
+        sigma2 = params["sigma2"]
+        polaridad = params["polaridad"]
+        usar_clahe = params["usar_clahe"]
+        modo_clahe = params["modo_clahe"]
+        reducir_ruido = params["reducir_ruido"]
+        nivel_ruido = params["nivel_ruido"]
+        usar_hsv = params["usar_hsv"]
+        metodo_hsv = params["metodo_hsv"]
+        metodo_separacion = params["metodo_separacion"]
+        if metodo_separacion == "none":
+            metodo_separacion = None
+        mostrar_contornos = params["mostrar_contornos"]
+        mostrar_areas = params["mostrar_areas"]
+
+        try:
+            gray, imagen_original = preprocesar_imagen(
+                frame,
+                mejorar_contraste_flag=usar_clahe,
+                reducir_ruido_flag=reducir_ruido,
+                metodo_contraste=modo_clahe,
+                nivel_ruido=nivel_ruido,
+                polaridad=polaridad,
+                usar_hsv=usar_hsv,
+                metodo_hsv=metodo_hsv
+            )
+            self.visor.establecer_imagen(imagen_original)
+
+            if motor == "dl":
+                resultado = analizar_nucleos_dl(gray, imagen_original, polaridad=polaridad)
+            else:
+                dog = aplicar_filtro_dog(gray, sigma1=sigma1, sigma2=sigma2)
+                resultado = analizar_nucleos(
+                    dog,
+                    imagen_original,
+                    polaridad=polaridad,
+                    metodo_separacion=metodo_separacion
+                )
+
+            self.visor.renderizar_resultados(
+                resultado,
+                mostrar_contornos=mostrar_contornos,
+                mostrar_areas=mostrar_areas
+            )
+            total = resultado.get("total_celulas", 0)
+            self.lbl_info.setText(f"Estado: En Vivo (Cámara #{self.combo_camaras.currentData()})\nCélulas detectadas: {total}")
+        except Exception as e:
+            pass
+
+    def cargar_video_dialogo(self) -> None:
+        """Abre un diálogo para seleccionar y analizar un archivo de video."""
+        ruta, _ = QFileDialog.getOpenFileName(
+            self, "Seleccionar Archivo de Video", "", "Videos (*.mp4 *.avi *.mov *.mkv)"
+        )
+        if ruta:
+            from src.captura_microscopio import GestorCapturaMicroscopio
+            from PySide6.QtCore import QTimer
+
+            self.detener_camara_en_vivo()
+            self.gestor_camara = GestorCapturaMicroscopio(fuente_id=ruta)
+            if not self.gestor_camara.iniciar_captura():
+                QMessageBox.critical(self, "Error", f"No se pudo abrir el archivo de video: {ruta}")
+                return
+
+            self.en_vivo = True
+            self.btn_iniciar_camara.setText("Detener Reproducción Video")
+            self.btn_cargar.setEnabled(False)
+            self.btn_demo.setEnabled(False)
+
+            intervalo = self.combo_velocidad.currentData() or 33
+            self.timer_camara = QTimer(self)
+            self.timer_camara.timeout.connect(self.procesar_frame_en_vivo)
+            self.timer_camara.start(intervalo)
     def cargar_demo(self) -> None:
         """Carga la imagen sintética de demostración."""
         img = self.controller.obtener_imagen_demostracion()
@@ -152,7 +330,7 @@ class MainWindow(QMainWindow):
         self.lbl_info.setText(f"Estado: OK\nOrigen: {titulo}\nDimensiones: {w}x{h}\nCélulas: 0")
 
     def ejecutar_analisis(self) -> None:
-        """Ejecuta el análisis con el motor seleccionado y parámetros en vivo (CITO-65 / CITO-66)."""
+        """Ejecuta el análisis con el motor seleccionado y parámetros avanzados en vivo."""
         if self.controller.current_image is None:
             QMessageBox.warning(self, "Advertencia", "No hay ninguna imagen cargada para analizar.")
             return
@@ -162,19 +340,32 @@ class MainWindow(QMainWindow):
         sigma1 = params["sigma1"]
         sigma2 = params["sigma2"]
         polaridad = params["polaridad"]
+        usar_clahe = params["usar_clahe"]
+        modo_clahe = params["modo_clahe"]
+        reducir_ruido = params["reducir_ruido"]
+        nivel_ruido = params["nivel_ruido"]
+        usar_hsv = params["usar_hsv"]
+        metodo_hsv = params["metodo_hsv"]
         metodo_separacion = params["metodo_separacion"]
         if metodo_separacion == "none":
             metodo_separacion = None
+        mostrar_contornos = params["mostrar_contornos"]
+        mostrar_areas = params["mostrar_areas"]
 
         img = self.controller.current_image
 
         try:
-            if len(img.shape) == 3:
-                gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-                imagen_original = img
-            else:
-                gray = img
-                imagen_original = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+            gray, imagen_original = preprocesar_imagen(
+                img,
+                mejorar_contraste_flag=usar_clahe,
+                reducir_ruido_flag=reducir_ruido,
+                metodo_contraste=modo_clahe,
+                nivel_ruido=nivel_ruido,
+                polaridad=polaridad,
+                usar_hsv=usar_hsv,
+                metodo_hsv=metodo_hsv
+            )
+            self.visor.establecer_imagen(imagen_original)
 
             if motor == "dl":
                 resultado = analizar_nucleos_dl(gray, imagen_original, polaridad=polaridad)
@@ -187,7 +378,11 @@ class MainWindow(QMainWindow):
                     metodo_separacion=metodo_separacion
                 )
 
-            self.visor.renderizar_resultados(resultado)
+            self.visor.renderizar_resultados(
+                resultado,
+                mostrar_contornos=mostrar_contornos,
+                mostrar_areas=mostrar_areas
+            )
 
             total = resultado.get("total_celulas", 0)
             normales = resultado.get("normales", 0)

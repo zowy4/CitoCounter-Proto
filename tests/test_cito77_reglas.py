@@ -49,10 +49,10 @@ class TestReglasClasificacion(unittest.TestCase):
         self.assertAlmostEqual(reglas["limite_frontera_superior"], 990.0, places=10)
 
     def test_umbrales_polaridad_oscura(self):
-        """Verifica umbrales para polaridad 'nucleos-oscuros' (CITO-97)."""
+        """Verifica umbrales para polaridad 'nucleos-oscuros' (CITO-97 optimizado)."""
         reglas = obtener_reglas_clasificacion(self.polaridad_oscura)
-        self.assertEqual(reglas["area_minima_nucleo"], 100)
-        self.assertEqual(reglas["area_maxima_nucleo"], 300000)
+        self.assertEqual(reglas["area_minima_nucleo"], 50)
+        self.assertEqual(reglas["area_maxima_nucleo"], 8000)
         self.assertEqual(reglas["umbral_sospechoso"], 900.0)  # Mismo umbral de riesgo
 
     # ============================================================
@@ -149,26 +149,26 @@ class TestReglasClasificacion(unittest.TestCase):
     # ============================================================
 
     def test_polaridad_oscura_area_minima(self):
-        """Polaridad oscura: área 99 → descartada (mínimo 100)."""
-        resultado = clasificar_nucleo_por_area(99, self.polaridad_oscura)
+        """Polaridad oscura: área 49 → descartada (mínimo 50)."""
+        resultado = clasificar_nucleo_por_area(49, self.polaridad_oscura)
         self.assertFalse(resultado["es_valida"])
         self.assertEqual(resultado["clasificacion"], "descartada")
 
     def test_polaridad_oscura_area_valida(self):
-        """Polaridad oscura: área 100 → normal (mínimo válido)."""
-        resultado = clasificar_nucleo_por_area(100, self.polaridad_oscura)
+        """Polaridad oscura: área 50 → normal (mínimo válido)."""
+        resultado = clasificar_nucleo_por_area(50, self.polaridad_oscura)
         self.assertTrue(resultado["es_valida"])
         self.assertEqual(resultado["clasificacion"], "normal")
 
     def test_polaridad_oscura_area_maxima(self):
-        """Polaridad oscura: área 300000 → normal (límite máximo inclusive)."""
-        resultado = clasificar_nucleo_por_area(300000, self.polaridad_oscura)
+        """Polaridad oscura: área 8000 → normal (límite máximo inclusive)."""
+        resultado = clasificar_nucleo_por_area(8000, self.polaridad_oscura)
         self.assertTrue(resultado["es_valida"])
         self.assertEqual(resultado["clasificacion"], "normal")
 
     def test_polaridad_oscura_area_artefacto(self):
-        """Polaridad oscura: área 300001 → descartada (artefacto, > máximo)."""
-        resultado = clasificar_nucleo_por_area(300001, self.polaridad_oscura)
+        """Polaridad oscura: área 8001 → descartada (artefacto, > máximo)."""
+        resultado = clasificar_nucleo_por_area(8001, self.polaridad_oscura)
         self.assertFalse(resultado["es_valida"])
         self.assertEqual(resultado["clasificacion"], "descartada")
 

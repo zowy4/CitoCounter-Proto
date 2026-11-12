@@ -22,12 +22,11 @@ class SegmentadorDLTests(unittest.TestCase):
         self.assertLessEqual(img.nbytes, 65536)
         validar_tamano_imagen(img)  # No debe lanzar excepción
 
-    def test_validar_tamano_imagen_excede_64kib(self):
-        # Imagen grande que excede 64 KiB -> Debe lanzar ValueError por OWASP/STRIDE
-        img = np.zeros((300, 300), dtype=np.uint8)  # 90 KB
-        self.assertGreater(img.nbytes, 65536)
+    def test_validar_tamano_imagen_excede_limite(self):
+        # Imagen que excede el límite configurado (e.g. 10 KB) -> Debe lanzar ValueError por OWASP/STRIDE
+        img = np.zeros((150, 150), dtype=np.uint8)  # ~22.5 KB
         with self.assertRaises(ValueError):
-            validar_tamano_imagen(img)
+            validar_tamano_imagen(img, tamano_maximo_kb=10)
 
     def test_convertir_a_8bit(self):
         img_float = np.array([[0.0, 1.0], [0.5, 0.8]], dtype=np.float32)
