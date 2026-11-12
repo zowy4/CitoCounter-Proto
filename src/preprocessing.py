@@ -1,4 +1,4 @@
-﻿"""
+"""
 preprocessing.py - Preprocesamiento de ImÃ¡genes de MicroscopÃ­a
 
 Este mÃ³dulo prepara las imÃ¡genes del microscopio para el anÃ¡lisis DoG:
@@ -214,10 +214,43 @@ def reducir_ruido(imagen_gris, nivel='medio'):
         raise ValueError(f"Nivel desconocido: {nivel}. Usa 'bajo', 'medio' o 'alto'")
 
 
+def corregir_iluminacion_fondo(imagen_gris: np.ndarray, metodo: str = 'gaussian', radio: int = 51) -> np.ndarray:
+    """
+    Corrige gradientes de iluminación de fondo (Flat-Field Correction / Background Fitting).
+
+    :param imagen_gris: Imagen en escala de grises (8-bit)
+    :type imagen_gris: numpy.ndarray
+    :param metodo: Método de estimación de fondo ('gaussian' o 'morphology')
+    :type metodo: str
+    :param radio: Radio del kernel o desenfoque para estimar el fondo
+    :type radio: int
+    :return: Imagen con iluminación de fondo corregida (8-bit)
+    :rtype: numpy.ndarray
+    """
+    if radio % 2 == 0:
+        radio += 1
+
+    if metodo == 'gaussian':
+        fondo = cv2.GaussianBlur(imagen_gris, (radio, radio), 0)
+    elif metodo == 'morphology':
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (radio, radio))
+        fondo = cv2.morphologyEx(imagen_gris, cv2.MORPH_OPEN, kernel)
+    else:
+        fondo = cv2.GaussianBlur(imagen_gris, (radio, radio), 0)
+
+    img_f = imagen_gris.astype(np.float32)
+    fondo_f = fondo.astype(np.float32) + 1e-5
+    media_fondo = np.mean(fondo_f)
+    corregida = (img_f / fondo_f) * media_fondo
+    corregida = np.clip(corregida, 0, 255).astype(np.uint8)
+    return corregida
+
+
 def preprocesar_imagen(ruta_imagen, mejorar_contraste_flag=True,
                        reducir_ruido_flag=False, metodo_contraste='clahe',
                        nivel_ruido='medio', polaridad='nucleos-claros',
-                       usar_hsv=False, metodo_hsv='saturation', umbral_hsv=100):
+                       usar_hsv=False, metodo_hsv='saturation', umbral_hsv=100,
+                       corregir_fondo_flag=False, radio_fondo=51):
     """
     Pipeline completo de preprocesamiento (funciÃ³n de conveniencia).
 
@@ -265,6 +298,10 @@ def preprocesar_imagen(ruta_imagen, mejorar_contraste_flag=True,
     if reducir_ruido_flag:
         imagen_gris = reducir_ruido(imagen_gris, nivel=nivel_ruido)
 
+    # 3.5 Corrección de iluminación de fondo (si se solicita)
+    if corregir_fondo_flag:
+        imagen_gris = corregir_iluminacion_fondo(imagen_gris, radio=radio_fondo)
+
     # 4. Mejorar contraste (si se solicita)
     if mejorar_contraste_flag:
         resultado = mejorar_contraste(imagen_gris, metodo=metodo_contraste)
@@ -294,66 +331,6 @@ def preprocesar_imagen(ruta_imagen, mejorar_contraste_flag=True,
         imagen_gris = cv2.bitwise_and(imagen_gris, imagen_gris, mask=mask_hsv)
 
     return imagen_gris, imagen_original
-
-
-def extraer_canal_nuclear(imagen_bgr: np.ndarray, canal: str = 'verde') -> np.ndarray:
-    """
-    Extrae el canal de color con menor correlación con el citoplasma para tinciones Papanicolaou.
-
-    En tinciones Papanicolaou, los núcleos absorben hematoxilina (tonalidades azul-moradas,
-    máxima absorción en el canal verde y rojo del espacio RGB), mientras que el citoplasma
-    y eritrocitos usan Eosina/OG-6 (tonalidades rosadas/naranjas). Usar el canal Verde ('verde')
-    o la Saturación en HSV ('saturacion') realza el contraste nuclear y reduce falsos positivos.
-
-    :param imagen_bgr: Imagen en formato BGR.
-    :type imagen_bgr: numpy.ndarray
-    :param canal: Canal a extraer ('verde', 'azul', 'rojo', 'saturacion').
-    :type canal: str
-    :rtype: numpy.ndarray
-    """
-    if len(imagen_bgr.shape) == 2:
-        return imagen_bgr
-
-    if canal == 'verde':
-        # Canal Verde (G de BGR)
-        return imagen_bgr[:, :, 1]
-    elif canal == 'azul':
-        # Canal Azul (B de BGR)
-        return imagen_bgr[:, :, 0]
-    elif canal == 'rojo':
-        # Canal Rojo (R de BGR)
-        return imagen_bgr[:, :, 2]
-    elif canal == 'saturacion':
-        hsv = cv2.cvtColor(imagen_bgr, cv2.COLOR_BGR2HSV)
-        return hsv[:, :, 1]
-    else:
-        raise ValueError(f"Canal desconocido: {canal}. Usa 'verde', 'azul', 'rojo' o 'saturacion'.")
-
-
-def corregir_iluminacion_fondo(imagen_gris: np.ndarray, sigma_fondo: int = 50) -> np.ndarray:
-    """
-    Corrige gradientes de iluminación (viñeteo o desigualdad de fondo) en microscopía.
-
-    Estima el fondo mediante un desenfoque gaussiano de radio grande y realiza
-    una división normalizada para aislar el contraste real de los núcleos.
-
-    :param imagen_gris: Imagen en escala de grises (8-bit)
-    :type imagen_gris: numpy.ndarray
-    :param sigma_fondo: Desviación estándar grande para estimar el fondo (por defecto 50)
-    :type sigma_fondo: int
-    :rtype: numpy.ndarray
-    """
-    if imagen_gris is None or imagen_gris.size == 0:
-        raise ValueError("La imagen de entrada está vacía o es nula.")
-
-    fondo = cv2.GaussianBlur(imagen_gris, (0, 0), sigma_fondo)
-    fondo_f = fondo.astype(np.float32) + 1.0
-    img_f = imagen_gris.astype(np.float32)
-
-    corregida = (img_f / fondo_f) * 255.0
-    corregida = np.clip(corregida, 0, 255).astype(np.uint8)
-
-    return corregida
 
 
 def anonimizar_metadata(metadata_dict: dict) -> dict:

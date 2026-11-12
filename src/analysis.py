@@ -50,166 +50,6 @@ AREA_MAXIMA_NUCLEO = {
 }
 
 
-def calcular_circularidad(contorno: np.ndarray) -> float:
-    """
-    Calcula la circularidad de un contorno celular.
-
-    Fórmula: 4 * pi * Area / (Perimeter^2)
-    Un círculo perfecto tiene circularidad = 1.0. Artefactos alargados o irregulares tienen valores bajos.
-
-    :param contorno: Contorno OpenCV del objeto
-    :type contorno: numpy.ndarray
-    :rtype: float
-    """
-    if contorno is None or len(contorno) < 3:
-        return 0.0
-    area = cv2.contourArea(contorno)
-    perimetro = cv2.arcLength(contorno, True)
-    if perimetro == 0 or area == 0:
-        return 0.0
-    return float(4.0 * np.pi * area / (perimetro * perimetro))
-
-
-def calcular_solidez(contorno: np.ndarray) -> float:
-    """
-    Calcula la solidez de un contorno celular (Area / Area del Convex Hull).
-
-    Los núcleos celulares sanos y neoplásicos son altamente convexos (solidez cercana a 1.0).
-    Residuos o fragmentos rasgados tienen solidez baja.
-
-    :param contorno: Contorno OpenCV del objeto
-    :type contorno: numpy.ndarray
-    :rtype: float
-    """
-    if contorno is None or len(contorno) < 3:
-        return 0.0
-    area = cv2.contourArea(contorno)
-    if area == 0:
-        return 0.0
-    hull = cv2.convexHull(contorno)
-    if hull is None or len(hull) < 3:
-        return 0.0
-    area_hull = cv2.contourArea(hull)
-    if area_hull == 0:
-        return 0.0
-    return float(area / area_hull)
-
-
-def evaluar_prominencia_pico(imagen_dog: np.ndarray, centroide: Tuple[int, int], radio: int = 5) -> float:
-    """
-    Evalúa la prominencia del pico DoG en la región del centroide respecto a su entorno local.
-
-    :param imagen_dog: Imagen DoG (8-bit)
-    :type imagen_dog: numpy.ndarray
-    :param centroide: Coordenadas (x, y) del centro del núcleo
-    :type centroide: tuple
-    :param radio: Radio local para evaluar el fondo circundante
-    :type radio: int
-    :rtype: float
-    """
-    x, y = centroide
-    h, w = imagen_dog.shape[:2]
-    if not (0 <= x < w and 0 <= y < h):
-        return 0.0
-
-    val_centro = float(imagen_dog[y, x])
-
-    xmin = max(0, x - radio * 2)
-    xmax = min(w, x + radio * 2 + 1)
-    ymin = max(0, y - radio * 2)
-    ymax = min(h, y + radio * 2 + 1)
-
-    vecindad = imagen_dog[ymin:ymax, xmin:xmax]
-    if vecindad.size == 0:
-        return 0.0
-
-    fondo_medio = float(np.mean(vecindad))
-    prominencia = val_centro - fondo_medio
-    return max(0.0, prominencia)
-
-
-def verificar_gradiente_borde(imagen_gris: np.ndarray, contorno: np.ndarray, umbral_gradiente: float = 5.0) -> bool:
-    """
-    Verifica que alrededor del contorno detectado exista un gradiente radial convergente
-    (borde circular hipercromático típico de un núcleo celular en Papanicolaou).
-
-    :param imagen_gris: Imagen en escala de grises
-    :type imagen_gris: numpy.ndarray
-    :param contorno: Contorno OpenCV del objeto
-    :type contorno: numpy.ndarray
-    :param umbral_gradiente: Diferencia mínima de intensidad entre el borde y el anillo circundante
-    :type umbral_gradiente: float
-    :rtype: bool
-    """
-    if contorno is None or len(contorno) < 5:
-        return True  # Demasiado pequeño para verificar gradiente
-
-    try:
-        mask = np.zeros(imagen_gris.shape, dtype=np.uint8)
-        cv2.drawContours(mask, [contorno], 0, 255, -1)
-
-        # Expandir contorno para formar un anillo exterior
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-        mask_dilatada = cv2.dilate(mask, kernel, iterations=2)
-        mask_anillo = cv2.subtract(mask_dilatada, mask)
-
-        if np.count_nonzero(mask) == 0 or np.count_nonzero(mask_anillo) == 0:
-            return True
-
-        intensidad_interior = float(np.mean(imagen_gris[mask == 255]))
-        intensidad_anillo = float(np.mean(imagen_gris[mask_anillo == 255]))
-
-        # En núcleos reales (oscuros sobre fondo claro o viceversa), el anillo o borde
-        # contrasta marcadamente con el interior o el exterior.
-        diferencia = abs(intensidad_anillo - intensidad_interior)
-        return diferencia >= umbral_gradiente
-    except Exception:
-        return True
-
-
-def _es_nucleo_valido(contorno: np.ndarray, area: float, polaridad: str = 'nucleos-claros', imagen_gris: Optional[np.ndarray] = None) -> bool:
-    """
-    Valida si un contorno cumple con los criterios morfológicos estrictos y de gradiente de borde de un núcleo celular,
-    descartando espacios vacíos, perímetros abiertos, artefactos filamentosos y ruido.
-
-    :param contorno: Contorno OpenCV
-    :type contorno: numpy.ndarray
-    :param area: Área del contorno
-    :type area: float
-    :param polaridad: Polaridad de análisis
-    :type polaridad: str
-    :param imagen_gris: Imagen en escala de grises para verificación de gradiente
-    :type imagen_gris: numpy.ndarray
-    :rtype: bool
-    """
-    min_area = AREA_MINIMA_NUCLEO.get(polaridad, 10)
-    max_area = AREA_MAXIMA_NUCLEO.get(polaridad, 8000)
-
-    if area < min_area or area > max_area:
-        return False
-
-    circ = calcular_circularidad(contorno)
-    if circ < 0.25:
-        return False
-
-    sol = calcular_solidez(contorno)
-    if sol < 0.60:
-        return False
-
-    x, y, w, h = cv2.boundingRect(contorno)
-    if w > 0 and h > 0:
-        aspecto = max(w, h) / min(w, h)
-        if aspecto > 3.0:
-            return False
-
-    if imagen_gris is not None:
-        if not verificar_gradiente_borde(imagen_gris, contorno):
-            return False
-
-    return True
-
-
-
 # ============================================================================
 # FILTRO DE SEPARACIÓN POR WATERSHED (CITO-32 / ACT-10)
 # Implementa separación de núcleos superpuestos usando transformada de distancia
@@ -223,23 +63,23 @@ def _es_nucleo_valido(contorno: np.ndarray, area: float, polaridad: str = 'nucle
 def crear_mascara_borde(forma, ancho_borde=50):
     """
     Crea una máscara binaria que ignora los bordes de la imagen.
-
+    
     Los filtros DoG generan fuertes artefactos en los bordes debido a la
     convolución con kernels gaussianos. Esta máscara evita que esos
     artefactos se detecten como núcleos.
-
+    
     Args:
         forma: Tupla (height, width) de la imagen
         ancho_borde: Píxeles a ignorar en cada borde (default: 50).
                      Para imágenes pequeñas (< 500px), se usa un porcentaje
                      del tamaño de la imagen para evitar enmascarar toda la imagen.
-
+    
     Returns:
         numpy.ndarray: Máscara binaria (255=válido, 0=ignorar)
     """
     h, w = forma[:2]
     mascara = np.ones((h, w), dtype=np.uint8) * 255
-
+    
     # Calcular ancho de borde adaptativo
     # Para imágenes pequeñas, usar porcentaje; para grandes, usar valor fijo
     if h < 500 or w < 500:
@@ -248,49 +88,49 @@ def crear_mascara_borde(forma, ancho_borde=50):
     else:
         # Imágenes grandes: valor fijo, pero no más de 1/8 de la imagen
         b = min(ancho_borde, h // 8, w // 8)
-
+    
     # Ignorar bordes
     mascara[:b, :] = 0          # Superior
     mascara[-b:, :] = 0         # Inferior
     mascara[:, :b] = 0          # Izquierdo
     mascara[:, -b:] = 0         # Derecho
-
+    
     return mascara
 
 
 def crear_mascara_borde_asimetrica(forma, izquierda=500, derecha=100, superior=100, inferior=300):
     """
     Crea una máscara binaria asimétrica para imágenes reales (Papanicolaou/EDF).
-
+    
     Los artefactos DoG en imágenes reales son más fuertes en el borde izquierdo
     (hasta 900px) e inferior (hasta 500px). Esta máscara permite configurar
     anchos diferentes por lado.
-
+    
     Args:
         forma: Tupla (height, width) de la imagen
         izquierda: Píxeles a ignorar en borde izquierdo (default: 500)
         derecha: Píxeles a ignorar en borde derecho (default: 100)
         superior: Píxeles a ignorar en borde superior (default: 100)
         inferior: Píxeles a ignorar en borde inferior (default: 300)
-
+    
     Returns:
         numpy.ndarray: Máscara binaria (255=válido, 0=ignorar)
     """
     h, w = forma[:2]
     mascara = np.ones((h, w), dtype=np.uint8) * 255
-
+    
     # Limitar anchos para no enmascarar toda la imagen
     izquierda = min(izquierda, w // 2)
     derecha = min(derecha, w // 2)
     superior = min(superior, h // 2)
     inferior = min(inferior, h // 2)
-
+    
     # Ignorar bordes con anchos asimétricos
     mascara[:superior, :] = 0          # Superior
     mascara[-inferior:, :] = 0         # Inferior
     mascara[:, :izquierda] = 0         # Izquierdo
     mascara[:, -derecha:] = 0          # Derecho
-
+    
     return mascara
 
 
@@ -298,28 +138,28 @@ def _maximos_locales(imagen: np.ndarray, umbral: int = UMBRAL_DOG,
                      distancia_minima: int = 10) -> List[Tuple[int, int]]:
     """
     Detecta máximos locales en una imagen usando thresholding y detección de picos.
-
+    
     Args:
         imagen: Imagen DoG (8-bit) donde detectar máximos
         umbral: Umbral de binarización (se usa Otsu si es 0)
         distancia_minima: Distancia mínima entre picos para evitar detecciones redundantes
-
+    
     Returns:
         Lista de (x, y) coordenadas de los máximos locales detectados
     """
     # Binarización con Otsu
     _, binaria = cv2.threshold(imagen, umbral, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-
+    
     # Transformada de distancia sobre los píxeles blancos
     dist_transform = cv2.distanceTransform(binaria, cv2.DIST_L2, 5)
-
+    
     # Non-maximum suppression para encontrar picos
     # Umbralizar la distancia para obtener solo los picos más prominentes
     _, picos = cv2.threshold(dist_transform, 0.1 * dist_transform.max(), 255, cv2.THRESH_BINARY)
-
+    
     # Encontrar contornos de los picos
     contornos_picos, _ = cv2.findContours(picos.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
+    
     # Obtener centros de los contornos
     maximos = []
     for c in contornos_picos:
@@ -328,7 +168,7 @@ def _maximos_locales(imagen: np.ndarray, umbral: int = UMBRAL_DOG,
             cx = int(M["m10"] / M["m00"])
             cy = int(M["m01"] / M["m01"])
             maximos.append((cx, cy))
-
+    
     # Aplicar filtrado de distancia mínima entre picos
     maximos_filtrados = []
     for (x, y) in maximos:
@@ -340,7 +180,7 @@ def _maximos_locales(imagen: np.ndarray, umbral: int = UMBRAL_DOG,
                 break
         if not muy_cercano:
             maximos_filtrados.append((x, y))
-
+    
     return maximos_filtrados
 
 
@@ -351,7 +191,7 @@ def watershed_separar_nucleos(imagen_dog: np.ndarray, metodo: str = 'distancia',
                               mascara: np.ndarray = None) -> Tuple[List[np.ndarray], List[int]]:
     """
     Separa núcleos superpuestos usando watershed (transformada de distancia + watershed).
-
+    
     Args:
         imagen_dog: Imagen procesada con filtro DoG (8-bit)
         metodo: Método de separación ('distancia' o 'gradiente')
@@ -362,7 +202,7 @@ def watershed_separar_nucleos(imagen_dog: np.ndarray, metodo: str = 'distancia',
         mascara: Máscara binaria opcional (255=válido, 0=ignorar) para filtrar
             resultados después del watershed. Útil para excluir regiones con
             artefactos de borde en imágenes reales.
-
+    
     Returns:
         Tupla con:
         - Lista de contornos de núcleos separados
@@ -370,7 +210,7 @@ def watershed_separar_nucleos(imagen_dog: np.ndarray, metodo: str = 'distancia',
     """
     # Binarización
     _, binaria = cv2.threshold(imagen_dog, umbral, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-
+    
     if metodo == 'distancia':
         # Usar transformada de distancia + watershed
         dist_transform = cv2.distanceTransform(binaria, cv2.DIST_L2, 5)
@@ -405,7 +245,7 @@ def watershed_separar_nucleos(imagen_dog: np.ndarray, metodo: str = 'distancia',
         else:
             _, marcadores = cv2.connectedComponents(binaria.astype(np.uint8))
             marcadores = marcadores.astype(np.int32) + 1
-
+        
         # Aplicar watershed
         # Convertir imagen_dog a 8-bit 3-channel para watershed
         # Normalizar y convertir a uint8
@@ -413,10 +253,10 @@ def watershed_separar_nucleos(imagen_dog: np.ndarray, metodo: str = 'distancia',
         # Convertir a 3 canales si es necesario
         if len(imagen_8bit.shape) == 2:
             imagen_8bit = cv2.cvtColor(imagen_8bit, cv2.COLOR_GRAY2BGR)
-
+        
         marcadores = cv2.watershed(imagen_8bit, marcadores)
         marcadores[marcadores == -1] = 0  # Fronteras = 0
-
+        
         # Obtener contornos de cada región segmentada
         nuclei_contours = []
         areas = []
@@ -429,7 +269,7 @@ def watershed_separar_nucleos(imagen_dog: np.ndarray, metodo: str = 'distancia',
                 largest_contour = max(contours, key=cv2.contourArea)
                 nuclei_contours.append(largest_contour)
                 areas.append(cv2.contourArea(largest_contour))
-
+    
     elif metodo == 'gradiente':
         # Método alternativo usando gradientes
         gradientes = cv2.Canny(imagen_dog, 50, 150)
@@ -442,7 +282,7 @@ def watershed_separar_nucleos(imagen_dog: np.ndarray, metodo: str = 'distancia',
             imagen_8bit = cv2.cvtColor(imagen_8bit, cv2.COLOR_GRAY2BGR)
         marcadores = cv2.watershed(imagen_8bit, marcadores)
         marcadores[marcadores == -1] = 0
-
+        
         nuclei_contours = []
         areas = []
         for label in range(2, marcadores.max() + 1):
@@ -453,10 +293,10 @@ def watershed_separar_nucleos(imagen_dog: np.ndarray, metodo: str = 'distancia',
                 largest_contour = max(contours, key=cv2.contourArea)
                 nuclei_contours.append(largest_contour)
                 areas.append(cv2.contourArea(largest_contour))
-
+    
     else:
         raise ValueError(f"Método '{metodo}' no reconocido. Use 'distancia' o 'gradiente'.")
-
+    
     # Filtrar resultados por máscara si se proporciona
     if mascara is not None:
         contours_filtrados = []
@@ -473,24 +313,24 @@ def watershed_separar_nucleos(imagen_dog: np.ndarray, metodo: str = 'distancia',
                         contours_filtrados.append(contorno)
                         areas_filtradas.append(area)
         return contours_filtrados, areas_filtradas
-
+    
     return nuclei_contours, areas
 
 
 def obtener_reglas_clasificacion(polaridad: str = 'nucleos-claros'):
     """
     Devuelve las reglas activas de clasificación para CITO-24.
-
+    
     Args:
         polaridad: 'nucleos-claros' o 'nucleos-oscuros'
-
+    
     Returns:
         dict con las reglas de clasificación ajustadas para la polaridad especificada
     """
     # Usar umbrales de área específicos para la polaridad
     area_min = AREA_MINIMA_NUCLEO[polaridad]
     area_max = AREA_MAXIMA_NUCLEO[polaridad]
-
+    
     umbral_sospechoso = AREA_PROMEDIO_NUCLEO_NORMAL * FACTOR_RIESGO
     return {
         "area_minima_nucleo": area_min,
@@ -562,7 +402,7 @@ def clasificar_nucleo_por_area(area, polaridad: str = 'nucleos-claros'):
 def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad='nucleos-claros', metodo_separacion: str = None, usar_mascara_borde=True, ancho_borde=50, tamano_apertura_final=5, adaptive_block_size=71, adaptive_C=5, umbral_fijo_nucleos_oscuros=100):
     """
     Analiza una imagen DoG para detectar y clasificar núcleos celulares.
-
+    
     Pipeline de análisis:
     1. Binarización (convertir a blanco/negro)
     2. Detección de contornos (encontrar núcleos individuales)
@@ -570,7 +410,7 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
     4. Clasificación según regla del 3x
     5. Opcional: Separación de núcleos superpuestos usando watershed
     6. Anotación visual (semáforo verde/rojo)
-
+    
     Args:
         imagen_dog (numpy.ndarray): Imagen procesada con filtro DoG (8-bit)
         imagen_original (numpy.ndarray): Imagen RGB original para anotar
@@ -591,7 +431,7 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
         umbral_fijo_nucleos_oscuros (int): Umbral fijo para binarización en polaridad 'nucleos-oscuros'
             (default: 100). Valores típicos: 80-140. Valores bajos detectan más (incluye ruido),
             valores altos detectan menos (solo núcleos muy contrastados).
-
+    
     Returns:
         dict: Resultados del análisis con las siguientes claves:
             - 'total_celulas': Número total de núcleos detectados
@@ -603,10 +443,10 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
             - 'contornos_normales': Lista de contornos normales
             - 'contornos_sospechosos': Lista de contornos sospechosos
     """
-
+    
     if tamano_apertura_final < 1 or tamano_apertura_final % 2 == 0:
         raise ValueError("tamano_apertura_final debe ser un entero impar positivo")
-
+    
     if adaptive_block_size < 3 or adaptive_block_size % 2 == 0:
         raise ValueError("adaptive_block_size debe ser un entero impar >= 3")
 
@@ -623,7 +463,7 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
     # Para evitar que los artefactos de borde afecten el umbral de Otsu,
     # calculamos el umbral en una versión recortada de la imagen (sin bordes)
     # y luego aplicamos ese umbral a la imagen completa.
-
+    
     if usar_mascara_borde:
         # Crear máscara de borde para el cálculo del umbral
         mascara_umbral = crear_mascara_borde(imagen_dog.shape, ancho_borde)
@@ -660,7 +500,7 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
             umbral_otsu = UMBRAL_DOG
     else:
         umbral_otsu = UMBRAL_DOG
-
+    
     # Aplicar el umbral calculado a la imagen completa
     # Para nucleos-claros (núcleos claros sobre fondo oscuro, fluorescencia),
     # los núcleos tienen valores DoG ALTOS -> usar THRESH_BINARY para detectar valores altos.
@@ -684,12 +524,12 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
     else:
         # nucleos-claros: usar Otsu con THRESH_BINARY
         _, thresh = cv2.threshold(
-            imagen_dog,
-            umbral_otsu,
-            255,
+            imagen_dog, 
+            umbral_otsu, 
+            255, 
             cv2.THRESH_BINARY
         )
-
+    
     # Para nucleos-oscuros (imágenes reales Papanicolaou/EDF 2048x1536):
     # Usar umbral fijo con máscara asimétrica agresiva para evitar artefactos de borde
     # Los artefactos DoG en bordes izquierdo/inferior son muy fuertes y dominan la respuesta
@@ -697,12 +537,12 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
         # Umbral fijo configurable para nucleos-oscuros (calibrado en CITO-97)
         umbral_fijo = umbral_fijo_nucleos_oscuros
         _, thresh = cv2.threshold(
-            imagen_dog,
-            umbral_fijo,
-            255,
+            imagen_dog, 
+            umbral_fijo, 
+            255, 
             cv2.THRESH_BINARY
         )
-
+        
         # Aplicar máscara asimétrica agresiva: 500px izquierda, 300px inferior, 100px superior/derecha
         # Esto elimina los artefactos de borde que dominan la respuesta DoG
         if usar_mascara_borde:
@@ -713,17 +553,17 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
             mascara_asimetrica[:100, :] = 0      # Superior 100px
             mascara_asimetrica[-300:, :] = 0     # Inferior 300px
             thresh = cv2.bitwise_and(thresh, thresh, mask=mascara_asimetrica)
-
+        
         # Morfología mínima: solo apertura para eliminar ruido pequeño
         # NO usar cierre (conecta regiones) ni apertura grande (elimina núcleos)
         kernel_open = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
         thresh = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel_open)
-
+    
     # Para nucleos-claros: aplicar máscara de borde estándar si se solicita
     elif usar_mascara_borde:
         mascara_borde = crear_mascara_borde(thresh.shape, ancho_borde)
         thresh = cv2.bitwise_and(thresh, thresh, mask=mascara_borde)
-
+        
         # Limpieza morfológica estándar para nucleos-claros
         kernel_open = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
         thresh = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel_open)
@@ -734,16 +574,16 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
             (tamano_apertura_final, tamano_apertura_final),
         )
         thresh = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel_open2)
-
+    
     # 2. DETECCIÓN DE CONTORNOS
     # RETR_EXTERNAL: solo contornos externos (ignora huecos internos)
     # CHAIN_APPROX_SIMPLE: comprime segmentos rectos (ahorra memoria)
     contornos, _ = cv2.findContours(
-        thresh,
-        cv2.RETR_EXTERNAL,
+        thresh, 
+        cv2.RETR_EXTERNAL, 
         cv2.CHAIN_APPROX_SIMPLE
     )
-
+    
     # Inicializar estructura de resultados
     resultados = {
         "total_celulas": 0,
@@ -757,7 +597,7 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
         "contornos_normales": [],
         "contornos_sospechosos": []
     }
-
+    
     # 3. SEPARACIÓN DE NÚCLEOS SUPERPUestos (opcional)
     if metodo_separacion in ('watershed', 'watershed_picos'):
         # Para watershed, ejecutar en imagen original y filtrar resultados con máscara.
@@ -774,7 +614,7 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
             mascara_watershed = crear_mascara_borde(imagen_dog.shape, ancho_borde)
         else:
             mascara_watershed = None
-
+        
         # Usar el umbral Otsu calculado anteriormente para el watershed
         # Pasar la máscara para filtrar resultados después del watershed
         contornos, areas = watershed_separar_nucleos(
@@ -789,11 +629,11 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
             decision = clasificar_nucleo_por_area(area, polaridad)
             if not decision["es_valida"]:
                 continue
-
+            
             # Es un núcleo válido
             resultados["total_celulas"] += 1
             resultados["areas"].append(area)
-
+            
             if decision["clasificacion"] == "sospechosa":
                 color = (0, 0, 255)  # ROJO en BGR
                 etiqueta = "RIESGO"
@@ -805,13 +645,13 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
                 etiqueta = "NORMAL"
                 resultados["normales"] += 1
                 resultados["contornos_normales"].append(contorno)
-
+            
             resultados["criterios_clasificacion"].append({
                 "area": area,
                 "es_frontera": decision["es_frontera"],
                 "motivo": decision["motivo"],
             })
-
+    
     elif metodo_separacion == 'maximos_locales':
         # Usar detección de máximos locales en imagen original y filtrar por máscara
         # Para nucleos-oscuros (imágenes reales), usar máscara asimétrica agresiva para filtrar resultados
@@ -826,10 +666,10 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
             mascara_maximos = crear_mascara_borde(imagen_dog.shape, ancho_borde)
         else:
             mascara_maximos = None
-
+        
         # Detectar máximos en imagen original (sin máscara)
         maximos = _maximos_locales(imagen_dog, umbral=UMBRAL_DOG)
-
+        
         # Filtrar máximos por máscara si se proporciona
         if mascara_maximos is not None:
             maximos_filtrados = []
@@ -838,9 +678,9 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
                     if mascara_maximos[cy, cx] > 0:
                         maximos_filtrados.append((cx, cy))
             maximos = maximos_filtrados
-
+        
         imagen_dog_enmascarada = imagen_dog  # Usar imagen original para extraer áreas
-
+        
         # Para cada máximo, obtener el área usando contour area del área alrededor
         for (cx, cy) in maximos:
             # Crear una máscara pequeña alrededor del máximo
@@ -852,15 +692,15 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
             if contours:
                 largest_contour = max(contours, key=cv2.contourArea)
                 area = cv2.contourArea(largest_contour)
-
+                
                 decision = clasificar_nucleo_por_area(area, polaridad)
                 if not decision["es_valida"]:
                     continue
-
+                
                 # Es un núcleo válido
                 resultados["total_celulas"] += 1
                 resultados["areas"].append(area)
-
+                
                 if decision["clasificacion"] == "sospechosa":
                     color = (0, 0, 255)  # ROJO en BGR
                     etiqueta = "RIESGO"
@@ -872,34 +712,61 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
                     etiqueta = "NORMAL"
                     resultados["normales"] += 1
                     resultados["contornos_normales"].append(largest_contour)
-
+                
                 resultados["criterios_clasificacion"].append({
                     "area": area,
                     "es_frontera": decision["es_frontera"],
                     "motivo": decision["motivo"],
                 })
-
+    
     else:
         # Sin separación: comportamiento original (contornos detectados directamente)
         # 4. CLASSIFICATION
         for contorno in contornos:
             area = cv2.contourArea(contorno)
+            
+            # Filtrar por circularidad y aspecto para eliminar ruido
+            # (solo para polaridad nucleos-oscuros donde hay más ruido)
+            if polaridad == 'nucleos-oscuros':
+                perimetro = cv2.arcLength(contorno, True)
+                if perimetro > 0:
+                    circularidad = 4 * np.pi * area / (perimetro ** 2)
+                    # Circularidad optimizada para rechazar formas muy irregulares o ruido granular
+                    if circularidad < 0.20:
+                        continue
+                
+                # Solidez (Solidity) = area / area_hull (rechaza residuos dentados o alargados)
+                hull = cv2.convexHull(contorno)
+                area_hull = cv2.contourArea(hull)
+                if area_hull > 0:
+                    solidez = area / area_hull
+                    if solidez < 0.60:
+                        continue
 
-            # Validar con criterios morfológicos estrictos (_es_nucleo_valido)
-            if not _es_nucleo_valido(contorno, area, polaridad):
-                continue
-
+                # Filtrar por aspecto (relación ancho/alto)
+                x, y, w, h = cv2.boundingRect(contorno)
+                if w > 0 and h > 0:
+                    aspecto = max(w, h) / min(w, h)
+                    if aspecto > 2.5:  # Rechazar formas muy alargadas o fibras
+                        continue
+                
+                # Filtrar por tamaño (fuera de rangos estrictos)
+                if area < AREA_MINIMA_NUCLEO[polaridad] or area > AREA_MAXIMA_NUCLEO[polaridad]:
+                    continue
+            
+            area = cv2.contourArea(contorno)
+            
             decision = clasificar_nucleo_por_area(area, polaridad)
             if not decision["es_valida"]:
                 continue
-
+            
             # Es un núcleo válido
             resultados["total_celulas"] += 1
             resultados["areas"].append(area)
-
+            
             # Obtener caja delimitadora (bounding box)
             x, y, w, h = cv2.boundingRect(contorno)
-
+            
             if decision["es_frontera"]:
                 resultados["frontera"] += 1
 
@@ -909,7 +776,7 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
                 etiqueta = "RIESGO"
                 resultados["sospechosas"] += 1
                 resultados["contornos_sospechosos"].append(contorno)
-
+                
             else:
                 # --- CÉLULA NORMAL ---
                 color = (0, 255, 0)  # VERDE en BGR
@@ -924,41 +791,41 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
                 "umbral_sospechoso": decision["umbral_sospechoso"],
                 "motivo": decision["motivo"],
             })
-
+            
             # 4. ANOTACIÓN VISUAL
             # Dibujar rectángulo alrededor del núcleo
             cv2.rectangle(
-                resultados["imagen_procesada"],
-                (x, y),
-                (x + w, y + h),
-                color,
+                resultados["imagen_procesada"], 
+                (x, y), 
+                (x + w, y + h), 
+                color, 
                 2
             )
-
+            
             # Agregar etiqueta de texto
             cv2.putText(
-                resultados["imagen_procesada"],
-                etiqueta,
+                resultados["imagen_procesada"], 
+                etiqueta, 
                 (x, y - 5),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.4,
-                color,
+                cv2.FONT_HERSHEY_SIMPLEX, 
+                0.4, 
+                color, 
                 1
             )
-
+            
             # Información adicional de depuración (opcional)
             if mostrar_debug:
                 texto_area = f"{int(area)}px"
                 cv2.putText(
-                    resultados["imagen_procesada"],
-                    texto_area,
+                    resultados["imagen_procesada"], 
+                    texto_area, 
                     (x, y + h + 15),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.3,
-                    color,
+                    cv2.FONT_HERSHEY_SIMPLEX, 
+                    0.3, 
+                    color, 
                     1
                 )
-
+    
     # 5. CALCULAR PORCENTAJE DE RIESGO
     if resultados["total_celulas"] > 0:
         resultados["porcentaje_riesgo"] = (
@@ -967,63 +834,63 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
 
     resultados["contornos"] = resultados["contornos_normales"] + resultados["contornos_sospechosos"]
     resultados["clasificaciones"] = resultados["criterios_clasificacion"]
-
+    
     return resultados
 
 
 def calibrar_area_promedio(lista_imagenes_normales):
     """
     Calcula el área promedio de núcleos normales a partir de un conjunto de imágenes.
-
+    
     Esta función debe ejecutarse durante la FASE 2 (Recolección de Datos)
     con imágenes anotadas por la Dra. Rangel como "100% normales".
-
+    
     Args:
         lista_imagenes_normales (list): Lista de imágenes DoG de muestras normales
-
+    
     Returns:
         float: Área promedio en píxeles²
-
+        
     Uso:
         # Durante la calibración
         area_calibrada = calibrar_area_promedio(imagenes_de_control)
         # Luego actualizar AREA_PROMEDIO_NUCLEO_NORMAL con este valor
     """
     todas_las_areas = []
-
+    
     for imagen_dog in lista_imagenes_normales:
-        _, thresh = cv2.threshold(imagen_dog, UMBRAL_DOG, 255,
+        _, thresh = cv2.threshold(imagen_dog, UMBRAL_DOG, 255, 
                                   cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-        contornos, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL,
+        contornos, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, 
                                         cv2.CHAIN_APPROX_SIMPLE)
-
+        
         for contorno in contornos:
             area = cv2.contourArea(contorno)
             if AREA_MINIMA_NUCLEO < area < AREA_MAXIMA_NUCLEO:
                 todas_las_areas.append(area)
-
+    
     if len(todas_las_areas) == 0:
         raise ValueError("No se detectaron núcleos válidos en las imágenes de control")
-
+    
     area_promedio = np.mean(todas_las_areas)
     desviacion_std = np.std(todas_las_areas)
-
+    
     print(f"📊 CALIBRACIÓN COMPLETADA:")
     print(f"   - Núcleos analizados: {len(todas_las_areas)}")
     print(f"   - Área promedio: {area_promedio:.2f} ± {desviacion_std:.2f} px²")
     print(f"   - Rango típico: [{area_promedio - desviacion_std:.1f}, "
           f"{area_promedio + desviacion_std:.1f}] px²")
-
+    
     return area_promedio
 
 
 def generar_reporte_estadistico(resultados):
     """
     Genera un reporte estadístico textual del análisis.
-
+    
     Args:
         resultados (dict): Diccionario de resultados de analizar_nucleos()
-
+    
     Returns:
         str: Reporte formateado para consola/archivo
     """
@@ -1037,7 +904,7 @@ def generar_reporte_estadistico(resultados):
     reporte.append(f"  • Casos frontera (±10%):    {resultados.get('frontera', 0)}")
     reporte.append(f"  • Porcentaje de riesgo:     {resultados['porcentaje_riesgo']:.1f}%")
     reporte.append("-" * 60)
-
+    
     if resultados['areas']:
         areas = np.array(resultados['areas'])
         reporte.append(f"Estadísticas de áreas:")
@@ -1045,9 +912,9 @@ def generar_reporte_estadistico(resultados):
         reporte.append(f"  • Área máxima:   {np.max(areas):.1f} px²")
         reporte.append(f"  • Área promedio: {np.mean(areas):.1f} px²")
         reporte.append(f"  • Desv. estándar: {np.std(areas):.1f} px²")
-
+    
     reporte.append("=" * 60)
-
+    
     return "\n".join(reporte)
 
 
