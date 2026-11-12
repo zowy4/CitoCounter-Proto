@@ -296,6 +296,66 @@ def preprocesar_imagen(ruta_imagen, mejorar_contraste_flag=True,
     return imagen_gris, imagen_original
 
 
+def extraer_canal_nuclear(imagen_bgr: np.ndarray, canal: str = 'verde') -> np.ndarray:
+    """
+    Extrae el canal de color con menor correlación con el citoplasma para tinciones Papanicolaou.
+
+    En tinciones Papanicolaou, los núcleos absorben hematoxilina (tonalidades azul-moradas,
+    máxima absorción en el canal verde y rojo del espacio RGB), mientras que el citoplasma
+    y eritrocitos usan Eosina/OG-6 (tonalidades rosadas/naranjas). Usar el canal Verde ('verde')
+    o la Saturación en HSV ('saturacion') realza el contraste nuclear y reduce falsos positivos.
+
+    :param imagen_bgr: Imagen en formato BGR.
+    :type imagen_bgr: numpy.ndarray
+    :param canal: Canal a extraer ('verde', 'azul', 'rojo', 'saturacion').
+    :type canal: str
+    :rtype: numpy.ndarray
+    """
+    if len(imagen_bgr.shape) == 2:
+        return imagen_bgr
+
+    if canal == 'verde':
+        # Canal Verde (G de BGR)
+        return imagen_bgr[:, :, 1]
+    elif canal == 'azul':
+        # Canal Azul (B de BGR)
+        return imagen_bgr[:, :, 0]
+    elif canal == 'rojo':
+        # Canal Rojo (R de BGR)
+        return imagen_bgr[:, :, 2]
+    elif canal == 'saturacion':
+        hsv = cv2.cvtColor(imagen_bgr, cv2.COLOR_BGR2HSV)
+        return hsv[:, :, 1]
+    else:
+        raise ValueError(f"Canal desconocido: {canal}. Usa 'verde', 'azul', 'rojo' o 'saturacion'.")
+
+
+def corregir_iluminacion_fondo(imagen_gris: np.ndarray, sigma_fondo: int = 50) -> np.ndarray:
+    """
+    Corrige gradientes de iluminación (viñeteo o desigualdad de fondo) en microscopía.
+
+    Estima el fondo mediante un desenfoque gaussiano de radio grande y realiza
+    una división normalizada para aislar el contraste real de los núcleos.
+
+    :param imagen_gris: Imagen en escala de grises (8-bit)
+    :type imagen_gris: numpy.ndarray
+    :param sigma_fondo: Desviación estándar grande para estimar el fondo (por defecto 50)
+    :type sigma_fondo: int
+    :rtype: numpy.ndarray
+    """
+    if imagen_gris is None or imagen_gris.size == 0:
+        raise ValueError("La imagen de entrada está vacía o es nula.")
+
+    fondo = cv2.GaussianBlur(imagen_gris, (0, 0), sigma_fondo)
+    fondo_f = fondo.astype(np.float32) + 1.0
+    img_f = imagen_gris.astype(np.float32)
+
+    corregida = (img_f / fondo_f) * 255.0
+    corregida = np.clip(corregida, 0, 255).astype(np.uint8)
+
+    return corregida
+
+
 def anonimizar_metadata(metadata_dict: dict) -> dict:
     """
     Remueve identificadores personales de un diccionario de metadata.
