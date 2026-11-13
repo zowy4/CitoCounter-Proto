@@ -15,7 +15,8 @@ from typing import Dict, List, Tuple, Any
 import cv2
 import numpy as np
 
-from src.analysis import obtener_reglas_clasificacion, clasificar_nucleo_por_area
+from src.analysis import obtener_reglas_clasificacion, clasificar_nucleo_por_area, analizar_nucleos
+from src.dog_filter import aplicar_filtro_dog, aplicar_multiscale_dog
 
 
 def validar_tamano_imagen(imagen: np.ndarray, tamano_maximo_kb: int = 16384) -> None:
@@ -58,17 +59,33 @@ def convertir_a_8bit(imagen: np.ndarray) -> np.ndarray:
     return normalizada
 
 
-def analizar_nucleos_dl(imagen: np.ndarray, imagen_original: np.ndarray = None, polaridad: str = 'nucleos-claros') -> Dict[str, Any]:
+def analizar_nucleos_dl(
+    imagen: np.ndarray,
+    imagen_original: np.ndarray = None,
+    polaridad: str = 'nucleos-claros',
+    sigma1: float = 5.0,
+    sigma2: float = 8.0,
+    usar_multiscale_dog: bool = True,
+    metodo_separacion: str = 'watershed'
+) -> Dict[str, Any]:
     """
-    Analiza y segmenta núcleos utilizando el adaptador de Deep Learning,
-    retornando la misma estructura de datos que analizar_nucleos() tradicional.
+    Analiza y segmenta núcleos utilizando el adaptador de Deep Learning / Híbrido,
+    integrando DoG Multi-Escala, Watershed y clasificación de riesgo explicable.
     
     :param imagen: Imagen de entrada BGR o escala de grises
-    :type imagen: numpy.ndarray
+    :type imagen: np.ndarray
     :param imagen_original: Imagen original RGB para anotación (opcional)
-    :type imagen_original: numpy.ndarray
+    :type imagen_original: np.ndarray
     :param polaridad: Polaridad de los núcleos ('nucleos-claros' o 'nucleos-oscuros')
     :type polaridad: str
+    :param sigma1: Sigma 1 para DoG
+    :type sigma1: float
+    :param sigma2: Sigma 2 para DoG
+    :type sigma2: float
+    :param usar_multiscale_dog: Si True, usa banco de filtros DoG de 3 escalas
+    :type usar_multiscale_dog: bool
+    :param metodo_separacion: Método de separación (ej. 'watershed')
+    :type metodo_separacion: str
     :return: Diccionario completo de resultados compatible con el pipeline
     :rtype: dict
     """
@@ -85,56 +102,14 @@ def analizar_nucleos_dl(imagen: np.ndarray, imagen_original: np.ndarray = None, 
         else:
             imagen_original = img_8bit.copy()
 
-    _, binaria = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    contornos, _ = cv2.findContours(binaria, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    
-    contornos_validos: List[np.ndarray] = []
-    areas_validas: List[float] = []
-    clasificaciones: List[Dict[str, Any]] = []
-    contornos_normales: List[np.ndarray] = []
-    contornos_sospechosos: List[np.ndarray] = []
-    normales = 0
-    sospechosas = 0
-    frontera = 0
+    if usar_multiscale_dog:
+        dog, _ = aplicar_multiscale_dog(gray)
+    else:
+        dog = aplicar_filtro_dog(gray, sigma1=sigma1, sigma2=sigma2)
 
-    reglas = obtener_reglas_clasificacion(polaridad)
-
-    imagen_procesada = imagen_original.copy()
-
-    for c in contornos:
-        area = float(cv2.contourArea(c))
-        if reglas["area_minima_nucleo"] <= area <= reglas["area_maxima_nucleo"]:
-            contornos_validos.append(c)
-            areas_validas.append(area)
-            decision = clasificar_nucleo_por_area(area, polaridad)
-            clasificaciones.append(decision)
-
-            if decision.get("es_frontera", False):
-                frontera += 1
-
-            if decision["clasificacion"] == "sospechosa":
-                sospechosas += 1
-                contornos_sospechosos.append(c)
-                cv2.drawContours(imagen_procesada, [c], -1, (0, 0, 255), 2)
-            else:
-                normales += 1
-                contornos_normales.append(c)
-                cv2.drawContours(imagen_procesada, [c], -1, (0, 255, 0), 2)
-
-    total_celulas = len(contornos_validos)
-    porcentaje_riesgo = (sospechosas / total_celulas * 100.0) if total_celulas > 0 else 0.0
-
-    return {
-        "total_celulas": total_celulas,
-        "normales": normales,
-        "sospechosas": sospechosas,
-        "frontera": frontera,
-        "porcentaje_riesgo": porcentaje_riesgo,
-        "imagen_procesada": imagen_procesada,
-        "areas": areas_validas,
-        "criterios_clasificacion": clasificaciones,
-        "contornos_normales": contornos_normales,
-        "contornos_sospechosos": contornos_sospechosos,
-        "contornos": contornos_validos,
-        "reglas": reglas,
-    }
+    return analizar_nucleos(
+        dog,
+        imagen_original,
+        polaridad=polaridad,
+        metodo_separacion=metodo_separacion
+    )

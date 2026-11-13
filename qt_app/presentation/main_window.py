@@ -252,7 +252,15 @@ class MainWindow(QMainWindow):
             self.visor.establecer_imagen(imagen_original)
 
             if motor == "dl":
-                resultado = analizar_nucleos_dl(gray, imagen_original, polaridad=polaridad)
+                resultado = analizar_nucleos_dl(
+                    gray,
+                    imagen_original,
+                    polaridad=polaridad,
+                    sigma1=sigma1,
+                    sigma2=sigma2,
+                    usar_multiscale_dog=usar_multiscale_dog,
+                    metodo_separacion=metodo_separacion
+                )
             else:
                 if usar_multiscale_dog:
                     dog, _ = aplicar_multiscale_dog(gray)
@@ -373,7 +381,15 @@ class MainWindow(QMainWindow):
             self.visor.establecer_imagen(imagen_original)
 
             if motor == "dl":
-                resultado = analizar_nucleos_dl(gray, imagen_original, polaridad=polaridad)
+                resultado = analizar_nucleos_dl(
+                    gray,
+                    imagen_original,
+                    polaridad=polaridad,
+                    sigma1=sigma1,
+                    sigma2=sigma2,
+                    usar_multiscale_dog=usar_multiscale_dog,
+                    metodo_separacion=metodo_separacion
+                )
             else:
                 if usar_multiscale_dog:
                     dog, _ = aplicar_multiscale_dog(gray)
