@@ -48,7 +48,8 @@ class SegmentadorDLTests(unittest.TestCase):
         resultado = analizar_nucleos_dl(img)
         self.assertIsInstance(resultado, dict)
         self.assertIn("total_celulas", resultado)
-        self.assertIn("reglas", resultado)
+        self.assertIn("normales", resultado)
+        self.assertIn("sospechosas", resultado)
 
     def test_motor_dl_integration(self):
         """Verifica que analizar_nucleos_dl retorna todas las claves necesarias para el CLI."""
