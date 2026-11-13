@@ -42,7 +42,7 @@ class PanelAjustes(QWidget):
         self.spin_sigma1 = QDoubleSpinBox()
         self.spin_sigma1.setRange(0.5, 30.0)
         self.spin_sigma1.setSingleStep(0.5)
-        self.spin_sigma1.setValue(1.5)
+        self.spin_sigma1.setValue(5.0)
         self.spin_sigma1.valueChanged.connect(self._emitir_cambios)
         form_layout.addRow("Sigma 1:", self.spin_sigma1)
 
@@ -50,13 +50,14 @@ class PanelAjustes(QWidget):
         self.spin_sigma2 = QDoubleSpinBox()
         self.spin_sigma2.setRange(0.5, 40.0)
         self.spin_sigma2.setSingleStep(0.5)
-        self.spin_sigma2.setValue(3.0)
+        self.spin_sigma2.setValue(8.0)
         self.spin_sigma2.valueChanged.connect(self._emitir_cambios)
         form_layout.addRow("Sigma 2:", self.spin_sigma2)
 
         # Polaridad
         self.combo_polaridad = QComboBox()
         self.combo_polaridad.addItems(["nucleos-claros", "nucleos-oscuros"])
+        self.combo_polaridad.setCurrentText("nucleos-oscuros")
         self.combo_polaridad.currentIndexChanged.connect(self._emitir_cambios)
         form_layout.addRow("Polaridad:", self.combo_polaridad)
 
@@ -97,8 +98,15 @@ class PanelAjustes(QWidget):
         # Método de separación
         self.combo_separacion = QComboBox()
         self.combo_separacion.addItems(["none", "watershed", "maximos"])
+        self.combo_separacion.setCurrentText("watershed")
         self.combo_separacion.currentIndexChanged.connect(self._emitir_cambios)
         form_layout.addRow("Separación:", self.combo_separacion)
+
+        # DoG Multi-escala
+        self.chk_multiscale = QCheckBox("DoG Multi-Escala (3 Niveles)")
+        self.chk_multiscale.setChecked(True)
+        self.chk_multiscale.stateChanged.connect(self._emitir_cambios)
+        form_layout.addRow("Multi-Escala:", self.chk_multiscale)
 
         # Visualización
         self.chk_contornos = QCheckBox("Dibujar Contornos Reales")
@@ -130,6 +138,7 @@ class PanelAjustes(QWidget):
             "usar_hsv": self.chk_hsv.isChecked(),
             "metodo_hsv": self.combo_metodo_hsv.currentText(),
             "metodo_separacion": self.combo_separacion.currentText(),
+            "usar_multiscale_dog": self.chk_multiscale.isChecked(),
             "mostrar_contornos": self.chk_contornos.isChecked(),
             "mostrar_areas": self.chk_areas.isChecked(),
         }

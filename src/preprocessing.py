@@ -529,72 +529,70 @@ def segmentar_por_hsv(imagen_bgr, umbral_sat=100, umbral_val=100, metodo='satura
     return mask
 
 
-    def anonimizar_metadata(metadata_dict: dict) -> dict:
-        """
-        Remueve identificadores personales de un diccionario de metadata.
+def extraer_canal_nuclear(imagen_bgr: np.ndarray, metodo: str = 'verde_rgb') -> np.ndarray:
+    """
+    Extrae el canal de menor correlaciÃ³n con el citoplasma en tinciones Papanicolaou.
+    - 'verde_rgb': Canal Verde (G) de RGB.
+    - 'saturacion_hsv': Componente de SaturaciÃ³n (S) en HSV.
+    - 'valor_hsv': Componente de Valor (V) en HSV.
 
-        Elimina claves que contengan informaciÃ³n identificable:
-        - patient_id: Identificador Ãºnico del paciente
-        - nombre_archivo: Nombre completo de la imagen
-        - fecha_registro: Fecha de registro/colecciÃ³n
-
-        Args:
-            metadata_dict (dict): Diccionario de metadata del preprocesado
-
-        Returns:
-            dict: Metadata anonimizada sin identificadores personales
-
-        Ejemplo:
-            >>> metadata = {
-            ...     'ruta': 'data/raw/IMG_001.jpg',
-            ...     'patient_id': 'P-12345',
-            ...     'nombre_archivo': 'IMG_001.jpg',
-            ...     'fecha_registro': '2024-03-15',
-            ...     'usar_hsv': True,
-            ...     'metodo_hsv': 'saturation'
-            ... }
-            >>> anonimizada = anonimizar_metadata(metadata)
-            >>> # patient_id, nombre_archivo, fecha_registro removidos
-            >>> print(anonimizada.keys())
-            dict_keys(['ruta', 'usar_hsv', 'metodo_hsv'])
-        """
-        # Claves a remover (identificadores personales)
-        claves_remover = {'patient_id', 'nombre_archivo', 'fecha_registro'}
-
-        # Crear nuevo diccionario sin las claves sensibles
-        anonimizada = {k: v for k, v in metadata_dict.items() if k not in claves_remover}
-
-        return anonimizada
+    :param imagen_bgr: Imagen BGR de OpenCV
+    :type imagen_bgr: np.ndarray
+    :param metodo: MÃ©todo de extracciÃ³n ('verde_rgb', 'saturacion_hsv', 'valor_hsv')
+    :type metodo: str
+    :rtype: np.ndarray (imagen en escala de grises de 8-bit)
+    """
+    if metodo == 'verde_rgb':
+        return imagen_bgr[:, :, 1]
+    elif metodo == 'saturacion_hsv':
+        hsv = cv2.cvtColor(imagen_bgr, cv2.COLOR_BGR2HSV)
+        return hsv[:, :, 1]
+    elif metodo == 'valor_hsv':
+        hsv = cv2.cvtColor(imagen_bgr, cv2.COLOR_BGR2HSV)
+        return hsv[:, :, 2]
+    else:
+        raise ValueError(f"MÃ©todo de extracciÃ³n '{metodo}' no reconocido.")
 
 
-    def obtener_id_sin_identificar(archivo: str) -> str:
-        """
-        Retorna una versiÃ³n del nombre de archivo sin informaciÃ³n identificable.
+def anonimizar_metadata(metadata_dict: dict) -> dict:
+    """
+    Remueve identificadores personales de un diccionario de metadata.
 
-        Convierte nombres como 'IMG_001.jpg' o 'paciente_01_cyt01.dat'
-        en un formato genÃ©rico 'muestra_XXX'.
+    Elimina claves que contengan informaciÃ³n identificable:
+    - patient_id: Identificador Ãºnico del paciente
+    - nombre_archivo: Nombre completo de la imagen
+    - fecha_registro: Fecha de registro/colecciÃ³n
 
-        Args:
-            archivo (str): Nombre original del archivo
+    Args:
+        metadata_dict (dict): Diccionario de metadata del preprocesado
 
-        Returns:
-            str: ID anonimizado en formato 'muestra_XXX'
+    Returns:
+        dict: Metadata anonimizada sin identificadores personales
+    """
+    claves_remover = {'patient_id', 'nombre_archivo', 'fecha_registro'}
+    anonimizada = {k: v for k, v in metadata_dict.items() if k not in claves_remover}
+    return anonimizada
 
-        Ejemplo:
-            >>> obtener_id_sin_identificar('IMG_001.jpg')
-            'muestra_001'
-            >>> obtener_id_sin_identificar('paciente_01_cyt01.dat')
-            'muestra_001'
-        """
-        # Extraer el nÃºmero de muestra del nombre del archivo
-        # Buscar patrÃ³n de dÃ­gitos en el nombre
-        import re
-        match = re.search(r'(\d+)', archivo)
-        if match:
-            numero = match.group(1)
-            return f'muestra_{numero}'
-        else:
-            # Si no hay nÃºmero, generar ID genÃ©rico
-            return 'muestra_001'
+
+def obtener_id_sin_identificar(archivo: str) -> str:
+    """
+    Retorna una versiÃ³n del nombre de archivo sin informaciÃ³n identificable.
+
+    Convierte nombres como 'IMG_001.jpg' o 'paciente_01_cyt01.dat'
+    en un formato genÃ©rico 'muestra_XXX'.
+
+    Args:
+        archivo (str): Nombre original del archivo
+
+    Returns:
+        str: ID anonimizado en formato 'muestra_XXX'
+    """
+    import re
+    match = re.search(r'(\d+)', archivo)
+    if match:
+        numero = match.group(1)
+        return f'muestra_{numero}'
+    else:
+        return 'muestra_001'
 
 

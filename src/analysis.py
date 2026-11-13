@@ -23,7 +23,10 @@ from typing import List, Tuple, Optional
 # AREA_PROMEDIO_NUCLEO_NORMAL es temporal y debe recalibrarse con datos reales
 # del conjunto de calibración separado (CITO-97).
 
-AREA_PROMEDIO_NUCLEO_NORMAL = 300  # Píxeles² (TEMPORAL - recalibrar con CITO-97)
+AREA_PROMEDIO_NUCLEO_NORMAL = {
+    'nucleos-claros': 300,  # Píxeles²
+    'nucleos-oscuros': 80,   # Píxeles² (Calibrado para citología real Papanicolaou: normal ~80px², sospechoso >= 240px²)
+}
 FACTOR_RIESGO = 3.0                 # Regla de la Dra. Rangel: >3x = sospechoso
 MARGEN_FRONTERA = 0.10              # ±10% alrededor del umbral de riesgo
 
@@ -98,40 +101,52 @@ def crear_mascara_borde(forma, ancho_borde=50):
     return mascara
 
 
-def crear_mascara_borde_asimetrica(forma, izquierda=500, derecha=100, superior=100, inferior=300):
+def verificar_gradiente_borde(imagen_gris: np.ndarray, centro: Tuple[int, int], radio_min: int = 5, radio_max: int = 15) -> bool:
     """
-    Crea una máscara binaria asimétrica para imágenes reales (Papanicolaou/EDF).
-    
-    Los artefactos DoG en imágenes reales son más fuertes en el borde izquierdo
-    (hasta 900px) e inferior (hasta 500px). Esta máscara permite configurar
-    anchos diferentes por lado.
-    
-    Args:
-        forma: Tupla (height, width) de la imagen
-        izquierda: Píxeles a ignorar en borde izquierdo (default: 500)
-        derecha: Píxeles a ignorar en borde derecho (default: 100)
-        superior: Píxeles a ignorar en borde superior (default: 100)
-        inferior: Píxeles a ignorar en borde inferior (default: 300)
-    
-    Returns:
-        numpy.ndarray: Máscara binaria (255=válido, 0=ignorar)
+    Verifica si existe un gradiente radial convergente (borde circular cerrado hipercromático)
+    alrededor del centro candidato detectado. Un núcleo real en citología Papanicolaou posee
+    un anillo oscuro alrededor delimitando una región interna homogénea.
+
+    :param imagen_gris: Imagen en escala de grises (8-bit)
+    :type imagen_gris: np.ndarray
+    :param centro: Coordenadas (cx, cy) del centro del candidato
+    :type centro: Tuple[int, int]
+    :param radio_min: Radio interno del anillo de evaluación
+    :type radio_min: int
+    :param radio_max: Radio externo del anillo de evaluación
+    :type radio_max: int
+    :rtype: bool (True si el gradiente radial confirma un borde anular nítido)
     """
-    h, w = forma[:2]
-    mascara = np.ones((h, w), dtype=np.uint8) * 255
+    cx, cy = centro
+    h, w = imagen_gris.shape[:2]
+    if cx - radio_max < 0 or cx + radio_max >= w or cy - radio_max < 0 or cy + radio_max >= h:
+        return True  # Demasiado cerca del borde, no rechazar por gradiente
+
+    num_muestras = 16
+    angulos = np.linspace(0, 2 * np.pi, num_muestras, endpoint=False)
     
-    # Limitar anchos para no enmascarar toda la imagen
-    izquierda = min(izquierda, w // 2)
-    derecha = min(derecha, w // 2)
-    superior = min(superior, h // 2)
-    inferior = min(inferior, h // 2)
-    
-    # Ignorar bordes con anchos asimétricos
-    mascara[:superior, :] = 0          # Superior
-    mascara[-inferior:, :] = 0         # Inferior
-    mascara[:, :izquierda] = 0         # Izquierdo
-    mascara[:, -derecha:] = 0          # Derecho
-    
-    return mascara
+    intensidades_interno = []
+    intensidades_externo = []
+
+    for theta in angulos:
+        xi_min = int(round(cx + radio_min * np.cos(theta)))
+        yi_min = int(round(cy + radio_min * np.sin(theta)))
+        xi_max = int(round(cx + radio_max * np.cos(theta)))
+        yi_max = int(round(cy + radio_max * np.sin(theta)))
+
+        if 0 <= yi_min < h and 0 <= xi_min < w:
+            intensidades_interno.append(float(imagen_gris[yi_min, xi_min]))
+        if 0 <= yi_max < h and 0 <= xi_max < w:
+            intensidades_externo.append(float(imagen_gris[yi_max, xi_max]))
+
+    if not intensidades_interno or not intensidades_externo:
+        return False
+
+    media_interno = np.mean(intensidades_interno)
+    media_externo = np.mean(intensidades_externo)
+    contraste_radial = abs(media_interno - media_externo)
+    return contraste_radial >= 5.0
+
 
 
 def _maximos_locales(imagen: np.ndarray, umbral: int = UMBRAL_DOG,
@@ -330,12 +345,13 @@ def obtener_reglas_clasificacion(polaridad: str = 'nucleos-claros'):
     # Usar umbrales de área específicos para la polaridad
     area_min = AREA_MINIMA_NUCLEO[polaridad]
     area_max = AREA_MAXIMA_NUCLEO[polaridad]
+    area_promedio = AREA_PROMEDIO_NUCLEO_NORMAL.get(polaridad, 300) if isinstance(AREA_PROMEDIO_NUCLEO_NORMAL, dict) else AREA_PROMEDIO_NUCLEO_NORMAL
     
-    umbral_sospechoso = AREA_PROMEDIO_NUCLEO_NORMAL * FACTOR_RIESGO
+    umbral_sospechoso = area_promedio * FACTOR_RIESGO
     return {
         "area_minima_nucleo": area_min,
         "area_maxima_nucleo": area_max,
-        "area_promedio_nucleo_normal": AREA_PROMEDIO_NUCLEO_NORMAL,
+        "area_promedio_nucleo_normal": area_promedio,
         "factor_riesgo": FACTOR_RIESGO,
         "umbral_sospechoso": umbral_sospechoso,
         "limite_frontera_inferior": umbral_sospechoso * (1.0 - MARGEN_FRONTERA),
@@ -750,6 +766,15 @@ def analizar_nucleos(imagen_dog, imagen_original, mostrar_debug=False, polaridad
                     if aspecto > 2.5:  # Rechazar formas muy alargadas o fibras
                         continue
                 
+                # Verificación de gradiente de borde radial (anillo hipercromático)
+                M = cv2.moments(contorno)
+                if M["m00"] != 0:
+                    cx = int(M["m10"] / M["m00"])
+                    cy = int(M["m01"] / M["m00"])
+                    # Usar imagen en escala de grises original o DoG para verificar gradiente
+                    if not verificar_gradiente_borde(imagen_dog, (cx, cy)):
+                        continue
+
                 # Filtrar por tamaño (fuera de rangos estrictos)
                 if area < AREA_MINIMA_NUCLEO[polaridad] or area > AREA_MAXIMA_NUCLEO[polaridad]:
                     continue

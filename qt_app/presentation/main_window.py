@@ -30,7 +30,7 @@ from qt_app.presentation.panel_ajustes import PanelAjustes
 from qt_app.presentation.dashboard_widget import DashboardWidget
 from qt_app.presentation.evidencia_panel import EvidenciaPanel
 from src.analysis import analizar_nucleos
-from src.dog_filter import aplicar_filtro_dog
+from src.dog_filter import aplicar_filtro_dog, aplicar_multiscale_dog
 from src.segmentador_dl import analizar_nucleos_dl
 from src.preprocessing import preprocesar_imagen
 
@@ -234,6 +234,7 @@ class MainWindow(QMainWindow):
         metodo_separacion = params["metodo_separacion"]
         if metodo_separacion == "none":
             metodo_separacion = None
+        usar_multiscale_dog = params["usar_multiscale_dog"]
         mostrar_contornos = params["mostrar_contornos"]
         mostrar_areas = params["mostrar_areas"]
 
@@ -253,7 +254,10 @@ class MainWindow(QMainWindow):
             if motor == "dl":
                 resultado = analizar_nucleos_dl(gray, imagen_original, polaridad=polaridad)
             else:
-                dog = aplicar_filtro_dog(gray, sigma1=sigma1, sigma2=sigma2)
+                if usar_multiscale_dog:
+                    dog, _ = aplicar_multiscale_dog(gray)
+                else:
+                    dog = aplicar_filtro_dog(gray, sigma1=sigma1, sigma2=sigma2)
                 resultado = analizar_nucleos(
                     dog,
                     imagen_original,
@@ -349,6 +353,7 @@ class MainWindow(QMainWindow):
         metodo_separacion = params["metodo_separacion"]
         if metodo_separacion == "none":
             metodo_separacion = None
+        usar_multiscale_dog = params["usar_multiscale_dog"]
         mostrar_contornos = params["mostrar_contornos"]
         mostrar_areas = params["mostrar_areas"]
 
@@ -370,7 +375,10 @@ class MainWindow(QMainWindow):
             if motor == "dl":
                 resultado = analizar_nucleos_dl(gray, imagen_original, polaridad=polaridad)
             else:
-                dog = aplicar_filtro_dog(gray, sigma1=sigma1, sigma2=sigma2)
+                if usar_multiscale_dog:
+                    dog, _ = aplicar_multiscale_dog(gray)
+                else:
+                    dog = aplicar_filtro_dog(gray, sigma1=sigma1, sigma2=sigma2)
                 resultado = analizar_nucleos(
                     dog,
                     imagen_original,
