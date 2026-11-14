@@ -43,7 +43,7 @@ class MainWindow(QMainWindow):
         self.controller = controller if controller is not None else ImageController()
 
         self.setWindowTitle("CitoCounter-Proto - Visor con Overlays (CITO-65)")
-        self.resize(1000, 750)
+        self.resize(1200, 750)
 
         self._init_ui()
         self._cargar_imagen_inicial()
@@ -132,7 +132,7 @@ class MainWindow(QMainWindow):
 
         # Panel derecho: Visor gráfico con overlays
         self.visor = VisorImagen(self)
-        self.visor.setMinimumSize(600, 600)
+        self.visor.setMinimumSize(350, 350)
         analisis_layout.addWidget(self.visor, stretch=3)
 
         self.tabs.addTab(tab_analisis, "Análisis y Visor")
@@ -154,13 +154,22 @@ class MainWindow(QMainWindow):
             self.lbl_info.setText(f"Error al cargar imagen inicial: {e}")
 
     def poblar_camaras(self) -> None:
-        """Detecta cámaras disponibles en el sistema (índices 0 a 3)."""
+        """Detecta cámaras disponibles en el sistema (índices 0 a 3) de forma segura y silenciosa."""
         self.combo_camaras.clear()
+        try:
+            cv2.utils.logging.setLogLevel(cv2.utils.logging.LOG_LEVEL_ERROR)
+        except Exception:
+            pass
         for i in range(4):
-            cap = cv2.VideoCapture(i)
-            if cap.isOpened():
-                self.combo_camaras.addItem(f"Cámara / USB / C-mount #{i}", i)
-                cap.release()
+            try:
+                cap = cv2.VideoCapture(i, cv2.CAP_ANY)
+                if cap.isOpened():
+                    ret, _ = cap.read()
+                    if ret or cap.isOpened():
+                        self.combo_camaras.addItem(f"Cámara / USB / C-mount #{i}", i)
+                    cap.release()
+            except Exception:
+                pass
         if self.combo_camaras.count() == 0:
             self.combo_camaras.addItem("No se detectaron cámaras", -1)
 

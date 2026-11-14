@@ -26,7 +26,11 @@ class GestorCapturaMicroscopio:
         :rtype: bool
         """
         try:
-            self.cap = cv2.VideoCapture(self.fuente_id)
+            try:
+                cv2.utils.logging.setLogLevel(cv2.utils.logging.LOG_LEVEL_ERROR)
+            except Exception:
+                pass
+            self.cap = cv2.VideoCapture(self.fuente_id, cv2.CAP_ANY)
             if self.cap.isOpened():
                 self.activo = True
                 return True
