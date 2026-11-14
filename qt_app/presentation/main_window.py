@@ -154,19 +154,18 @@ class MainWindow(QMainWindow):
             self.lbl_info.setText(f"Error al cargar imagen inicial: {e}")
 
     def poblar_camaras(self) -> None:
-        """Detecta cámaras disponibles en el sistema (índices 0 a 3) de forma segura y silenciosa."""
+        """Detecta cámaras disponibles en el sistema (índices 0 a 3) usando DirectShow para evitar ruido de Obsensor/FFmpeg."""
         self.combo_camaras.clear()
         try:
-            cv2.utils.logging.setLogLevel(cv2.utils.logging.LOG_LEVEL_ERROR)
+            cv2.utils.logging.setLogLevel(cv2.utils.logging.LOG_LEVEL_FATAL)
         except Exception:
             pass
         for i in range(4):
             try:
-                cap = cv2.VideoCapture(i, cv2.CAP_ANY)
+                # Usar CAP_DSHOW en Windows para evitar sondeo de obsensor/uvc y ffmpeg
+                cap = cv2.VideoCapture(i, cv2.CAP_DSHOW)
                 if cap.isOpened():
-                    ret, _ = cap.read()
-                    if ret or cap.isOpened():
-                        self.combo_camaras.addItem(f"Cámara / USB / C-mount #{i}", i)
+                    self.combo_camaras.addItem(f"Cámara / USB / C-mount #{i}", i)
                     cap.release()
             except Exception:
                 pass

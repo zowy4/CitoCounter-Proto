@@ -20,17 +20,17 @@ class GestorCapturaMicroscopio:
 
     def iniciar_captura(self) -> bool:
         """
-        Inicia la conexión con el dispositivo de captura de video.
+        Inicia la conexión con el dispositivo de captura de video usando DirectShow.
 
         :return: True si se conectó exitosamente, False en caso contrario.
         :rtype: bool
         """
         try:
             try:
-                cv2.utils.logging.setLogLevel(cv2.utils.logging.LOG_LEVEL_ERROR)
+                cv2.utils.logging.setLogLevel(cv2.utils.logging.LOG_LEVEL_FATAL)
             except Exception:
                 pass
-            self.cap = cv2.VideoCapture(self.fuente_id, cv2.CAP_ANY)
+            self.cap = cv2.VideoCapture(self.fuente_id, cv2.CAP_DSHOW)
             if self.cap.isOpened():
                 self.activo = True
                 return True
