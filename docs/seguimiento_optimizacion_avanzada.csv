@@ -1,0 +1,8 @@
+id,actividad,clase,descripcion,semana,estado
+CITO-120,ACT-42,Fase 7,Pipeline de Data Augmentation Extendido (Albumentations),Implementar transformaciones afines, ruido y jitter RGB para robustez celular,Semana 13,Finalizado
+CITO-121,ACT-43,Fase 7,Separación Avanzada de Cúmulos (GMM + Watershed),Integrar Modelos de Mezcla Gaussiana y transformada de distancia para cúmulos densos,Semana 14,Finalizado
+CITO-122,ACT-44,Fase 8,Soporte MobileViT-S / ResNet50 y Triple Transfer Learning,Adaptar clasificador híbrido con arquitectura ligera para Edge AI y TTL (SIPaKMeD-Herlev),Semana 15,Finalizado
+CITO-123,ACT-45,Fase 8,Taxonomía Clínica de 5 Clases SIPaKMeD,Migrar clasificación a Superficial, Parabasal, Metaplastic, Koilocytic, Dyskeratotic,Semana 16,Finalizado
+CITO-124,ACT-46,Fase 9,Actualización de Visualización Multiclase en Qt,Renderizar contornos y bounding boxes codificados por color según patología en QGraphicsView,Semana 17,Finalizado
+CITO-125,ACT-47,Fase 9,Panel de Métricas y Estadísticas de Portaobjetos en UI,Expandir DashboardWidget y EvidenciaPanel con índice de riesgo clínico global y gráficos,Semana 18,Finalizado
+CITO-126,ACT-48,Fase 10,Motor de Reportes Ejecutivos en PDF (ReportLab),Generar informes clínicos estructurados con metadatos, conteos y advertencias legales,Semana 19,Finalizado
