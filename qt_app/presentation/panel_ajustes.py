@@ -1,4 +1,4 @@
-﻿"""
+"""
 panel_ajustes.py - Widget de panel de parámetros avanzado para CitoCounter Qt App (CITO-66 / CITO-163).
 """
 
@@ -142,11 +142,3 @@ class PanelAjustes(QWidget):
             "mostrar_contornos": self.chk_contornos.isChecked(),
             "mostrar_areas": self.chk_areas.isChecked(),
         }
-
-
-
-
-
-
-
-

@@ -1,2 +1,1 @@
-﻿# qt_app package
-
+# qt_app package

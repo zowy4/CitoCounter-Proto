@@ -1,4 +1,4 @@
-﻿"""
+"""
 image_controller.py - Lógica de negocio y control de imágenes para qt_app (CITO-42).
 
 Reutiliza src/preprocessing.py y src/segmentador_dl.py sin duplicar lógica.
@@ -62,4 +62,3 @@ class ImageController:
         self.current_image = img
         self.current_path = "synthetic_demo"
         return img
-

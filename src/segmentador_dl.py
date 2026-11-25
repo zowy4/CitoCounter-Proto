@@ -16,7 +16,8 @@ import cv2
 import numpy as np
 
 from src.analysis import obtener_reglas_clasificacion, clasificar_nucleo_por_area, analizar_nucleos
-from src.dog_filter import aplicar_filtro_dog, aplicar_multiscale_dog, analizar_nucleos
+from src.dog_filter import aplicar_filtro_dog, aplicar_multiscale_dog
+from src.analysis import analizar_nucleos
 from src.dog_filter import aplicar_filtro_dog, aplicar_multiscale_dog
 
 
@@ -114,4 +115,5 @@ def analizar_nucleos_dl(
         polaridad=polaridad,
         metodo_separacion=metodo_separacion
     )
+
 
