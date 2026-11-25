@@ -1,4 +1,4 @@
-"""
+﻿"""
 tests/test_barrido_platina.py - Pruebas unitarias para el simulador y guía de barrido de platina (Fase 4.1).
 """
 
@@ -37,3 +37,4 @@ class TestSimuladorBarridoPlatina(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

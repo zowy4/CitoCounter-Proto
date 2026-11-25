@@ -1,4 +1,4 @@
-"""
+﻿"""
 src/normalizacion_color.py - Normalización adaptativa de color e iluminación (Fase 3.2).
 
 Implementa balance de blancos automático y normalización de histograma adaptativa
@@ -72,3 +72,4 @@ def normalizar_iluminacion_papanicolaou(imagen_bgr: np.ndarray) -> Tuple[np.ndar
     gris_final = cv2.cvtColor(bgr_normalizado, cv2.COLOR_BGR2GRAY)
 
     return bgr_normalizado, gris_final
+

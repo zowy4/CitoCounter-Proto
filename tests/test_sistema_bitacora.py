@@ -1,4 +1,4 @@
-"""
+﻿"""
 Pruebas unitarias para el Sistema de Bitácora y Versionado (Fase 7.1).
 """
 
@@ -73,3 +73,4 @@ class TestSistemaBitacora(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

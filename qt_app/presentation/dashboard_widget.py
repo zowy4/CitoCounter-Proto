@@ -1,4 +1,4 @@
-"""
+﻿"""
 dashboard_widget.py - Widget de Dashboard de métricas Qt reutilizando src/metricas_sistema.py y src/historial_resultados.py (CITO-65 / KPIs).
 """
 
@@ -137,3 +137,4 @@ class DashboardWidget(QWidget):
                 self.tabla_historial.setItem(row_idx, 9, QTableWidgetItem(str(fila.get("porcentaje_riesgo", ""))))
         except Exception as e:
             print(f"Error al actualizar dashboard: {e}")
+

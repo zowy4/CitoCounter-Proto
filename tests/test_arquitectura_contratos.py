@@ -1,4 +1,4 @@
-"""
+﻿"""
 Pruebas unitarias para la Arquitectura Base y Contratos de Datos (CITO-102).
 """
 
@@ -31,3 +31,4 @@ class TestArquitecturaContratos(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Módulo de Gestión y Alcance de Objetivos para la Fase 8 (Definición de Objetivos y Alcance Inicial).
 """
 
@@ -29,3 +29,4 @@ def obtener_alcance_fase8() -> Dict[str, Any]:
             "Semana 10-12: Barrido de platina, tracking, división de dataset y validación clínica"
         ]
     }
+

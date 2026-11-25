@@ -1,4 +1,4 @@
-"""
+﻿"""
 Pruebas unitarias para el módulo de simulación de barrido y tracking antiduplicados (CITO-110 / ACT-39).
 """
 
@@ -44,3 +44,4 @@ class SimulacionBarridoTrackingTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

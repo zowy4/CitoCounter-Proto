@@ -1,4 +1,4 @@
-"""
+﻿"""
 src/aumentacion_albumentations.py - Pipeline de Aumento de Datos Extendido con Albumentations (CITO-120 / ACT-42).
 
 Proporciona aumentación de datos robusta para microscopía cervical simulando variaciones reales:
@@ -95,3 +95,5 @@ def aplicar_aumentacion_albumentations(
         resultado = np.array(resultado, dtype=np.uint8)
 
     return resultado.astype(np.uint8)
+
+

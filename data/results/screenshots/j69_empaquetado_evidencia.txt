@@ -1,4 +1,4 @@
-Evidencia de Empaquetado PyInstaller y Aviso de Uso Experimental (J-69)
+﻿Evidencia de Empaquetado PyInstaller y Aviso de Uso Experimental (J-69)
 ========================================================================
 
 Fecha: 2026-11-06
@@ -20,3 +20,4 @@ Proyecto: CitoCounter-Proto
 3. Evidencia visual y de pruebas:
    - Capturas y reportes guardados en `data/results/screenshots/`.
    - Tests de paridad y regresión en verde.
+

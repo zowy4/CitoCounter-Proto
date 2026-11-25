@@ -1,4 +1,4 @@
-"""
+﻿"""
 src/reporte_ejecutivo_pdf.py - Motor de Reportes Ejecutivos en PDF (CITO-126 / ACT-48).
 
 Genera informes clínicos estructurados y profesionales en formato PDF utilizando ReportLab,
@@ -234,3 +234,4 @@ def generar_reporte_ejecutivo_pdf(
 
     doc.build(story)
     return ruta_salida
+

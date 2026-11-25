@@ -1,4 +1,4 @@
-"""
+﻿"""
 convertir_imagenes_a_video.py - Módulo para convertir colecciones y datasets de imágenes en videos MP4.
 
 Cumple con los principios de tipado estricto, docstrings en formato NumPy y validaciones de seguridad.
@@ -113,3 +113,4 @@ def convertir_datasets_principales() -> None:
 
 if __name__ == "__main__":
     convertir_datasets_principales()
+

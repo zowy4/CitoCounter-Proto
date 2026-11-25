@@ -1,4 +1,4 @@
-"""
+﻿"""
 Pruebas unitarias para el motor de reportes ejecutivos en PDF (CITO-126).
 """
 
@@ -56,3 +56,4 @@ class TestReporteEjecutivoPdf(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

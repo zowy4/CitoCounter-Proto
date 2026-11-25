@@ -1,4 +1,4 @@
-"""
+﻿"""
 test_qt_app.py - Pruebas unitarias para qt_app usando pytest-qt (CITO-42).
 """
 
@@ -85,3 +85,9 @@ def test_dashboard_widget(qapp, qtbot):
     # Forzar actualización
     dashboard.actualizar_datos()
     assert dashboard.tabla_historial.rowCount() >= 0
+
+
+
+
+
+

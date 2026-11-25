@@ -1,4 +1,4 @@
-"""
+﻿"""
 test_convertir_imagenes_a_video.py - Tests unitarios para la conversión de datasets de imágenes a video.
 """
 
@@ -51,3 +51,4 @@ class TestConvertirImagenesAVideo(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Módulo de Sistema de Bitácora y Versionado para CitoCounter-Proto (Fase 7.1).
 Registra experimentos, hiperparámetros, métricas y artefactos con trazabilidad completa.
 """
@@ -139,3 +139,6 @@ class SistemaBitacora:
             if reg.get("experimento_id") == experimento_id:
                 return reg
         return None
+
+
+

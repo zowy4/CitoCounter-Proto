@@ -1,4 +1,4 @@
-"""
+﻿"""
 calibration_cito95.py - Barrido de hiperparámetros un parámetro a la vez para CITO-95 (J-56).
 
 Realiza un barrido secuencial de learning rate, epochs y diámetro, registrando
@@ -93,3 +93,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Error en barrido: {e}")
         sys.exit(1)
+

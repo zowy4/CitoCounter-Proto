@@ -1,4 +1,4 @@
-"""
+﻿"""
 src/tracking_celular.py - Seguimiento antiduplicados (Tracking) para secuencias de video (Fase 4.2).
 
 Implementa un rastreador basado en distancia euclidiana de centroides (estilo SORT simplificado)
@@ -144,3 +144,4 @@ class RastreadorCelular:
                 "clasificacion": tdata["clasificacion"]
             })
         return resultado
+

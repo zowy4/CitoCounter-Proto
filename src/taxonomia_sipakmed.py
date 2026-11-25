@@ -1,4 +1,4 @@
-"""
+﻿"""
 src/taxonomia_sipakmed.py - Módulo de Taxonomía Clínica SIPaKMeD de 5 Clases (CITO-123 / ACT-45).
 
 Define las 5 categorías estándar del dataset SIPaKMeD para la clasificación citológica:
@@ -170,3 +170,4 @@ def calcular_riesgo_global_sipakmed(predicciones_celulas: List[Dict[str, Any]]) 
         "riesgo_global": riesgo_global,
         "score_promedio": round(float(score_promedio), 4)
     }
+

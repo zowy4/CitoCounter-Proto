@@ -1,4 +1,4 @@
-"""
+﻿"""
 Módulo de Optimización de Preprocesamiento y Conversión Vectorial (CITO-107 / ACT-36).
 Fase 2: Optimización de rutinas de preprocesamiento de imágenes, CLAHE y conversión vectorial con NumPy.
 """
@@ -87,3 +87,5 @@ def benchmark_preprocesamiento(imagen: np.ndarray, iteraciones: int = 50) -> Dic
         "tiempo_promedio_ms": (duracion / iteraciones) * 1000.0,
         "rendimiento_fps": fps
     }
+
+

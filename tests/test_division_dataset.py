@@ -1,4 +1,4 @@
-"""
+﻿"""
 tests/test_division_dataset.py - Pruebas unitarias para la división estricta de dataset (Fase 5.1).
 """
 
@@ -42,3 +42,4 @@ class TestGestorDivisionDataset(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

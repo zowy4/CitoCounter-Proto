@@ -1,4 +1,4 @@
-# Bitácora de Regresión y Validación - CITO-95 / CitoCounter-Proto
+﻿# Bitácora de Regresión y Validación - CITO-95 / CitoCounter-Proto
 
 - **Fecha:** 2026-11-05
 - **Rama:** `MIGRACION`
@@ -17,3 +17,4 @@
 
 3. **Conclusión:**
    - El sistema se encuentra estable, con todas las características de Deep Learning, API REST y reglas explicables integradas y validadas.
+

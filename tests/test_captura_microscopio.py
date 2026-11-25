@@ -1,4 +1,4 @@
-"""
+﻿"""
 Pruebas unitarias para el módulo de captura de video en tiempo real (CITO-103).
 """
 
@@ -31,3 +31,4 @@ class TestGestorCapturaMicroscopio(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

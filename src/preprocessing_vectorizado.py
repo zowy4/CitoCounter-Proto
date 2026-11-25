@@ -1,4 +1,4 @@
-"""
+﻿"""
 src/preprocessing_vectorizado.py - Funciones optimizadas de preprocesamiento vectorizado en memoria (Fase 2.2).
 
 Implementa operaciones vectorizadas con NumPy y OpenCV para maximizar el rendimiento
@@ -69,3 +69,4 @@ def preprocesar_lote_vectorizado(lote_imagenes: np.ndarray) -> np.ndarray:
         resultado[i] = mejorar_contraste_vectorizado(gris)
 
     return resultado
+

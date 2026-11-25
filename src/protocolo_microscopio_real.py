@@ -1,4 +1,4 @@
-"""
+﻿"""
 src/protocolo_microscopio_real.py - Protocolo de validación en microscopio real (Fase 6.1).
 
 Gestiona el registro de metadatos, calibración óptica, configuración de cámara
@@ -121,3 +121,4 @@ class ProtocoloMicroscopioReal:
             "total_pruebas": total,
             "error_relativo_promedio_pct": round(promedio_error, 2)
         }
+

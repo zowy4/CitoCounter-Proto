@@ -1,4 +1,4 @@
-"""
+﻿"""
 Script de verificación de paridad (J-60) entre CLI y Streamlit para el selector de motor (dog vs dl).
 Procesa 3 imágenes de prueba y verifica que ambos motores funcionen correctamente,
 registrando la evidencia en data/results/screenshots/paridad_report.csv.
@@ -87,3 +87,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+

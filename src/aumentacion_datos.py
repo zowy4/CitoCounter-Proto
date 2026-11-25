@@ -1,4 +1,4 @@
-"""
+﻿"""
 src/aumentacion_datos.py - Robustecimiento y aumentación de datos para microscopía (Fase 3.3).
 
 Simula condiciones reales de captura en microscopía cervical:
@@ -63,3 +63,5 @@ class AumentadorMicroscopia:
             img_out = self.aplicar_desenfoque(img_out, intensidad=np.random.uniform(0.5, 1.5))
 
         return img_out
+
+

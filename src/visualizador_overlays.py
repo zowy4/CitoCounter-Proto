@@ -1,4 +1,4 @@
-"""
+﻿"""
 Módulo de Superposición y Visualización en Vivo (Fase 1 / CITO-105 / ACT-34).
 Renderiza bounding boxes, centroides y conteo acumulado sobre el stream de video de forma fluida.
 """
@@ -55,3 +55,4 @@ class VisualizadorOverlays:
                     cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
 
         return salida
+

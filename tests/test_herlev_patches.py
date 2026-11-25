@@ -1,4 +1,4 @@
-"""Tests para herlev_patches.py - Extracción de parches 256x256."""
+﻿"""Tests para herlev_patches.py - Extracción de parches 256x256."""
 import csv
 import tempfile
 import unittest
@@ -163,3 +163,5 @@ class HerlevPatchesTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+

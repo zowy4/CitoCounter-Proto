@@ -1,4 +1,4 @@
-"""
+﻿"""
 Pruebas unitarias para el módulo de Superposición y Visualización en Vivo (CITO-105).
 """
 
@@ -26,3 +26,4 @@ class TestVisualizadorOverlays(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

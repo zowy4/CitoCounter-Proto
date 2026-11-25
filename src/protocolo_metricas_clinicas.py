@@ -1,4 +1,4 @@
-"""
+﻿"""
 src/protocolo_metricas_clinicas.py - Protocolo de métricas clínicas y rendimiento (Fase 5.2).
 
 Evalúa precisión, recall, mAP@0.5, error relativo de conteo y FPS sostenido
@@ -158,3 +158,4 @@ class EvaluadorMetricasClinicas:
         if tiempo_total_seg <= 0:
             return 0.0
         return round(frames_procesados / tiempo_total_seg, 2)
+

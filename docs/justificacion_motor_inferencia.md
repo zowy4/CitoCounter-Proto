@@ -1,4 +1,4 @@
-# Justificación y Selección del Motor de Inferencia (Fase 2.1)
+﻿# Justificación y Selección del Motor de Inferencia (Fase 2.1)
 
 ## 1. Contexto y Objetivos
 
@@ -33,3 +33,4 @@ Se selecciona una **Estrategia Híbrida Jerárquica** gestionada por `SelectorMo
    - Se activa cuando el usuario detiene el movimiento o solicita una confirmación diagnóstica detallada sobre un fotograma específico.
 
 Esta arquitectura garantiza una fluidez total en la visualización interactiva y máxima precisión cuando el patólogo o citotecnólogo lo requiere.
+

@@ -1,4 +1,4 @@
-"""
+﻿"""
 procesar_dat_a_video.py - Lee archivos .dat de contornos, los dibuja con matplotlib y genera un video MP4.
 """
 
@@ -104,3 +104,4 @@ def procesar_dat_a_imagenes_y_video() -> None:
 
 if __name__ == "__main__":
     procesar_dat_a_imagenes_y_video()
+

@@ -1,4 +1,4 @@
-"""
+﻿"""
 src/visualizacion_multiclase.py - Visualización Multiclase Codificada por Color (CITO-124 / ACT-46).
 
 Permite renderizar contornos, bounding boxes y etiquetas en imágenes citológicas
@@ -94,3 +94,4 @@ def dibujar_celdas_multiclase(
             )
 
     return img_salida
+

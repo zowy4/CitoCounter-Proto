@@ -1,4 +1,4 @@
-# CITO-95: Análisis de Errores (Falsos Positivos y Falsos Negativos) por Clase Herlev
+﻿# CITO-95: Análisis de Errores (Falsos Positivos y Falsos Negativos) por Clase Herlev
 
 ## 1. Resumen Ejecutivo
 
@@ -61,3 +61,4 @@ Para cada imagen de prueba en el conjunto congelado, se contrastaron los centroi
 3. **Prioridad 3 (Baja): Refinamiento de la Separación en Clústeres Densos**
    - *Acción:* Optimizar los parámetros de distancia mínima de separación en los centroides predichos para resolver superposiciones severas.
    - *Impacto esperado:* Mejora del Recall en muestras con displasia moderada y severa.
+

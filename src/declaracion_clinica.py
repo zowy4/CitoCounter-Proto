@@ -1,4 +1,4 @@
-"""
+﻿"""
 Módulo de Verificación de Exención y Declaración de Uso Clínico (Fase 9.1).
 Proporciona avisos legales, normativos y clínicos obligatorios para CitoCounter-Proto.
 """
@@ -26,3 +26,4 @@ def obtener_declaracion_exencion() -> Dict[str, Any]:
         "advertencia_legal": TEXTO_EXENCION_CLINICA,
         "uso_autorizado": ["Educación", "Investigación", "Prototipado algorítmico"]
     }
+

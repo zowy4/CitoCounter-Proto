@@ -1,4 +1,4 @@
-"""
+﻿"""
 src/barrido_platina.py - Simulación y guía de barrido de platina en patrón serpiente/Zelanda (Fase 4.1).
 
 Genera un mapa de cobertura visual en pantalla para guiar al citotecnólogo u operador
@@ -91,3 +91,5 @@ class SimuladorBarridoPlatina:
         cv2.putText(mapa, f"Cobertura: {porcentaje:.1f}%", (10, h - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
 
         return mapa
+
+

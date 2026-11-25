@@ -1,4 +1,4 @@
-"""
+﻿"""
 tests/test_calibracion_escala.py - Pruebas unitarias para la calibración de escala y micrómetros (Fase 3.1).
 """
 
@@ -36,3 +36,4 @@ class TestCalibradorEscalaMicroscopio(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

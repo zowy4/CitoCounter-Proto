@@ -1,4 +1,4 @@
-"""
+﻿"""
 tests/test_mobilevit_classifier.py - Pruebas unitarias para el clasificador MobileViT-S y TTL (CITO-122).
 """
 
@@ -45,3 +45,4 @@ class TestMobileViTClassifier(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

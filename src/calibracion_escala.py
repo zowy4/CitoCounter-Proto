@@ -1,4 +1,4 @@
-"""
+﻿"""
 src/calibracion_escala.py - Rutina de calibración de micrómetros por píxel (Fase 3.1).
 
 Permite calibrar la relación espacial entre píxeles de la cámara del microscopio
@@ -86,3 +86,4 @@ class CalibradorEscalaMicroscopio:
             "aumento_actual": self.aumento_actual,
             "um_por_pixel": self.um_por_pixel
         }
+

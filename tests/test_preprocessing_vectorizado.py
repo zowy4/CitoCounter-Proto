@@ -1,4 +1,4 @@
-"""
+﻿"""
 tests/test_preprocessing_vectorizado.py - Pruebas unitarias para el preprocesamiento vectorizado (Fase 2.2).
 """
 
@@ -39,3 +39,4 @@ class TestPreprocessingVectorizado(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

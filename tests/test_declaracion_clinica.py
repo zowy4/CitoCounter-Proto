@@ -1,4 +1,4 @@
-"""
+﻿"""
 Pruebas unitarias para la Declaración de Exención Clínica (Fase 9.1).
 """
 
@@ -22,3 +22,4 @@ class TestDeclaracionClinica(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

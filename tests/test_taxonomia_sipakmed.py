@@ -1,4 +1,4 @@
-"""
+﻿"""
 tests/test_taxonomia_sipakmed.py - Pruebas unitarias para la Taxonomía Clínica SIPaKMeD de 5 Clases (CITO-123).
 """
 
@@ -56,3 +56,4 @@ class TestTaxonomiaSIPaKMeD(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

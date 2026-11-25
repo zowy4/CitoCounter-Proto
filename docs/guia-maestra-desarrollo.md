@@ -1,4 +1,4 @@
-# Guía maestra de desarrollo y seguimiento
+﻿# Guía maestra de desarrollo y seguimiento
 
 ## 1. Propósito
 
@@ -117,7 +117,7 @@ Antes de iniciar las actividades, confirmar manualmente en la extensión de Jira
 | CITO-42 | ACT-21 | Confirmado localmente | Confirmado en plan | Actividad/subtarea pendiente de Jira | En revisión recomendado | Pendiente |
 | CITO-43 | ACT-22 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | CITO-44 | ACT-23 | Confirmado localmente | Confirmado en plan | Actividad/subtarea pendiente de Jira | En revisión recomendado | Pendiente |
-| CITO-92 | ACT-24 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-92 | ACT-24 | Sistema de bitácora y versionado de experimentos implementado | Confirmado en plan | Actividad/subtarea con registro estructurado, hiperparámetros, métricas y hash Git | Finalizado | 2026-11-08 |
 | CITO-93 | ACT-25 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | CITO-94 | ACT-26 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | CITO-95 | ACT-27 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
@@ -200,6 +200,9 @@ La clave Jira debe aparecer en el commit o PR cuando sea posible. Si una activid
 | `J-11` / `ACT-04` / `CITO-25` | `Finalizado` | `api_v1.py`, `tests/test_api_v1.py`, `docs/evidencia-cito25-api-rest.md`; API v1 validada con `/health`, `/analyze`, esquema de entrada/salida, rechazo de entradas inválidas y límite de 64 KiB; 12 pruebas pasan |
 | `J-13` / `ACT-05` / `CITO-26` | `Finalizado` | `app.py`, `src/interfaz_resultados.py`, `tests/test_interfaz_resultados.py`, `docs/evidencia-cito26-interfaz.md`; interfaz local con carga limitada, incertidumbre, manejo de errores y exportaciones reproducibles; 2 pruebas pasan |
 | `J-15` / `ACT-06` / `CITO-27` | `Finalizado` | `app.py`, `src/historial_resultados.py`, `src/metricas_sistema.py`, `tests/test_historial_resultados.py`, `tests/test_metricas_sistema.py`, `docs/evidencia-cito27-dashboard.md`; dashboard por muestra, métricas consolidadas y estados vacíos implementados; 10 pruebas pasan |
+| `J-21` / `ACT-26` / `CITO-53` | `En curso` | `src/protocolo_microscopio_real.py`, `tests/test_protocolo_microscopio_real.py`, `data/results/bitacora_microscopio.json`; protocolo de validación física en microscopio con registro de laminillas, parámetros de cámara y error relativo de conteo |
+| `J-21` / `ACT-26` / `CITO-53` | `En curso` | `src/protocolo_microscopio_real.py`, `tests/test_protocolo_microscopio_real.py`, `data/results/bitacora_microscopio.json`; protocolo de validación física en microscopio con registro de laminillas, parámetros de cámara y error relativo de conteo |
+| `J-21` / `ACT-26` / `CITO-53` | `En curso` | `src/protocolo_microscopio_real.py`, `tests/test_protocolo_microscopio_real.py`, `data/results/bitacora_microscopio.json`; protocolo de validación física en microscopio con registro de laminillas, parámetros de cámara y error relativo de conteo |
 
 La corrección convierte los gaussianos a `float32` antes de restarlos, evitando que `uint8` recorte las diferencias negativas. La suite actual pasa y `git diff --check` no reporta errores. La incidencia no debe pasar a `Hecha` hasta que se revisen los criterios de aceptación en Jira y se adjunte esta evidencia.
 
@@ -463,7 +466,7 @@ Antes de iniciar las actividades, confirmar manualmente en la extensión de Jira
 | CITO-42 | ACT-21 | Confirmado localmente | Confirmado en plan | Actividad/subtarea pendiente de Jira | En revisión recomendado | Pendiente |
 | CITO-43 | ACT-22 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | CITO-44 | ACT-23 | Confirmado localmente | Confirmado en plan | Actividad/subtarea pendiente de Jira | En revisión recomendado | Pendiente |
-| CITO-92 | ACT-24 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| CITO-92 | ACT-24 | Sistema de bitácora y versionado de experimentos implementado | Confirmado en plan | Actividad/subtarea con registro estructurado, hiperparámetros, métricas y hash Git | Finalizado | 2026-11-08 |
 | CITO-93 | ACT-25 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | CITO-94 | ACT-26 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
 | CITO-95 | ACT-27 | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
@@ -546,6 +549,9 @@ La clave Jira debe aparecer en el commit o PR cuando sea posible. Si una activid
 | `J-11` / `ACT-04` / `CITO-25` | `Finalizado` | `api_v1.py`, `tests/test_api_v1.py`, `docs/evidencia-cito25-api-rest.md`; API v1 validada con `/health`, `/analyze`, esquema de entrada/salida, rechazo de entradas inválidas y límite de 64 KiB; 12 pruebas pasan |
 | `J-13` / `ACT-05` / `CITO-26` | `Finalizado` | `app.py`, `src/interfaz_resultados.py`, `tests/test_interfaz_resultados.py`, `docs/evidencia-cito26-interfaz.md`; interfaz local con carga limitada, incertidumbre, manejo de errores y exportaciones reproducibles; 2 pruebas pasan |
 | `J-15` / `ACT-06` / `CITO-27` | `Finalizado` | `app.py`, `src/historial_resultados.py`, `src/metricas_sistema.py`, `tests/test_historial_resultados.py`, `tests/test_metricas_sistema.py`, `docs/evidencia-cito27-dashboard.md`; dashboard por muestra, métricas consolidadas y estados vacíos implementados; 10 pruebas pasan |
+| `J-21` / `ACT-26` / `CITO-53` | `En curso` | `src/protocolo_microscopio_real.py`, `tests/test_protocolo_microscopio_real.py`, `data/results/bitacora_microscopio.json`; protocolo de validación física en microscopio con registro de laminillas, parámetros de cámara y error relativo de conteo |
+| `J-21` / `ACT-26` / `CITO-53` | `En curso` | `src/protocolo_microscopio_real.py`, `tests/test_protocolo_microscopio_real.py`, `data/results/bitacora_microscopio.json`; protocolo de validación física en microscopio con registro de laminillas, parámetros de cámara y error relativo de conteo |
+| `J-21` / `ACT-26` / `CITO-53` | `En curso` | `src/protocolo_microscopio_real.py`, `tests/test_protocolo_microscopio_real.py`, `data/results/bitacora_microscopio.json`; protocolo de validación física en microscopio con registro de laminillas, parámetros de cámara y error relativo de conteo |
 
 La corrección convierte los gaussianos a `float32` antes de restarlos, evitando que `uint8` recorte las diferencias negativas. La suite actual pasa y `git diff --check` no reporta errores. La incidencia no debe pasar a `Hecha` hasta que se revisen los criterios de aceptación en Jira y se adjunte esta evidencia.
 
@@ -767,3 +773,7 @@ Cada informe debe indicar fórmula, denominador, conjunto evaluado, versión y f
 - `data/results/` - Resultados de experimentos
 - `data/dataset_index.csv` - Índice de dataset
 - `requirements.txt` - Dependencias del proyecto
+
+
+
+

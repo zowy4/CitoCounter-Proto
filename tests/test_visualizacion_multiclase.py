@@ -1,4 +1,4 @@
-"""
+﻿"""
 Pruebas unitarias para el módulo de visualización multiclase (CITO-124).
 """
 
@@ -29,3 +29,4 @@ class TestVisualizacionMulticlase(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

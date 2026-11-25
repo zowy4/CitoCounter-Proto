@@ -1,4 +1,4 @@
-"""
+﻿"""
 visor_imagen.py - Widget de visualización con QGraphicsView y overlays de clasificación (CITO-65).
 
 Renderiza contornos celulares sobre la imagen original codificados por color:
@@ -132,3 +132,7 @@ class VisorImagen(QGraphicsView):
                     text_item.setDefaultTextColor(color)
                     text_item.setPos(cx, cy)
                     self.overlay_items.append(text_item)
+
+
+
+

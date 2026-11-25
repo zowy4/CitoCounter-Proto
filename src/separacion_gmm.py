@@ -1,4 +1,4 @@
-"""
+﻿"""
 src/separacion_gmm.py - Módulo de Separación Avanzada de Cúmulos Celulares mediante GMM (CITO-121 / ACT-43).
 
 Combina la transformada de distancia euclidiana, estimación de umbrales locales basados en
@@ -138,3 +138,4 @@ def separar_cumulos_gmm(
                     areas.append(area)
 
     return contornos_nucleos, areas
+

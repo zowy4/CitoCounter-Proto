@@ -1,4 +1,4 @@
-"""
+﻿"""
 src/mobilevit_classifier.py - Clasificador Ligero basado en MobileViT-S y Triple Transfer Learning (CITO-122 / ACT-44).
 
 Implementa soporte para MobileViT-S o ResNet50 con timm / torchvision y la estrategia
@@ -158,3 +158,4 @@ class MobileViTClassifier:
             "confianza": round(float(probs[pred_idx]), 4),
             "probabilidades": {self.clases[i]: round(float(probs[i]), 4) for i in range(self.num_classes)}
         }
+

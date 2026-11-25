@@ -1,4 +1,4 @@
-"""
+﻿"""
 Módulo de Simulación de Barrido de Platina en Zigzag y Tracking Antiduplicados (CITO-110 / ACT-39).
 Fase 4: Simulación de escaneo de platina y seguimiento de celdas para evitar duplicados en celdas adyacentes.
 """
@@ -115,3 +115,4 @@ class TrackerAntiduplicados:
             for info in self.objetos_activos.values()
             if info["frames_ausente"] == 0
         ]
+

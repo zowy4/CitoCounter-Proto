@@ -1,4 +1,4 @@
-"""
+﻿"""
 main_window.py - Ventana principal de la aplicación Qt (CITO-42 / CITO-65).
 
 Presentación construida con PySide6, separada de la lógica de negocio.
@@ -28,7 +28,6 @@ from qt_app.logic.image_controller import ImageController
 from qt_app.presentation.visor_imagen import VisorImagen
 from qt_app.presentation.panel_ajustes import PanelAjustes
 from qt_app.presentation.dashboard_widget import DashboardWidget
-from qt_app.presentation.evidencia_panel import EvidenciaPanel
 from src.analysis import analizar_nucleos
 from src.dog_filter import aplicar_filtro_dog, aplicar_multiscale_dog
 from src.segmentador_dl import analizar_nucleos_dl
@@ -140,10 +139,6 @@ class MainWindow(QMainWindow):
         # Pestaña 2: Dashboard de Métricas
         self.dashboard_widget = DashboardWidget()
         self.tabs.addTab(self.dashboard_widget, "Dashboard de Métricas")
-
-        # Pestaña 3: Panel de Evidencias Académicas
-        self.evidencia_panel = EvidenciaPanel()
-        self.tabs.addTab(self.evidencia_panel, "Evidencias y Actividades")
 
     def _cargar_imagen_inicial(self) -> None:
         """Carga una imagen de demostración al iniciar."""
@@ -433,3 +428,38 @@ class MainWindow(QMainWindow):
             self.lbl_info.setText(info_txt)
         except Exception as e:
             QMessageBox.critical(self, "Error en Análisis", f"Ocurrió un error al ejecutar el motor {motor}: {e}")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

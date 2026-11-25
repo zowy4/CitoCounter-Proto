@@ -1,4 +1,4 @@
-"""
+﻿"""
 Pruebas unitarias para el panel de métricas y estadísticas de portaobjetos (CITO-125).
 """
 
@@ -28,3 +28,4 @@ class TestPanelMetricasPortaobjetos(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

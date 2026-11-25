@@ -1,4 +1,4 @@
-"""
+﻿"""
 generar_graficas_tesis_dl.py - Genera gráficas PR por clase y comparativa DoG vs DL (J-58).
 """
 
@@ -68,3 +68,5 @@ def generar_graficas():
 
 if __name__ == "__main__":
     generar_graficas()
+
+

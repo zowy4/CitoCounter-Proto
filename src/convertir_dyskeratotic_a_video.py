@@ -1,4 +1,4 @@
-"""
+﻿"""
 convertir_dyskeratotic_a_video.py - Script específico para convertir imágenes .bmp de im_Dyskeratotic en un video MP4 sin saltos negros.
 """
 
@@ -68,3 +68,4 @@ def convertir_dyskeratotic() -> None:
 
 if __name__ == "__main__":
     convertir_dyskeratotic()
+

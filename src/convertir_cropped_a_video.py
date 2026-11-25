@@ -1,4 +1,4 @@
-"""
+﻿"""
 convertir_cropped_a_video.py - Script específico para convertir imágenes .bmp de im_Dyskeratotic/CROPPED en un video MP4 sin saltos negros.
 """
 
@@ -68,3 +68,4 @@ def convertir_cropped() -> None:
 
 if __name__ == "__main__":
     convertir_cropped()
+

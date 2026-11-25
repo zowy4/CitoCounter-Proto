@@ -1,4 +1,4 @@
-"""
+﻿"""
 tests/test_protocolo_microscopio_real.py - Pruebas unitarias para el protocolo de validación en microscopio real (Fase 6.1).
 """
 
@@ -46,3 +46,4 @@ class TestProtocoloMicroscopioReal(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

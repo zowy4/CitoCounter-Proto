@@ -1,4 +1,4 @@
-"""
+﻿"""
 probar_video_dataset.py - Script para probar el módulo de captura de video (Fase 1.1)
 reproduciendo los videos generados a partir del dataset en data/videos/.
 """
@@ -84,3 +84,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

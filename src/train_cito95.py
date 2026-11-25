@@ -1,4 +1,4 @@
-"""
+﻿"""
 train_cito95.py - Módulo de fine-tuning y entrenamiento para CITO-95 (Cellpose / StarDist).
 
 Gestiona el entrenamiento con semillas fijas, control de pérdida y F1 de validación,
@@ -137,3 +137,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Error en fine-tuning: {e}")
         sys.exit(1)
+

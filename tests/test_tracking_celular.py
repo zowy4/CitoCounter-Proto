@@ -1,4 +1,4 @@
-"""
+﻿"""
 tests/test_tracking_celular.py - Pruebas unitarias para el seguimiento antiduplicados (Fase 4.2).
 """
 
@@ -36,3 +36,4 @@ class TestRastreadorCelular(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

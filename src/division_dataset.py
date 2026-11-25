@@ -1,4 +1,4 @@
-"""
+﻿"""
 src/division_dataset.py - Organización y división estricta de dataset por paciente/laminilla (Fase 5.1).
 
 Implementa la división (train/val/test - 70/20/10) particionando por identificador de paciente
@@ -73,3 +73,4 @@ class GestorDivisionDataset:
                 splits["test"].extend(muestras)
 
         return splits
+

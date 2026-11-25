@@ -1,4 +1,4 @@
-"""
+﻿"""
 build_executable.py - Script para empaquetar CitoCounter-Proto con PyInstaller (J-69).
 Genera ejecutables independientes offline para CLI y Qt sin requerir Python instalado.
 """
@@ -56,3 +56,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

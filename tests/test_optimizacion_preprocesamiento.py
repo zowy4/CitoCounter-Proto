@@ -1,4 +1,4 @@
-"""
+﻿"""
 Pruebas unitarias para el módulo de optimización de preprocesamiento (CITO-107 / ACT-36).
 """
 
@@ -42,3 +42,4 @@ class OptimizacionPreprocesamientoTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

@@ -1,4 +1,4 @@
-"""
+﻿"""
 probar_camara.py - Script de prueba en tiempo real para la cámara integrada o USB (Fase 1.1).
 
 Abre la cámara predeterminada (índice 0), muestra el feed de video en vivo
@@ -75,3 +75,6 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+

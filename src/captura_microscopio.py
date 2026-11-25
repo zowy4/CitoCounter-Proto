@@ -1,4 +1,4 @@
-"""
+﻿"""
 Módulo de Captura de Video en Tiempo Real para Microscopio (Fase 1 / CITO-103 / ACT-32).
 Gestiona la captura desde cámaras USB y C-mount con control de exposición y ganancia.
 """
@@ -69,3 +69,6 @@ class GestorCapturaMicroscopio:
         if self.cap:
             self.cap.release()
             self.activo = False
+
+
+

@@ -1,4 +1,4 @@
-# CITO-95: Evidencia de Validación del Modelo de Deep Learning
+﻿# CITO-95: Evidencia de Validación del Modelo de Deep Learning
 
 ## 1. Metadatos de la Versión y Experimento
 - **Versión del Proyecto:** CitoCounter-Proto v1.1
@@ -60,3 +60,4 @@ Evaluación realizada con tolerancia de emparejamiento por centroides ($\le 10.0
 - **Criterio de Éxito:** F1-Score $\ge 90\%$ (Alcanzado: **93.05%** de F1 global promedio con un mínimo por clase de **91.84%**).
 - **Decisión:** **APROBADO Y CONGELADO**. El modelo de Deep Learning fine-tuned supera con éxito el umbral de aceptación establecido para el análisis de núcleos en citología cervical en imágenes reales Papanicolaou/EDF, resolviendo las limitaciones críticas del filtro clásico DoG.
 - **Aviso de Uso Experimental:** Este prototipo de investigación no constituye un dispositivo médico ni un sistema de diagnóstico clínico autónomo; requiere obligatoriamente revisión experta.
+

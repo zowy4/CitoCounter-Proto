@@ -1,4 +1,4 @@
-"""
+﻿"""
 tests/test_normalizacion_color.py - Pruebas unitarias para la normalización de color e iluminación (Fase 3.2).
 """
 
@@ -33,3 +33,4 @@ class TestNormalizacionColor(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

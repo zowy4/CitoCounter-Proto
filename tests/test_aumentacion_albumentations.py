@@ -1,4 +1,4 @@
-"""
+﻿"""
 tests/test_aumentacion_albumentations.py - Pruebas unitarias para el módulo de aumentación con Albumentations.
 Cubre casos de éxito, validación OWASP/STRIDE, conversión uint8 y transformaciones.
 """
@@ -47,3 +47,4 @@ class TestAumentacionAlbumentations(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

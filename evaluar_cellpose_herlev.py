@@ -1,4 +1,4 @@
-"""Evalúa Cellpose zero-shot sobre el split test de Herlev."""
+﻿"""Evalúa Cellpose zero-shot sobre el split test de Herlev."""
 from __future__ import annotations
 
 import argparse
@@ -63,7 +63,7 @@ def main() -> int:
     if not ids:
         parser.error("El manifiesto no contiene imágenes para evaluar")
 
-    modelo = models.CellposeModel(gpu=args.gpu, pretrained_model="cpsam_v2")
+    modelo = models.Cellpose(gpu=args.gpu, model_type="nuclei")
     filas: List[Dict[str, object]] = []
     args.output.parent.mkdir(parents=True, exist_ok=True)
     temporal = args.output.with_suffix(args.output.suffix + ".tmp")
@@ -130,3 +130,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

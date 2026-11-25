@@ -1,4 +1,4 @@
-"""
+﻿"""
 tests/test_aumentacion_datos.py - Pruebas unitarias para el módulo de aumentación de datos (Fase 3.3).
 """
 
@@ -36,3 +36,4 @@ class TestAumentadorMicroscopia(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

@@ -1,4 +1,4 @@
-"""
+﻿"""
 captura_video.py - Módulo de captura de video en tiempo real para microscopía (Fase 1.1 / CITO-XX).
 
 Permite capturar frames desde cámaras USB, C-mount o integradas, así como archivos
@@ -157,3 +157,12 @@ class CapturaVideo:
             "exposicion": self.cap.get(cv2.CAP_PROP_EXPOSURE),
             "ganancia": self.cap.get(cv2.CAP_PROP_GAIN),
         }
+
+
+
+
+
+
+
+
+

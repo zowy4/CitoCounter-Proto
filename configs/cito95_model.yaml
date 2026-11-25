@@ -1,4 +1,4 @@
-# Configuración de Modelo CITO-95 para Fine-Tuning de Cellpose / StarDist
+﻿# Configuración de Modelo CITO-95 para Fine-Tuning de Cellpose / StarDist
 model:
   name: "cellpose_nuclei_finetuned"
   base_model: "cpsam_v2"
@@ -28,3 +28,4 @@ evaluation:
 output:
   weights_dir: "models/cito95/"
   logs_dir: "data/calibration/"
+

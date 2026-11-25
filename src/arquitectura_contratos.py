@@ -1,4 +1,4 @@
-"""
+﻿"""
 Módulo de Arquitectura Base y Contratos de Datos para la Fase 8 (CITO-102, ACT-31).
 Define los contratos estructurados entre los diferentes módulos del sistema.
 """
@@ -44,3 +44,4 @@ def obtener_especificacion_arquitectura() -> Dict[str, Any]:
             "Validación de tamaño de datos previa al procesamiento"
         ]
     }
+

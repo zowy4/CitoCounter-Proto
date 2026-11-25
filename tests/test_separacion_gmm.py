@@ -1,4 +1,4 @@
-"""
+﻿"""
 tests/test_separacion_gmm.py - Pruebas unitarias para la separación avanzada de cúmulos celulares con GMM.
 Cubre casos de éxito, validación OWASP/STRIDE, separación de cúmulos y contornos.
 """
@@ -45,3 +45,4 @@ class TestSeparacionGMM(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

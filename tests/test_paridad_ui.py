@@ -1,4 +1,4 @@
-"""
+﻿"""
 test_paridad_ui.py - Test de paridad (J-67, J-68) entre Streamlit/referencia y Qt para el pipeline de análisis.
 Verifica que los motores devuelven resultados consistentes y contadores válidos.
 """

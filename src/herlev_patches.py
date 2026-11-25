@@ -1,4 +1,4 @@
-"""
+﻿"""
 herlev_patches.py - Extracción y aumentación de parches 256x256 para entrenamiento DL.
 
 Genera parches superpuestos desde imágenes completas + máscaras Herlev,
@@ -372,3 +372,14 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+
+
+
+
+
+
+
+
+

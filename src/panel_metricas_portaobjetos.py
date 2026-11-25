@@ -1,4 +1,4 @@
-"""
+﻿"""
 src/panel_metricas_portaobjetos.py - Panel de Métricas y Estadísticas de Portaobjetos (CITO-125 / ACT-47).
 
 Calcula y consolida estadísticas agregadas por portaobjetos citológico, incluyendo conteos
@@ -79,3 +79,4 @@ def calcular_metricas_portaobjetos(resultados_celdas: List[Dict[str, Any]]) -> D
         "indice_riesgo_global": round(indice_riesgo_global, 4),
         "estado_clinico": estado_clinico
     }
+

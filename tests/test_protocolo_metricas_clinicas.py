@@ -1,4 +1,4 @@
-"""
+﻿"""
 tests/test_protocolo_metricas_clinicas.py - Pruebas unitarias para el protocolo de métricas clínicas (Fase 5.2).
 """
 
@@ -55,3 +55,5 @@ class TestEvaluadorMetricasClinicas(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
